@@ -3,8 +3,6 @@ import 'package:bloc/bloc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../api/endpoints/NotificationApi.dart';
-import '../../api/endpoints/topicApi.dart';
 import '../../api/endpoints/userMainApi.dart';
 import '../../models/topics.dart';
 import '../../models/userInfo.dart';
@@ -62,7 +60,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       //Login
       String token = await _firebaseMessaging.getToken();
-      NotificationApi.sendUserDeviceToken(token);
       //set user to state
       PollarStoreBloc().add(EditPollarStoreState(loginUserId: event.user.id, loginSettings: event.settings));
       //load state
@@ -105,17 +102,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     //Attempts to login the user
     UserMainApi.login(event.usernameOrEmail, event.password).then((val) async {
 
-      //Loads topics
-      List<Topic> topics = await TopicApi.getTopics().catchError((_){});
-
-      if(topics?.isEmpty != false){
-        //Fail to login, if topics don't load
-        add(LoginFailed('Server error. please try again'));
-
-        if (event.callBackFail != null)
-          {event.callBackFail();} //Runs the failure callback function if its defined
-      }
-      else{
         LoginSuccessful loginSuccessfulEvent = LoginSuccessful(val.item2, val.item1, settings: val.item3);
 
         add(loginSuccessfulEvent); //If login is successful, add the LoginSuccessful Event
@@ -125,7 +111,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
         if (event.callbackSuccess != null)
           {event.callbackSuccess();} //Runs the success callback function if its defined
-      }
 
       
       if (event.callback != null)

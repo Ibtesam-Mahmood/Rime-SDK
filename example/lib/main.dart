@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import './pages/MainBody.dart';
-import 'state/chat/chatBloc.dart';
 import 'state/login/loginBloc.dart';
 import 'util/colorProvider.dart';
 
@@ -24,11 +23,6 @@ class _PollarState extends State<Pollar> {
   @override
   void dispose() {
     super.dispose();
-    // GifCache().clear(); //Drains the gif cache singleton
-    // LoginBloc.drainSington(); //Drains the login bloc singleton
-    // PollarStoreBloc().drainStore(); //Drains the pollar bloc singletons stream
-    ChatBloc.drainSington(); //Drains the chat bloc singleton
-    // Notifeye().drainStore();
   }
 
   @override

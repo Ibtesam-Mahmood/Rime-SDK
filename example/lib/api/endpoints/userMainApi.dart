@@ -1,9 +1,10 @@
 import 'dart:convert';
-import 'package:pollar/api/request.dart';
-import 'package:pollar/models/userInfo.dart';
-import 'package:pollar/models/userMain.dart';
-import 'package:pollar/models/userSettings.dart';
 import 'package:tuple/tuple.dart';
+
+import '../../models/userInfo.dart';
+import '../../models/userMain.dart';
+import '../../models/userSettings.dart';
+import '../request.dart';
 
 class UserMainApi {
   static Future<List<UserMain>> getAllUserMain() async {

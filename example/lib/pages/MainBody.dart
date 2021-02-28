@@ -1,5 +1,3 @@
-
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,7 +5,6 @@ import '../state/login/loginBloc.dart';
 import '../state/login/loginState.dart';
 import '../util/paddingProvider.dart';
 import 'Login/Login/MainLoginPage.dart';
-import 'chatSDK/ChatMenu.dart';
 
 class MainPage extends StatefulWidget {
 
@@ -166,7 +163,7 @@ class MainPageState extends State<MainPage> {
             Navigator.of(context).pop(); //Manages android back button popping
             return false;
           },
-          child: ChatMenuPage(key: ValueKey('chat - page'))
+          child: Container()
       );
     }
   

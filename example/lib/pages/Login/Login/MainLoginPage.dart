@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 
 import '../../../components/widgets/buttons/PollarBackButton.dart';
-import '../../../components/widgets/buttons/pollarRoundedButton.dart';
+import '../../../components/widgets/buttons/PollarRoundedButton.dart';
 import '../../../components/widgets/horizontalBar.dart';
 import '../../../components/widgets/input_fields/hiddenTextField.dart';
 import '../../../state/login/loginBloc.dart';

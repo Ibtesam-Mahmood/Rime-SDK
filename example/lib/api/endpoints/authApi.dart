@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:pollar/api/endpoints/likesApi.dart';
-import 'package:pollar/api/request.dart';
+
+import '../request.dart';
 
 class UserPhoneNumber {
   String code;

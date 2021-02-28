@@ -1,13 +1,11 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:pollar/util/config_reader.dart';
-
 
 class Request {
   // String local = 'https://isaiah.localtunnel.me/api';//'http://localhost:3001/api';
   String local = 'http://ss-0f5cc2ac.localhost.run/api';
-  String remote = ConfigReader.getDevelopmentURL(); //'some server ip address/ domain name';
+  String remote = ''; //'some server ip address/ domain name';
   bool testing = false;
   bool hosting = true;
   String get baseUrl => hosting ? remote : local;

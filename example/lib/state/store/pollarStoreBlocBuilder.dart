@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../api/endpoints/pollApi.dart';
-import '../../api/endpoints/postApi.dart';
-import '../../api/endpoints/storyApi.dart';
-import '../../api/endpoints/userInfoApi.dart';
 import '../../models/poll.dart';
 import '../../models/post.dart';
-import '../../models/story.dart';
-import '../../models/storyResponse.dart';
 import '../../models/userInfo.dart';
 import 'pollarStoreBloc.dart';
 import 'storable.dart';
@@ -109,10 +103,6 @@ class _StoreBuilderState<T extends Storable> extends State<StoreBuilder<T>> with
   //If the call is made it prevents duplicate dataLoad calls to be made on state reload
   bool _dataLoadCalled = false;
 
-  //this state value determines if the subject load call is made
-  //If the call is made it prevents duplicate subject load calls to be made on state reload
-  bool _subjectLoadCalled = false;
-
   //The primary subject for the builder
   T _subject;
 
@@ -125,33 +115,9 @@ class _StoreBuilderState<T extends Storable> extends State<StoreBuilder<T>> with
   ///The id used to listen for refresh changes
   String _refreshId = '';
 
-  //Defines the subject load call for the storebuilder based on the type
-  Future Function(String) _defineSubjectLoadCall(){
-
-    if(T == UserInfo){
-      return UserInfoApi.getUserInfoFromId;
-    }
-    else if(T == Post){
-      return PostApi.getPostById;
-    }
-    else if(T == Poll){
-      return PollApi.getPollById;
-    }
-    else if(T == Story){
-      return StoryApi.getStoryById;
-    }
-    else if(T == StoryResponse){
-      return StoryApi.getStoryResponseById;
-    }
-    else{
-      throw('T is not a stored type within the store');
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    _subjectLoadCall = _defineSubjectLoadCall();
     refreshBloc(); //Reloads the state to activate the bloc listener
 
     //Conditionally retreives a fresh subject from the server
@@ -193,7 +159,6 @@ class _StoreBuilderState<T extends Storable> extends State<StoreBuilder<T>> with
     //Unblocks subject load calls upon completion
     _subjectLoadCall(widget.subjectID).then((loaded) {
       if(mounted) {setState((){
-        _subjectLoadCalled = false;
         _subject = loaded;
         // if(loaded is T) _subject = loaded;
       });}
@@ -202,8 +167,6 @@ class _StoreBuilderState<T extends Storable> extends State<StoreBuilder<T>> with
     setState(() {
       //unblocks future dataLoad calls
       _dataLoadCalled = false;
-      //blocks subject load calls
-      _subjectLoadCalled = true;
     });
   }
 
@@ -316,7 +279,7 @@ class _StoreBuilderState<T extends Storable> extends State<StoreBuilder<T>> with
           });
 
         }
-        else if(!_subjectLoadCalled && widget.subjectID != null){
+        else if(widget.subjectID != null){
           callLoadSubject();
         }
 
