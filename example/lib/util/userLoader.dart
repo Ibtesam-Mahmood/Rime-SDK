@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' hide BuildContext;
 import '../api/endpoints/userInfoApi.dart';
 import '../models/userInfo.dart';
 import '../state/loadingState.dart';
@@ -18,7 +18,7 @@ class UserInfoLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoadBloc<UserInfo>, LoadState<UserInfo>>(
-      bloc: LoadBloc(() async => userId != null || userId.isNotEmpty ? await UserInfoApi.getUserInfoFromId(userId) : null),
+      cubit: LoadBloc(() async => userId != null || userId.isNotEmpty ? await UserInfoApi.getUserInfoFromId(userId) : null),
       builder: (context, state) {
         
         UserInfo loadedUser;

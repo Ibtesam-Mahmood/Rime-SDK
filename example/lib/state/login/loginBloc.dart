@@ -4,15 +4,16 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../api/endpoints/userMainApi.dart';
-import '../../models/topics.dart';
 import '../../models/userInfo.dart';
 import '../../models/userMain.dart';
 import '../store/pollarStoreBloc.dart';
 import 'loginEvents.dart';
 import 'loginState.dart';
+import 'loginState.dart';
 
 //Manages the user login state
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
+
   //Login bloc singleton
   static final LoginBloc _store = LoginBloc._internal();
 
@@ -20,7 +21,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   //Private constructor to innitialize the singleton
-  LoginBloc._internal();
+  LoginBloc._internal() : super(initialState);
 
   ///Widget defined as the route that occurs when the application is logged out
   Widget postLogOutRoute;
@@ -38,8 +39,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     _store.drain();
   }
 
-  @override //TODO: make innitial state dynamic
-  LoginState get initialState => LoggedOutState(); //Innitial bloc state
+  static LoginState get initialState => LoggedOutState(); //Innitial bloc state
 
   @override
   Stream<LoginState> mapEventToState(LoginEvent event) async* {
@@ -58,8 +58,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       if(event.callback != null) event.callback();
     } else if (event is LoginSuccessful) {
 
-      //Login
-      String token = await _firebaseMessaging.getToken();
       //set user to state
       PollarStoreBloc().add(EditPollarStoreState(loginUserId: event.user.id, loginSettings: event.settings));
       //load state

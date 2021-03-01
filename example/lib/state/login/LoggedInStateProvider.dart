@@ -1,7 +1,7 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' hide BuildContext;
 import 'loginBloc.dart';
 import 'loginState.dart';
 
@@ -26,7 +26,7 @@ class LoggedInStateProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
-      bloc: BlocProvider.of<LoginBloc>(context),
+      cubit: BlocProvider.of<LoginBloc>(context),
       builder: (context, state){
         if(state is LoggedInState){
           return builder(context, state);

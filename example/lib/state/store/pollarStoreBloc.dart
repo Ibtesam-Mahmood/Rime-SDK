@@ -322,15 +322,14 @@ class PollarStoreBloc extends Bloc<PollarStoreEvent, PollarStoreState> {
   static final PollarStoreBloc _store = PollarStoreBloc._internal();
 
   //Private constructor to innitialize the singleton
-  PollarStoreBloc._internal();
+  PollarStoreBloc._internal() : super(initialState);
 
   //Factory constructor to access the store singleton
   factory PollarStoreBloc() {
     return _store;
   }
 
-  @override
-  PollarStoreState get initialState => PollarStoreState.innitial();
+  static PollarStoreState get initialState => PollarStoreState.innitial();
 
   @override
   Stream<PollarStoreState> mapEventToState(PollarStoreEvent event) async* {

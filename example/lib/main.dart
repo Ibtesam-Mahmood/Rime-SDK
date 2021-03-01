@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' as bloc;
 import './pages/MainBody.dart';
 import 'state/login/loginBloc.dart';
+import 'state/login/loginBloc.dart';
 import 'util/colorProvider.dart';
+import './util/config_reader.dart';
 
 void main(List<String> args) async {
-  // await DotEnv.load(fileName: ".env");
+  WidgetsFlutterBinding.ensureInitialized();
+  await ConfigReader.initialize();
 
   runApp(Pollar());
 }
@@ -64,11 +67,8 @@ class _PollarState extends State<Pollar> {
         return MaterialPageRoute(
           settings: settings, 
           builder: (context) {
-            return BlocProvider<LoginBloc>( //Implemented to retreive login bloc infromation from anypoint ih the app
-              builder: (context){
-                LoginBloc loginBloc = LoginBloc();
-                return loginBloc;
-              },
+            return bloc.BlocProvider<LoginBloc>( //Implemented to retreive login bloc infromation from anypoint ih the app
+              create: (_) => LoginBloc(),
               child: AppColorThemeController(
                 child: MainPage(GlobalKey<MainPageState>())
               )
