@@ -2,8 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../../util/globalFunctions.dart';
-
 ///Wraps an animated frosted effect around a widget and clips to the desired shape
 class FrostedEffect extends StatelessWidget {
 
@@ -58,7 +56,7 @@ class FrostedEffect extends StatelessWidget {
     }
 
     return TweenAnimationBuilder<double>(
-      duration: PollarConstants.NORMAL_DURATION,
+      duration: Duration(milliseconds: 300),
       curve: Curves.decelerate,
       tween: Tween<double>(begin: 0, end: frost ? maxBlur : 0),
       builder: (context, frost, tweenChild) {

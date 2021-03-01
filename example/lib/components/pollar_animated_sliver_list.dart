@@ -6,24 +6,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';
 
-import '../models/message.dart';
-
 
 /// Signature for the builder callback used by [AnimatedList].
-typedef AnimatedListItemBuilder = Widget Function(BuildContext context, int index, ChatMessage message, Animation<double> animation,);
+typedef AnimatedListItemBuilder = Widget Function(BuildContext context, int index, Animation<double> animation,);
 
 // The default insert/remove animation duration.
 const Duration _kDuration = Duration(milliseconds: 300);
 
 // Incoming and outgoing AnimatedList items.
 class SliverActiveItem implements Comparable<SliverActiveItem> {
-  SliverActiveItem.incoming(this.controller,this.message,  this.itemIndex) ;
+  SliverActiveItem.incoming(this.controller, this.itemIndex) ;
   SliverActiveItem.index(this.itemIndex, )
-    : controller = null, message=null;
+    : controller = null;
 
   final AnimationController controller;
   int itemIndex;
-  final ChatMessage message;
 
   @override
   int compareTo(SliverActiveItem other) {
@@ -421,7 +418,7 @@ class PollarAnimatedListState extends State<PollarAnimatedList> with TickerProvi
   /// This method's semantics are the same as Dart's [List.insert] method:
   /// it increases the length of the list by one and shifts all items at or
   /// after [index] towards the end of the list.
-  void insertItem(int index, ChatMessage message, { Duration duration = _kDuration }) {
+  void insertItem(int index, { Duration duration = _kDuration }) {
     if(index == null)
       {index = this.index;}
 
@@ -449,7 +446,6 @@ class PollarAnimatedListState extends State<PollarAnimatedList> with TickerProvi
     );
     final SliverActiveItem incomingItem = SliverActiveItem.incoming(
       controller,
-      message,
       itemIndex,
     );
     setState(() {
@@ -474,7 +470,6 @@ class PollarAnimatedListState extends State<PollarAnimatedList> with TickerProvi
     return widget.itemBuilder(
       context,
       itemIndex,
-      activeItemAt(items, itemIndex).message,
       animation,
     );
   }

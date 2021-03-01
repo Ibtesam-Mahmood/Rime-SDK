@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../util/colorProvider.dart';
-import '../../util/globalFunctions.dart';
 import '../../util/sliverHelper.dart';
 import 'frosted_effect.dart';
 
@@ -50,7 +49,7 @@ class _SliverFrostingAppBarState extends State<SliverFrostingAppBar> with Single
     ///Defines the [animationController]. 
     ///Sync controller to [FrostedEffect] animation using [PollarConstants.NORMAL_DURATION]. 
     ///Adds a listener to the [animationController] to update state when an animation is occuring
-    animationController = AnimationController(vsync: this, duration: PollarConstants.NORMAL_DURATION)
+    animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 300))
       ..addListener(() => setState((){}));
   }
 

@@ -1,7 +1,8 @@
-import 'package:pollar/api/request.dart';
-import 'package:pollar/models/userInfo.dart';
-import 'package:pollar/models/userMain.dart';
 import 'package:tuple/tuple.dart';
+
+import '../../models/userInfo.dart';
+import '../../models/userMain.dart';
+import '../request.dart';
 
 class SignupApi {
   static Future<Tuple2<UserMain, UserInfo>> signup(UserMain userMain, UserInfo userInfo) async {

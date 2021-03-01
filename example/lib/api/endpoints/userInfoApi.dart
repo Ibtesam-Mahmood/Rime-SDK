@@ -1,9 +1,10 @@
 import 'dart:convert';
 
-import 'package:pollar/api/request.dart';
-import 'package:pollar/models/userInfo.dart';
-import 'package:pollar/state/store/pollarStoreBloc.dart';
 import 'package:tuple/tuple.dart';
+
+import '../../models/userInfo.dart';
+import '../../state/store/pollarStoreBloc.dart';
+import '../request.dart';
 
 class UserInfoApi {
   static Future<List<UserInfo>> getAllUserInfos({int size = 5}) async {

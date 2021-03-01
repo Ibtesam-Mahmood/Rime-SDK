@@ -5,10 +5,6 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:tuple/tuple.dart';
 
-import '../../api/endpoints/moderatorApi.dart';
-import '../../api/endpoints/storyApi.dart';
-import '../../api/endpoints/subscriptionsApi.dart';
-import '../../models/chat.dart';
 import '../../models/poll.dart';
 import '../../models/post.dart';
 import '../../models/story.dart';
@@ -17,8 +13,6 @@ import '../../models/subscription.dart';
 import '../../models/topics.dart';
 import '../../models/userInfo.dart';
 import '../../models/userSettings.dart';
-import '../chat/chatBloc.dart';
-import '../chat/chatEvent.dart';
 import 'storable.dart';
 
 
@@ -45,7 +39,6 @@ class PollarStoreState {
 
   //User Store
   final StoreMap<String, UserInfo> storedUsers;
-  final StoreMap<String, Chat> storedChats;
   final StoreMap<String, Post> storedPosts;
   final StoreMap<String, Poll> storedPolls;
   final StoreMap<String, Subscription> storedSubs;
@@ -57,7 +50,6 @@ class PollarStoreState {
       this.storedUsers,
       this.storedPosts,
       this.storedPolls,
-      this.storedChats,
       this.storedSubs,
       this.storedStories,
       this.storedStoryResponses,
@@ -75,7 +67,6 @@ class PollarStoreState {
       StoreMap<String, UserInfo>(USER_STORE_TIMEOUT), //Innitial user store
       StoreMap<String, Post>(POST_STORE_TIMEOUT), //Innitial post store
       StoreMap<String, Poll>(POLL_STORE_TIMEOUT), //Innitial poll store
-      StoreMap<String, Chat>(null),
       StoreMap<String, Subscription>(null),
       StoreMap<String, Story>(null),
       StoreMap<String, StoryResponse>(null),
@@ -89,7 +80,6 @@ class PollarStoreState {
       oldState.storedUsers,
       oldState.storedPosts,
       oldState.storedPolls,
-      oldState.storedChats,
       oldState.storedSubs,
       oldState.storedStories,
       oldState.storedStoryResponses,
@@ -113,7 +103,6 @@ class PollarStoreState {
     String newLoginUserID,
     List<Topic> loadedTopics,
     Tuple2<Queue<String>, Queue<String>> newRecentSearches,
-    StoreMap<String, Chat> newStoredChats,
     StoreMap<String, Story> newStoredStories,
     UserSettings newLoginSettings,
     StoreMap<String, StoryResponse> newStoredStoryResponses,
@@ -123,7 +112,6 @@ class PollarStoreState {
         newStoredUsers ?? original.storedUsers,
         newStoredPosts ?? original.storedPosts,
         newStoredPolls ?? original.storedPolls,
-        newStoredChats ?? original.storedChats,
         newStoredSubs ?? original.storedSubs,
         newStoredStories ?? original.storedStories,
         newStoredStoryResponses ?? original.storedStoryResponses,
@@ -143,7 +131,6 @@ class PollarStoreState {
         original.storedUsers,
         StoreMap<String, Post>(POST_STORE_TIMEOUT), //Innitial post store
         StoreMap<String, Poll>(POLL_STORE_TIMEOUT), //Innitial poll store
-        StoreMap<String, Chat>(null),
         StoreMap<String, Subscription>(null),
         StoreMap<String, Story>(null),
         StoreMap<String, StoryResponse>(null),
@@ -210,8 +197,6 @@ class PollarStoreState {
       store = storedSubs;
     } else if (T == Story) {
       store = storedStories;
-    } else if (T == Chat) {
-      store = storedChats;
     } else if (T == StoryResponse) {
       store = storedStoryResponses;
     } else {
@@ -228,8 +213,6 @@ class PollarStoreState {
 
     if (T == UserInfo) {
       store = storedUsers;
-    } else if (T == Chat) {
-      store = storedChats;
     } else if (T == Post) {
       store = storedPosts;
     } else if (T == Poll) {
@@ -365,7 +348,7 @@ class PollarStoreBloc extends Bloc<PollarStoreEvent, PollarStoreState> {
       yield* _mapRemoveToState(event.id, event.t);
     } else if (event is ClearStoreState) {
       //clears the chat store state
-      ChatBloc().add(ClearChatBlocEvent());
+      //TODO: Clear Chta Bloc
 
       yield PollarStoreState.clearState(state);
     } else if (event is EditPollarStoreState) {
@@ -378,16 +361,7 @@ class PollarStoreBloc extends Bloc<PollarStoreEvent, PollarStoreState> {
       //Loads important state information
 
       //Loads chat state
-      ChatBloc().add(InitializeChatBlocEvent(event.userInfoId));
-
-      // Loads Stories
-      StoryApi.myStories();
-
-      //Loads the user's moderator value
-      ModeratorApi.getUserModeration(event.userInfoId);
-
-      //Loads user subscriptions and moderated topic
-      SubscriptionsApi.getUserSubscriptions(event.userInfoId);
+      //TODO: Initialize chat state
 
       // PollarStoreState.setTopics(await TopicApi.getTopics());
     }
@@ -454,8 +428,6 @@ class PollarStoreBloc extends Bloc<PollarStoreEvent, PollarStoreState> {
       //Retrevies the corrent store based on the type of storable object
       if (t == UserInfo) {
         store = StoreMap<String, UserInfo>.from(_store.state.storedUsers);
-      } else if (t == Chat) {
-        store = StoreMap<String, Chat>.from(_store.state.storedChats);
       } else if (t == Post) {
         store = StoreMap<String, Post>.from(_store.state.storedPosts);
       } else if (t == Poll) {
@@ -486,8 +458,6 @@ class PollarStoreBloc extends Bloc<PollarStoreEvent, PollarStoreState> {
 
       if (t == UserInfo) {
         yield PollarStoreState.editState(_store.state, newStoredUsers: store);
-      } else if (t == Chat) {
-        yield PollarStoreState.editState(_store.state, newStoredChats: store);
       } else if (t == Post) {
         yield PollarStoreState.editState(_store.state, newStoredPosts: store);
       } else if (t == Poll) {
@@ -550,8 +520,6 @@ class PollarStoreBloc extends Bloc<PollarStoreEvent, PollarStoreState> {
         if (cachedUser != null) {
           storable = cachedUser.copyWith(storable as UserInfo);
         }
-      } else if (storable is Chat) {
-        store = StoreMap<String, Chat>.from(currentState.storedChats);
       } else if (storable is Post) {
         store = StoreMap<String, Post>.from(currentState.storedPosts);
       } else if (storable is Poll) {
@@ -577,8 +545,6 @@ class PollarStoreBloc extends Bloc<PollarStoreEvent, PollarStoreState> {
 
       if (storable is UserInfo) {
         return PollarStoreState.editState(currentState, newStoredUsers: store);
-      } else if (storable is Chat) {
-        return PollarStoreState.editState(currentState, newStoredChats: store);
       } else if (storable is Post) {
         return PollarStoreState.editState(currentState, newStoredPosts: store);
       } else if (storable is Poll) {
