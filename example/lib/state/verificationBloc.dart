@@ -5,8 +5,9 @@ import 'package:bloc/bloc.dart';
 ///The bloc used for simple verification proccesses
 class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
 
-  @override
-  VerificationState get initialState => VerificationState();
+  VerificationBloc() : super(initialState);
+
+  static VerificationState get initialState => VerificationState();
 
   @override
   Stream<VerificationState> mapEventToState(VerificationEvent event) async* {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' hide BuildContext;
 import 'package:progress_dialog/progress_dialog.dart';
 
 import '../../../components/widgets/buttons/PollarBackButton.dart';
@@ -103,8 +103,8 @@ class _MainLoginPageState extends State<MainLoginPage> {
             //Error text display
             //Used to display when login has failed
             BlocBuilder<LoginBloc, LoginState>(
-              bloc: LoginBloc(),
-              condition: (o, n) => n is LoggedOutState,
+              cubit: LoginBloc(),
+              buildWhen: (o, n) => n is LoggedOutState,
               builder: (context, state) {
 
                 String error = state is LoggedOutState ? state.error : null;
@@ -142,8 +142,7 @@ class _MainLoginPageState extends State<MainLoginPage> {
                   //Sends the login event to the bloc
                   BlocProvider.of<LoginBloc>(context).add(
                       Login(credentials.toLowerCase(), password, callback: () {
-                    //Closes the dialog when the Authentication is done
-                    loading.hide();
+                      loading.hide();
                   }));
 
                   loading.show(); //Displays the loading dialog

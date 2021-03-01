@@ -1,6 +1,5 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' as bloc;
 import '../state/login/loginBloc.dart';
 import '../state/login/loginState.dart';
 import '../util/paddingProvider.dart';
@@ -22,7 +21,7 @@ class MainPageState extends State<MainPage> {
   LoginState loginState;
 
   ///Firebase configuration
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  // final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   @override
   void initState() {
@@ -119,6 +118,12 @@ class MainPageState extends State<MainPage> {
     // DynamicLinkService().handleDynamicLinks(context);
 
     // _navigationBarController = NavigationBarController();
+
+    LoginBloc().postLoginCallBack = (){
+      //Routes to the notifications page
+      setState(() {
+      });
+    };
   }
 
   @override
@@ -135,8 +140,8 @@ class MainPageState extends State<MainPage> {
         },
         child: PaddingProvider(
           height: MediaQuery.of(context).size.height,
-          child: BlocListener<LoginBloc, LoginState>(
-            bloc: BlocProvider.of<LoginBloc>(context),
+          child: bloc.BlocListener<LoginBloc, LoginState>(
+            cubit: bloc.BlocProvider.of<LoginBloc>(context),
             listener: (context, state){
               //Primary listener for the application, used to initalize important elements for the application
               //Also used to dispose of those elements when logged out

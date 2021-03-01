@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' hide BuildContext;
 
 import '../../models/poll.dart';
 import '../../models/post.dart';
@@ -241,8 +241,8 @@ class _StoreBuilderState<T extends Storable> extends State<StoreBuilder<T>> with
     super.build(context);
 
     return BlocListener<PollarStoreBloc, PollarStoreState>(
-      bloc: _storeBloc,
-      condition: _refreshCondition,
+      cubit: _storeBloc,
+      listenWhen: _refreshCondition,
       listener: (context, state){
         Storable retreivedValue = state.retreive<T>(widget.subjectID);
 
