@@ -21,6 +21,15 @@ class RimeRepository {
 
   /// The root pubnub client
   PubNub _client;
+
+  /// Getter for the pubnub client. 
+  /// Ensures that client is initialized
+  PubNub get client{
+    assert(_client != null);
+    return _client;
+  } 
+
+  /// Getter for the 
   
   /// Used to initialize the repository. 
   /// 
@@ -61,6 +70,7 @@ class RimeRepository {
     
     return isCached;
   }
+  
 
 
 }

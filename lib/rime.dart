@@ -3,6 +3,7 @@ library rime;
 import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
 import 'package:get_it/get_it.dart';
 import 'package:rime/state/RimeRepository.dart';
+import 'package:rime/state/rime_bloc/rime_bloc.dart';
 
 
 /// Primary controller for any rime based application. 
@@ -14,20 +15,21 @@ class Rime {
   static bool _initialized = false;
 
   /// Registers cruitial elemnts of Rime
-  static void iniitalize() async {
+  static void initialize() async {
 
     ///Ensures .env loader is binded
     await DotEnv.load(fileName: ".env");
-
-    //Initializes singleton for Rime repository
-    RimeRepository rootRepo = RimeRepository();
-    GetIt.instance.registerSingleton<RimeRepository>(rootRepo);
 
     //Binds Hive interface
     
 
     Rime._initialized = true;
 
+  }
+
+  /// Disposes the rime bloc, called when the root is closed
+  static void dispose() {
+    RimeBloc().drain();
   }
 
   /// Determines if the rime application is initialized. 

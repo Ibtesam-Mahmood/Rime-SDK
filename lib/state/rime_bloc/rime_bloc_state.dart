@@ -1,39 +1,37 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/model/channel.dart';
 import 'package:rime/rime.dart';
+import 'package:rime/state/RimeRepository.dart';
 
 /// base state for a rime application
-abstract class RimeState {}
+abstract class RimeState extends Equatable {}
 
 /// Innitial state for a rime appllication. 
 /// Pre authentication
-class RimeEmptyState extends RimeState{}
+class RimeEmptyState extends RimeState{
+  @override
+  List<Object> get props => ['empty'];
+}
 
 /// The populated state for rime
 class RimeLiveState extends RimeState{
-  /// The pubnub client for the SDK
-  final PubNub _client;
 
-  RimeLiveState._internal(this._client);
+  /// Represents the time stamp on the current state
+  final int timeToken;
 
-  /// Initializes the RimeState by refining a PubnubClient based
-  /// on the login user ID.
-  /// 
-  /// TODO: retreive cache data
-  factory RimeLiveState.init(String userID){
+  RimeLiveState._internal(this.timeToken);
+
+  /// Initializes the RimeState by connecting a repository
+  static Future<RimeLiveState> fromRepo(RimeRepository rime) async {
     assert(Rime.INITIALIZED);
-    
-    //Build keyset from dot env
-    final pubnubKeySet = Keyset(
-      subscribeKey: env['RIME-SUB-KEY'],
-      publishKey: env['RIME-PUB-KEY'],
-      uuid: UUID(userID)
-    );
 
-    // Initialize the pubnub client
-    final pubnub = PubNub(defaultKeyset: pubnubKeySet);
+    Timetoken time = await rime.client.time();
 
-    return RimeLiveState._internal(pubnub);
+    return RimeLiveState._internal(time.value);
   }
+
+  @override
+  List<Object> get props => [timeToken];
 }
