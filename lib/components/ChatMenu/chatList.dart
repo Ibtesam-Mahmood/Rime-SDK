@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rime/components/DefaultWidgets/chatSpacer.dart';
 import 'package:rime/components/DefaultWidgets/chatTile.dart';
 import 'package:rime/components/DefaultWidgets/chatTileAction.dart';
 
@@ -43,7 +44,7 @@ class ChatList extends StatelessWidget {
                   ),
                 ],
               ),
-              spacer ?? Spacer(),
+              spacer ?? ChatSpacer(padding: EdgeInsets.only(left: 77)),
             ],
           );
         },
