@@ -22,7 +22,7 @@ class _ChatTileState extends State<ChatTile> {
     // TODO: implement initState
     super.initState();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     //TODO: Add chat ID
