@@ -4,6 +4,7 @@ import '../state/login/loginBloc.dart';
 import '../state/login/loginState.dart';
 import '../util/paddingProvider.dart';
 import 'Login/Login/MainLoginPage.dart';
+import 'Chat/ChatMenu.dart';
 
 class MainPage extends StatefulWidget {
 
@@ -168,7 +169,7 @@ class MainPageState extends State<MainPage> {
             Navigator.of(context).pop(); //Manages android back button popping
             return false;
           },
-          child: Container()
+          child: ChatMenu()
       );
     }
   

@@ -9,7 +9,6 @@ import '../../models/userMain.dart';
 import '../store/pollarStoreBloc.dart';
 import 'loginEvents.dart';
 import 'loginState.dart';
-import 'loginState.dart';
 
 //Manages the user login state
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
