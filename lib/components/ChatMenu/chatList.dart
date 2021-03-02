@@ -1,29 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:rime/components/DefaultWidgets/chatTile.dart';
+import 'package:rime/components/DefaultWidgets/chatTileAction.dart';
 
-class ChatList extends StatefulWidget {
+class ChatList extends StatelessWidget {
 
   final Widget tile;
   final Widget spacer;
-  ChatList({this.tile, this.spacer});
+  final int childCount;
 
-  @override
-  _ChatListState createState() => _ChatListState();
-}
+  ChatList({this.tile, this.spacer, @required this.childCount}) : 
+  assert(childCount != null);
 
-class _ChatListState extends State<ChatList> {
-  @override
   Widget build(BuildContext context) {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (context, index){
           return Column(
             children: [
-              widget.tile ?? ChatTile(),
-              widget.spacer ?? Spacer(),
+              tile ?? ChatTile(
+                //TODO: Add id of chat to ValueKey
+                key: ValueKey('chatTile - '),
+                actions: [
+                  ChatTileAction(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.07),
+                      shape: BoxShape.circle
+                    ), 
+                    icon: Icon(Icons.access_time),
+                    onTap: (){
+                      //TODO: Implement onTap
+                    },
+                  ),
+                  ChatTileAction(
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle
+                    ),
+                    icon: Icon(Icons.access_alarm),
+                    onTap: (){
+                      //TODO: Implement onTap
+                    },
+                  ),
+                ],
+              ),
+              spacer ?? Spacer(),
             ],
           );
-        }
+        },
+        childCount: childCount
       ),
     );
   }
