@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:rime/components/wrappedListTile.dart';
+import 'package:rime/components/widgets/wrappedListTile.dart';
 
 class ChatTile extends StatefulWidget {
 
@@ -23,7 +23,13 @@ class _ChatTileState extends State<ChatTile> {
       actionExtentRatio: 0.13,
       actionPane: SlidableScrollActionPane(),
       secondaryActions: widget.actions,
-      child: WrappedListTile(),
+      child: WrappedListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+
+        onTap: (){
+          
+        },
+      ),
     );
   }
 }

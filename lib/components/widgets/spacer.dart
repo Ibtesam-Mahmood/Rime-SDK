@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rime/components/horizontalBar.dart';
+import 'package:rime/components/widgets/horizontalBar.dart';
 
 class Spacer extends StatelessWidget {
 
