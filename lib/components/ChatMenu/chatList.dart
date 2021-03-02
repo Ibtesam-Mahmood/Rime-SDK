@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'chatTile.dart';
+import 'package:rime/components/DefaultWidgets/chatTile.dart';
 
 class ChatList extends StatefulWidget {
 
@@ -20,8 +19,8 @@ class _ChatListState extends State<ChatList> {
         (context, index){
           return Column(
             children: [
-              widget.tile != null ? widget.tile : ChatTile(),
-              widget.spacer != null ? widget.spacer : Spacer(),
+              widget.tile ?? ChatTile(),
+              widget.spacer ?? Spacer(),
             ],
           );
         }
