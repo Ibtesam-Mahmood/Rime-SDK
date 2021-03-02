@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pubnub/core.dart';
+import 'package:pubnub/pubnub.dart';
+import 'package:rime/api/rime_api.dart';
 import 'package:rime/model/channel.dart';
 import 'package:rime/state/RimeRepository.dart';
 import 'package:rime/state/rime_bloc/rime_bloc_events.dart';
@@ -31,7 +33,6 @@ class RimeBloc extends Bloc<RimeEvent, RimeState>{
 
   /// Getter for initial state
   static RimeState get initialState => RimeEmptyState();
-
   
   @override
   Stream<RimeState> mapEventToState(RimeEvent event) async* {
@@ -61,14 +62,16 @@ class RimeBloc extends Bloc<RimeEvent, RimeState>{
     }
   }
 
-  /// Initiializes the pubnub service and requests channels
+  /// Initializes the pubnub service and requests channels
   Stream<RimeState> _mapInitializeToState(String userID) async* {
 
-    // Iniitalize rime state
+    // Initialize rime state
+    rime.initializeRime(userID);
 
     // Retreive channels by userID
+    List<RimeChannel> channels = await RimeApi.getChannels(userID);
 
-    // Run populate event
+    
 
   }
 

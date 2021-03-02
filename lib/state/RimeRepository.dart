@@ -22,41 +22,22 @@ class RimeRepository {
   /// The root pubnub client
   PubNub _client;
 
+  /// Subscriptions
+  
+
   /// Getter for the pubnub client. 
   /// Ensures that client is initialized
   PubNub get client{
     assert(_client != null);
     return _client;
   } 
-
-  /// Getter for the 
   
   /// Used to initialize the repository. 
   /// 
   /// Must be called to initialize the pubnub service. 
   /// 
-  Future<bool> initializeRime(String userID) async {
+  Future<void> initializeRime(String userID) async {
     assert(Rime.INITIALIZED);
-
-    //Opens the meta data box to compare previous initialization
-    Box<String> metaBox = await Hive.openBox<String>(META_DATA_BOX);
-
-    //Opens the channel box
-    Box<RimeChannel> channelBox = await Hive.openBox<RimeChannel>(CHANNEL_BOX);
-
-    //Retreive previous userID
-    String previousId = metaBox.get('userID');
-
-    // Determined by relogging in the same user
-    bool isCached = previousId == userID;
-
-    if(!isCached){
-
-      // Clear the hive stores and resets user meta data
-      metaBox.put('userID', userID);
-      channelBox.clear();
-
-    }
 
     //Build keyset from dot env
     final pubnubKeySet = Keyset(
@@ -68,9 +49,6 @@ class RimeRepository {
     // Initialize the pubnub client
     _client = PubNub(defaultKeyset: pubnubKeySet);
     
-    return isCached;
   }
-  
-
 
 }
