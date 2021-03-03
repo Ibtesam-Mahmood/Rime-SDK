@@ -17,7 +17,6 @@ class _ChatMenuState extends State<ChatMenu> {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       backgroundColor: Colors.white,
-      //TODO: Implement default searchbar
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: SafeArea(
