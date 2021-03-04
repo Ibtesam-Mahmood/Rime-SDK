@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' as bloc;
+import 'package:pubnub/pubnub.dart';
+import 'package:rime/api/rime_api.dart';
 import 'package:rime/rime.dart';
 import 'package:rime/state/RimeRepository.dart';
 import './pages/MainBody.dart';
@@ -10,8 +12,14 @@ import './util/config_reader.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
 
 void main(List<String> args) async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await ConfigReader.initialize();
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await ConfigReader.initialize();
+
+  print('Initializing');
+  await DotEnv.load(fileName: '.env');
+  await Rime.initialize(DotEnv.env);
+  await RimeRepository().initializeRime('testUser1');
+  print('Initialized');
 
   runApp(Pollar());
 }
@@ -31,6 +39,11 @@ class _PollarState extends State<Pollar> {
   @override
   void initState() {
     super.initState();
+
+    Future.delayed(Duration(milliseconds: 500)).then((value) async {
+      await RimeApi.createChannel(['testUser1', 'testUser2']);
+      print("Created");
+    });
   }
 
   @override

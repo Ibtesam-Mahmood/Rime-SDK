@@ -1,3 +1,4 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -23,7 +24,8 @@ class RimeRepository {
   PubNub _client;
 
   /// Logged in user ID
-  String userID;
+  String _userID;
+  String get userID => _userID;
 
   /// All pubnub subscriptions
   final Map<String, Subscription> _subscriptions = {};
@@ -58,31 +60,46 @@ class RimeRepository {
   ///
   /// Must be called to initialize the pubnub service.
   ///
+  /// !!! Must be run after authentication
   Future<void> initializeRime(String userID) async {
     assert(Rime.INITIALIZED);
 
     //Build keyset from dot env
     final pubnubKeySet = Keyset(
-        subscribeKey: Rime.env['RIME-SUB-KEY'],
-        publishKey: Rime.env['RIME-PUB-KEY'],
+        subscribeKey: Rime.env['RIME_SUB_KEY'],
+        publishKey: Rime.env['RIME_PUB_KEY'],
         uuid: UUID(userID));
+
+    //Assign the userID
+    _userID = userID;
 
     // Initialize the pubnub client
     _client = PubNub(defaultKeyset: pubnubKeySet);
 
-    // _client.getSubscribedChannelGroupsForUUID(uuid)
+    // Populates the group subscriptions
+    refresh();
 
-    // //Channel groups
-    // List<String> channelGroups;
+  }
 
-    // //Subscribe to all channel groups
-    // //Store into subscriptions
-    // _client.objects.setMemberships(setMetadata)
+  /// Refreshes subscriptions for rime.
+  /// 
+  /// Reloads all possible user channel groups. 
+  /// Subscribes to any new channel groups
+  Future<void> refresh() async {
+    
+    //Retreive all user channel groups
+    List<String> channelGroups = await RimeApi.getChannelGroups(userID);
 
-    //Subscribe to the memebership channel
+    //Subscribe to new channel groups
     //Store into subscriptions
+    for (String group in channelGroups) {
+      if(!_subscriptions.containsKey(group)){
+        Subscription temp = await client.subscribe(channelGroups: Set.from([group]));
+        _subscriptions[group] = temp;
+        _subscriptions[group].messages.listen(onMessageCallBack);
+      }
+    }
 
-    //Bind the listener
   }
 
   /// Disposes the rime instance and all server connections
@@ -96,6 +113,8 @@ class RimeRepository {
     _client = null;
   }
 
+  // ~~~~~~~~~~~~~~~~~~ On Messeage Binding Functions ~~~~~~~~~~~~~~~~~~~~~~~
+
   ///Adding a listner to the rimeCallBack
   void addListener(String id, RimeCallBack callBack) {
     _callBackSubscriptions[id] = callBack;
@@ -107,5 +126,16 @@ class RimeRepository {
   }
 
   // ~~~~~~~~~~~~~~~~~~~~ Interal Helpers ~~~~~~~~~~~~~~~~~~~~
+
+  /// Calls all the lisnsters
+  ///
+  /// Primary message receive logic
+  void onMessageCallBack(Envelope en) {
+
+    //Runs the callback function for the subscribed listeners
+    for (RimeCallBack sub in _callBackSubscriptions.values) {
+      sub(en);
+    }
+  }
 
 }

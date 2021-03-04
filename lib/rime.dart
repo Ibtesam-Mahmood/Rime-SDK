@@ -2,6 +2,7 @@ library rime;
 
 import 'package:get_it/get_it.dart';
 import 'package:rime/state/RimeRepository.dart';
+import 'package:rime/state/core/rime_root_functions.dart';
 import 'package:rime/state/rime_bloc/rime_bloc.dart';
 
 /// Primary controller for any rime based application.
@@ -13,10 +14,15 @@ class Rime {
 
   static dynamic _env;
 
+  static RimeDeveloperFunctions _devFunctions;
+
   /// Registers cruitial elemnts of Rime
-  static void initialize(dynamic env) async {
+  static void initialize(dynamic env, [RimeDeveloperFunctions devFunctions]) async {
     //Sets the env file
-    _env = env;
+    Rime._env = env;
+
+    //Bind developer functions
+    Rime._devFunctions = devFunctions ?? RimeDeveloperFunctions();
 
     Rime._initialized = true;
   }
@@ -33,4 +39,11 @@ class Rime {
 
   ///Retreives the environment variables
   static dynamic get env => _env;
+
+  ///Dev functions
+  static RimeDeveloperFunctions get functions {
+    assert(INITIALIZED);
+    return _devFunctions;
+  }
+
 }
