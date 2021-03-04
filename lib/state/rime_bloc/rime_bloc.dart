@@ -69,7 +69,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState>{
     rime.initializeRime(userID);
 
     // Retreive channels by userID
-    List<RimeChannel> channels = await RimeApi.getChannels(userID);
+    List<RimeChannel> channels = await RimeApi.getChannels(rime.);
 
     
 

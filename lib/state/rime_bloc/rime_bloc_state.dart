@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pubnub/pubnub.dart';
+import 'package:rime/api/rime_api.dart';
 import 'package:rime/model/channel.dart';
 import 'package:rime/rime.dart';
 import 'package:rime/state/RimeRepository.dart';
@@ -8,28 +9,32 @@ import 'package:rime/state/RimeRepository.dart';
 /// base state for a rime application
 abstract class RimeState extends Equatable {}
 
-/// Innitial state for a rime appllication. 
+/// Innitial state for a rime appllication.
 /// Pre authentication
-class RimeEmptyState extends RimeState{
+class RimeEmptyState extends RimeState {
   @override
   List<Object> get props => ['empty'];
 }
 
 /// The populated state for rime
-class RimeLiveState extends RimeState{
-
+class RimeLiveState extends RimeState {
   /// Represents the time stamp on the current state
   final int timeToken;
 
-  RimeLiveState._internal(this.timeToken);
+  final List<RimeChannel> channels;
+
+  RimeLiveState._internal(this.timeToken, this.channels);
 
   /// Initializes the RimeState by connecting a repository
   static Future<RimeLiveState> fromRepo(RimeRepository rime) async {
     assert(Rime.INITIALIZED);
+    Channel f;
+    
+    List<RimeChannel> channels = await RimeApi.getChannels('change this fag');
 
     Timetoken time = await rime.client.time();
 
-    return RimeLiveState._internal(time.value);
+    return RimeLiveState._internal(time.value, channels);
   }
 
   @override
