@@ -1,6 +1,7 @@
 import 'package:pubnub/core.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/model/channel.dart';
+import 'package:rime/state/RimeFunctions.dart';
 import 'package:rime/state/RimeRepository.dart';
 
 class RimeApi {
@@ -8,21 +9,27 @@ class RimeApi {
       {int timeToken}) {}
 
   static Future<void> createChannel(List<String> users) async {
+    //Checks if the user iD's are unique
+    if (users.length != users.toSet().length) {
+      return Future.error("Duplicate user's within channel creation");
+    }
+
     PubNub client = RimeRepository().client;
 
-    String channelID = 'rime-' + (await client.time()).toString();
+    //Creates a unique channel ID
+    Timetoken time = await client.time();
+    String channelID = 'rime_${RimeRepository().userID}_${time.toString()}';
     List<ChannelMemberMetadataInput> members = [];
 
+    // Creates memeberships for a channel
     for (String userID in users) {
       members.add(ChannelMemberMetadataInput(userID));
     }
-
     await client.objects.setChannelMembers(channelID, members);
 
+    //Assigns channel into available groups
     for (String userID in users) {
-      // TODO: Keep track of what int to use at the end
-      String groupID = 'cg_' + userID + '_1';
-
+      String groupID = await RimeFunctions.getAvailableChannelGroup(userID);
       await client.channelGroups.addChannels(groupID, Set.from([channelID]));
     }
   }
@@ -37,10 +44,12 @@ class RimeApi {
   static bool leaveChannel(String loginID, String channel) {}
 
   static Future<List<String>> getChannelGroups(String loginID) async {
-    Set<String> channelGroups = RimeRepository()
-        .client
-        .getSubscribedChannelGroupsForUUID(UUID(loginID));
+    String availableGroup =
+        await RimeFunctions.getAvailableChannelGroup(loginID);
 
-    return channelGroups.toList();
+    int groupNo = int.parse(availableGroup.split('_').last);
+
+    return List.generate(
+        groupNo + 1, (index) => RimeFunctions.channelGroupID(loginID, index));
   }
 }
