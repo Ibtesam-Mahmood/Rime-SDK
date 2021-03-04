@@ -60,6 +60,10 @@ class RimeBloc extends Bloc<RimeEvent, RimeState>{
     else if(event is ClearRimeEvent){
       yield* _mapClearToState();
     }
+
+    
+
+
   }
 
   /// Initializes the pubnub service and requests channels
@@ -70,8 +74,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState>{
 
     // Retreive channels by userID
     List<RimeChannel> channels = await RimeApi.getChannels(userID);
-
-    
+ 
 
   }
 

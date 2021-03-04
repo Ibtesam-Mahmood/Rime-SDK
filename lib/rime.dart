@@ -20,9 +20,6 @@ class Rime {
     ///Ensures .env loader is binded
     await DotEnv.load(fileName: ".env");
 
-    //Binds Hive interface
-    
-
     Rime._initialized = true;
 
   }
