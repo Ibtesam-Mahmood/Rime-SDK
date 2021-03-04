@@ -37,7 +37,7 @@ void main() async {
     setUp(() async {
       HttpOverrides.global = null;
       print('Initializing');
-      await DotEnv.load();
+      await DotEnv.load(fileName: '.env');
       await Rime.initialize(DotEnv.env);
       await RimeRepository().initializeRime('testUser1');
       print('Initialized');
@@ -46,13 +46,13 @@ void main() async {
     test('test', () async {
       await RimeApi.createChannel(['testUser1', 'testUser2']);
 
-      List<String> g = await RimeApi.getChannelGroups('testUser1');
+      // List<String> g = await RimeApi.getChannelGroups('testUser1');
 
-      print('Groups: ' + g.toString());
+      // print('Groups: ' + g.toString());
 
-      ChannelGroupListChannelsResult groups =
-          await RimeRepository().client.channelGroups.listChannels(g[0]);
-      print('Channels: ' + groups.channels.toList().toString());
+      // ChannelGroupListChannelsResult groups =
+      //     await RimeRepository().client.channelGroups.listChannels(g[0]);
+      // print('Channels: ' + groups.channels.toList().toString());
 
       expect(true, true);
     });

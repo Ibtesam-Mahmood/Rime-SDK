@@ -1,19 +1,3 @@
-// ───────────▄██████████████▄
-// ───────▄████░░░░░░░░█▀────█▄
-// ──────██░░░░░░░░░░░█▀──────█▄
-// ─────██░░░░░░░░░░░█▀────────█▄
-// ────██░░░░░░░░░░░░█──────────██
-// ───██░░░░░░░░░░░░░█──────██──██
-// ──██░░░░░░░░░░░░░░█▄─────██──██
-// ─████████████░░░░░░██────────██
-// ██░░░░░░░░░░░██░░░░░█████████████
-// ██░░░░░░░░░░░██░░░░█▓▓▓▓▓▓▓▓▓▓▓▓▓█
-// ██░░░░░░░░░░░██░░░█▓▓▓▓▓▓▓▓▓▓▓▓▓▓█
-// ─▀███████████▒▒▒▒█▓▓▓███████████▀
-// ────██▒▒▒▒▒▒▒▒▒▒▒▒█▓▓▓▓▓▓▓▓▓▓▓▓█
-// ─────██▒▒▒▒▒▒▒▒▒▒▒▒██▓▓▓▓▓▓▓▓▓▓█
-// ──────█████▒▒▒▒▒▒▒▒▒▒██████████
-// ─────────▀███████████▀
 
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
@@ -40,7 +24,8 @@ class RimeRepository {
   PubNub _client;
 
   /// Logged in user ID
-  String userID;
+  String _userID;
+  String get userID => _userID;
 
   /// All pubnub subscriptions
   final Map<String, Subscription> _subscriptions = {};
@@ -75,6 +60,7 @@ class RimeRepository {
   ///
   /// Must be called to initialize the pubnub service.
   ///
+  /// !!! Must be run after authentication
   Future<void> initializeRime(String userID) async {
     assert(Rime.INITIALIZED);
 
@@ -85,27 +71,35 @@ class RimeRepository {
         uuid: UUID(userID));
 
     //Assign the userID
-    this.userID = userID;
+    _userID = userID;
 
     // Initialize the pubnub client
     _client = PubNub(defaultKeyset: pubnubKeySet);
 
-    //Channel groups
+    // Populates the group subscriptions
+    refresh();
+
+  }
+
+  /// Refreshes subscriptions for rime.
+  /// 
+  /// Reloads all possible user channel groups. 
+  /// Subscribes to any new channel groups
+  Future<void> refresh() async {
+    
+    //Retreive all user channel groups
     List<String> channelGroups = await RimeApi.getChannelGroups(userID);
 
-    //Subscribe to all channel groups
+    //Subscribe to new channel groups
     //Store into subscriptions
-    for (String s in channelGroups) {
-      Subscription temp = client.subscribe(channelGroups: Set.from([s]));
-      _subscriptions[s] = temp;
-      _subscriptions[s].messages.listen(onMessageCallBack);
+    for (String group in channelGroups) {
+      if(!_subscriptions.containsKey(group)){
+        Subscription temp = await client.subscribe(channelGroups: Set.from([group]));
+        _subscriptions[group] = temp;
+        _subscriptions[group].messages.listen(onMessageCallBack);
+      }
     }
 
-    //Subscribe to the memebership channel
-    Subscription memebership = client.subscribe(channels: Set.from([userID]));
-    //Store into subscriptions
-    _subscriptions['memebership'] = memebership;
-    _subscriptions['memebership'].messages.listen(onMembershipEvent);
   }
 
   /// Disposes the rime instance and all server connections
@@ -118,6 +112,8 @@ class RimeRepository {
     // Disposes the pubnub instance
     _client = null;
   }
+
+  // ~~~~~~~~~~~~~~~~~~ On Messeage Binding Functions ~~~~~~~~~~~~~~~~~~~~~~~
 
   ///Adding a listner to the rimeCallBack
   void addListener(String id, RimeCallBack callBack) {
@@ -133,18 +129,13 @@ class RimeRepository {
 
   /// Calls all the lisnsters
   ///
-  /// Primaryu message receive logic
+  /// Primary message receive logic
   void onMessageCallBack(Envelope en) {
+
     //Runs the callback function for the subscribed listeners
     for (RimeCallBack sub in _callBackSubscriptions.values) {
       sub(en);
     }
   }
 
-  /// Run when a membership event is reveived
-  void onMembershipEvent(Envelope en) {
-    print(en.toString());
-
-    //Check last cahnnel group to see if full
-  }
 }
