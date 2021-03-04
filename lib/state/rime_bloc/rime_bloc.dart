@@ -15,7 +15,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState>{
   /// Instance of rime that connects to the microservices
   final RimeRepository rime;
   
-  /// Maps the innitial state for the RimeBloc  
+  /// Maps the initial state for the RimeBloc  
   RimeBloc._(RimeState initialState) 
     : rime = RimeRepository(), super(initialState);
 
