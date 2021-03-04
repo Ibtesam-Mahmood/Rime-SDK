@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import '../../pages/Chat/ChatPage.dart';
 import 'wrappedListTile.dart';
 import 'overLappingProfilePictures.dart';
 
@@ -59,7 +60,7 @@ class _ChatTileState extends State<ChatTile> {
           ),
         ),
         onTap: (){
-          //TODO: Implement onTap
+          Navigator.push(context, MaterialPageRoute(builder: (context) => ChatPage()));
         },
       ),
     );
