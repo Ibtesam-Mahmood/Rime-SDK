@@ -67,9 +67,6 @@ class RimeRepository {
         publishKey: Rime.env['RIME_PUB_KEY'],
         uuid: UUID(userID));
 
-    //Assign the userID
-    this.userID = userID;
-
     // Initialize the pubnub client
     _client = PubNub(defaultKeyset: pubnubKeySet);
 
