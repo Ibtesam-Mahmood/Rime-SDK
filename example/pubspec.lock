@@ -435,7 +435,14 @@ packages:
       name: photo_manager
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.0"
+    version: "0.5.8"
+  photo_widget:
+    dependency: "direct main"
+    description:
+      name: photo_widget
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.3"
   platform:
     dependency: transitive
     description:

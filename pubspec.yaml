@@ -20,7 +20,7 @@ dependencies:
   flutter_dotenv: ^3.1.0
   flutter_easyrefresh: ^2.1.8
   flutter_slidable: ^0.5.7
-  photo_manager: ^0.6.0
+  photo_manager: ^0.5.8
   colorful_safe_area: ^0.2.1
   dashed_container: ^1.0.1
   video_player: ^1.0.1
