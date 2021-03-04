@@ -44,7 +44,7 @@ void main() async {
     });
 
     test('test', () async {
-      await RimeApi.createChannel(['testUser1', 'testUser2']);
+      // await RimeApi.createChannel(['testUser1', 'testUser2']);
 
       // List<String> g = await RimeApi.getChannelGroups('testUser1');
 
@@ -53,6 +53,12 @@ void main() async {
       // ChannelGroupListChannelsResult groups =
       //     await RimeRepository().client.channelGroups.listChannels(g[0]);
       // print('Channels: ' + groups.channels.toList().toString());
+
+      print('hello');
+
+      await RimeRepository().client.addMessageAction("userID", "true", "rime_testUser1_16148386848078668", Timetoken(16148575074308885));
+
+      await Future.delayed(Duration(seconds: 10));
 
       expect(true, true);
     });

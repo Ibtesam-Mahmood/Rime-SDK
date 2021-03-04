@@ -29,6 +29,7 @@ class RimeRepository {
 
   /// All pubnub subscriptions
   final Map<String, Subscription> _subscriptions = {};
+  
 
   /// Subscription functions
   /// Run when something is subscribed to the
