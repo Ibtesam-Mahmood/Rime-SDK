@@ -1,11 +1,14 @@
 
 import 'package:flutter/cupertino.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:pubnub/pubnub.dart';
+import 'package:rime/api/rime_api.dart';
 import 'package:rime/model/channel.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../rime.dart';
 
+typedef RimeCallBack = void Function(Envelope);
 
 /// Base extendable repository for Rime. 
 ///
@@ -22,7 +25,27 @@ class RimeRepository {
   /// The root pubnub client
   PubNub _client;
 
-  /// Subscriptions
+  /// Logged in user ID
+  String userID;
+
+  /// All pubnub subscriptions
+  final Map<String, Subscription> _subscriptions = {};
+
+  /// Subscription functions
+  /// Run when something is subscribed to the 
+  final Map<String, RimeCallBack> _callBackSubscriptions = {};
+
+  RimeRepository.internal();
+
+  factory RimeRepository(){
+    RimeRepository rime = GetIt.I.get<RimeRepository>();
+    if(rime == null){
+      GetIt.I.registerSingleton(RimeRepository.internal());
+      return GetIt.I.get<RimeRepository>();
+    }
+
+    return rime;
+  }
   
 
   /// Getter for the pubnub client. 
@@ -48,7 +71,44 @@ class RimeRepository {
 
     // Initialize the pubnub client
     _client = PubNub(defaultKeyset: pubnubKeySet);
+
+    //Channel groups
+    List<String> channelGroups;
+
+    //Subscribe to all channel groups
+    //Store into subscriptions
+    
+
+    //Subscribe to the memebership channel
+    //Store into subscriptions
+
+    //Bind the listener
     
   }
+
+  /// Disposes the rime instance and all server connections
+  void disposeRime(){
+
+    //Unsubscribes from all instances
+    for (Subscription sub in _subscriptions.values) {
+      sub.cancel();
+    }
+
+    // Disposes the pubnub instance
+    _client = null;
+
+  }
+
+  ///Adding a listner to the rimeCallBack
+  void addListener(String id, RimeCallBack callBack){
+    _callBackSubscriptions[id] = callBack;
+  }
+  
+  ///Removes a listner from the rimeCallBack
+  void removeListener(String id){
+    _callBackSubscriptions[id] = null;
+  }
+
+  // ~~~~~~~~~~~~~~~~~~~~ Interal Helpers ~~~~~~~~~~~~~~~~~~~~
 
 }
