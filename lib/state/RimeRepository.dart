@@ -1,3 +1,20 @@
+// ───────────▄██████████████▄
+// ───────▄████░░░░░░░░█▀────█▄
+// ──────██░░░░░░░░░░░█▀──────█▄
+// ─────██░░░░░░░░░░░█▀────────█▄
+// ────██░░░░░░░░░░░░█──────────██
+// ───██░░░░░░░░░░░░░█──────██──██
+// ──██░░░░░░░░░░░░░░█▄─────██──██
+// ─████████████░░░░░░██────────██
+// ██░░░░░░░░░░░██░░░░░█████████████
+// ██░░░░░░░░░░░██░░░░█▓▓▓▓▓▓▓▓▓▓▓▓▓█
+// ██░░░░░░░░░░░██░░░█▓▓▓▓▓▓▓▓▓▓▓▓▓▓█
+// ─▀███████████▒▒▒▒█▓▓▓███████████▀
+// ────██▒▒▒▒▒▒▒▒▒▒▒▒█▓▓▓▓▓▓▓▓▓▓▓▓█
+// ─────██▒▒▒▒▒▒▒▒▒▒▒▒██▓▓▓▓▓▓▓▓▓▓█
+// ──────█████▒▒▒▒▒▒▒▒▒▒██████████
+// ─────────▀███████████▀
+
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -73,19 +90,22 @@ class RimeRepository {
     // Initialize the pubnub client
     _client = PubNub(defaultKeyset: pubnubKeySet);
 
-    // _client.getSubscribedChannelGroupsForUUID(uuid)
+    //Channel groups
+    List<String> channelGroups = await RimeApi.getChannelGroups(userID);
 
-    // //Channel groups
-    // List<String> channelGroups;
-
-    // //Subscribe to all channel groups
-    // //Store into subscriptions
-    // _client.objects.setMemberships(setMetadata)
+    //Subscribe to all channel groups
+    //Store into subscriptions
+    for (String s in channelGroups) {
+      Subscription temp = client.subscribe(channelGroups: Set.from([s]));
+      _subscriptions[s] = temp;
+      _subscriptions[s].messages.listen(onMessageCallBack);
+    }
 
     //Subscribe to the memebership channel
+    Subscription memebership = client.subscribe(channels: Set.from([userID]));
     //Store into subscriptions
-
-    //Bind the listener
+    _subscriptions['memebership'] = memebership;
+    _subscriptions['memebership'].messages.listen(onMembershipEvent);
   }
 
   /// Disposes the rime instance and all server connections
@@ -111,4 +131,20 @@ class RimeRepository {
 
   // ~~~~~~~~~~~~~~~~~~~~ Interal Helpers ~~~~~~~~~~~~~~~~~~~~
 
+  /// Calls all the lisnsters
+  ///
+  /// Primaryu message receive logic
+  void onMessageCallBack(Envelope en) {
+    //Runs the callback function for the subscribed listeners
+    for (RimeCallBack sub in _callBackSubscriptions.values) {
+      sub(en);
+    }
+  }
+
+  /// Run when a membership event is reveived
+  void onMembershipEvent(Envelope en) {
+    print(en.toString());
+
+    //Check last cahnnel group to see if full
+  }
 }

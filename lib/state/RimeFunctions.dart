@@ -15,9 +15,6 @@ class RimeFunctions {
     String channelGroup;
     int groupNo = 0;
 
-    // Rettreives rime pubnub client
-    PubNub client = RimeRepository().client;
-
     while (channelGroup == null) {
       // Max Channel Group Limit is 10
       // https://www.pubnub.com/docs/channels/subscribe#channel-groups
@@ -31,9 +28,7 @@ class RimeFunctions {
       // Check if the channel group is full
       // If there are less than 2000 channels then it can fit more channels
       // If the group has 0 channels then this will still work as a new channel group will be dynamically created
-      ChannelGroupListChannelsResult channels =
-          await client.channelGroups.listChannels(channelGroup);
-      if (channels.channels.length < 2000) {
+      if (await getChannelGroupCount(channelGroup) < 2000) {
         break;
       }
 
@@ -44,5 +39,12 @@ class RimeFunctions {
 
     //Returns the constructed channel group
     return channelGroup;
+  }
+
+  static Future<int> getChannelGroupCount(String groupID) async {
+    ChannelGroupListChannelsResult channels = await RimeRepository().client.channelGroups.listChannels(groupID);
+
+    return channels.channels.length;
+
   }
 }

@@ -13,7 +13,7 @@ class RimeApi {
     if (users.length != users.toSet().length) {
       return Future.error("Duplicate user's within channel creation");
     }
-
+    
     PubNub client = RimeRepository().client;
 
     //Creates a unique channel ID
