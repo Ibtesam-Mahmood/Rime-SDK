@@ -38,5 +38,5 @@ class RimeLiveState extends RimeState {
   }
 
   @override
-  List<Object> get props => [timeToken];
+  List<Object> get props => [timeToken, channels];
 }
