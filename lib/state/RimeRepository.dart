@@ -63,8 +63,8 @@ class RimeRepository {
 
     //Build keyset from dot env
     final pubnubKeySet = Keyset(
-        subscribeKey: Rime.env['RIME-SUB-KEY'],
-        publishKey: Rime.env['RIME-PUB-KEY'],
+        subscribeKey: Rime.env['RIME_SUB_KEY'],
+        publishKey: Rime.env['RIME_PUB_KEY'],
         uuid: UUID(userID));
 
     // Initialize the pubnub client
