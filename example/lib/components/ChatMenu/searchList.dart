@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:rime/components/DefaultWidgets/SimpleChatTile.dart';
-import 'package:rime/components/DefaultWidgets/horizontalBar.dart';
+import 'SimpleChatTile.dart';
+import 'horizontalBar.dart';
 
 class SearchList extends StatelessWidget {
 

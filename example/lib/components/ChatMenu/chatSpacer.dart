@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rime/components/DefaultWidgets/horizontalBar.dart';
+import 'horizontalBar.dart';
 
 class ChatSpacer extends StatelessWidget {
 

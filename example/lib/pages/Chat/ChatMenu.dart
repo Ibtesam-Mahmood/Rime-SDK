@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
-import 'package:rime/components/ChatMenu/chatList.dart';
-import 'package:rime/components/DefaultWidgets/chatMenuHeader.dart';
-import 'package:rime/components/DefaultWidgets/loading.dart';
-import 'package:rime/components/DefaultWidgets/searchFiled.dart';
+import '../../components/ChatMenu/loading.dart';
+import '../../components/ChatMenu/searchFiled.dart';
+import '../../components/ChatMenu/chatMenuHeader.dart';
+import '../../components/ChatMenu/chatList.dart';
 
 class ChatMenu extends StatefulWidget {
 

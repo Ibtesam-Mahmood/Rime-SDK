@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:rime/components/DefaultWidgets/wrappedListTile.dart';
-import 'package:rime/components/DefaultWidgets/overLappingProfilePictures.dart';
+import 'wrappedListTile.dart';
+import 'overLappingProfilePictures.dart';
 
 class ChatTile extends StatefulWidget {
 

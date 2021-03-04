@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class ChatMessage extends StatefulWidget {
+class ChatPage extends StatefulWidget {
   @override
-  _ChatMessageState createState() => _ChatMessageState();
+  _ChatPageState createState() => _ChatPageState();
 }
 
-class _ChatMessageState extends State<ChatMessage> {
+class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:rime/components/DefaultWidgets/chatSpacer.dart';
-import 'package:rime/components/DefaultWidgets/chatTile.dart';
-import 'package:rime/components/DefaultWidgets/chatTileAction.dart';
+import 'chatTile.dart';
+import 'chatTileAction.dart';
+import 'chatSpacer.dart';
 
 class ChatList extends StatelessWidget {
 
