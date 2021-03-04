@@ -1,4 +1,4 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pubnub/core.dart';
 import 'package:pubnub/pubnub.dart';
@@ -16,7 +16,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState>{
   final RimeRepository rime;
   
   /// Maps the innitial state for the RimeBloc  
-  RimeBloc._(RimeState initialState) 
+  RimeBloc._(RimeState initialState)  
     : rime = RimeRepository(), super(initialState);
 
   /// Primary contructor for the RimeBloc singleton

@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/model/channel.dart';
 import 'package:rime/rime.dart';
@@ -8,16 +7,15 @@ import 'package:rime/state/RimeRepository.dart';
 /// base state for a rime application
 abstract class RimeState extends Equatable {}
 
-/// Innitial state for a rime appllication. 
+/// Innitial state for a rime appllication.
 /// Pre authentication
-class RimeEmptyState extends RimeState{
+class RimeEmptyState extends RimeState {
   @override
   List<Object> get props => ['empty'];
 }
 
 /// The populated state for rime
-class RimeLiveState extends RimeState{
-
+class RimeLiveState extends RimeState {
   /// Represents the time stamp on the current state
   final int timeToken;
 
@@ -34,5 +32,4 @@ class RimeLiveState extends RimeState{
 
   @override
   List<Object> get props => [timeToken];
-  
 }

@@ -1,27 +1,24 @@
 library rime;
 
-import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
 import 'package:get_it/get_it.dart';
 import 'package:rime/state/RimeRepository.dart';
 import 'package:rime/state/rime_bloc/rime_bloc.dart';
 
-
-/// Primary controller for any rime based application. 
-/// 
+/// Primary controller for any rime based application.
+///
 /// The Rime based application must be `INITILAIZED`.
 /// ENsure this by running the [Rime.iniitalize()] function.
 class Rime {
-
   static bool _initialized = false;
 
-  /// Registers cruitial elemnts of Rime
-  static void initialize() async {
+  static dynamic _env;
 
-    ///Ensures .env loader is binded
-    await DotEnv.load(fileName: ".env");
+  /// Registers cruitial elemnts of Rime
+  static void initialize(dynamic env) async {
+    //Sets the env file
+    _env = env;
 
     Rime._initialized = true;
-
   }
 
   /// Disposes the rime bloc, called when the root is closed
@@ -29,9 +26,11 @@ class Rime {
     RimeBloc().drain();
   }
 
-  /// Determines if the rime application is initialized. 
+  /// Determines if the rime application is initialized.
   /// Used for error checks in various parts of the SDK.
   // ignore: non_constant_identifier_names
   static bool get INITIALIZED => Rime._initialized;
 
+  ///Retreives the environment variables
+  static dynamic get env => _env;
 }
