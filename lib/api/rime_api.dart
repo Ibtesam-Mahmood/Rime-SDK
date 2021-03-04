@@ -36,8 +36,7 @@ class RimeApi {
 
   static bool leaveChannel(String loginID, String channel) {}
 
-  static Future<List<String>> getChannelGroups(
-      String loginID, String channel) async {
+  static Future<List<String>> getChannelGroups(String loginID) async {
     Set<String> channelGroups = RimeRepository()
         .client
         .getSubscribedChannelGroupsForUUID(UUID(loginID));
