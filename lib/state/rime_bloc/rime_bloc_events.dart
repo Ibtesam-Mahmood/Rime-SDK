@@ -9,11 +9,11 @@ abstract class RimeEvent {}
 /// Iniitalizes the Rime channel service by retreiving and subscring to channels. 
 /// 
 /// UserID provided is a unique identifier used to access user channels
-class RimeInitEvent extends RimeEvent{
+class GetChannelsEvent extends RimeEvent{
 
   final String userID;
 
-  RimeInitEvent(this.userID);
+  GetChannelsEvent(this.userID);
 
 }
 
@@ -21,7 +21,8 @@ class RimeInitEvent extends RimeEvent{
 class CreateChannelEvent extends RimeEvent{
   final RimeChannel channel;
   final Function(RimeChannel) onSuccess;
-  CreateChannelEvent(this.channel, {this.onSuccess});
+  final List<String> users;
+  CreateChannelEvent(this.channel, {this.onSuccess, this.users});
 }
 
 ///Sends a message through the pubnub RimeChannel and adds the Message object to state
@@ -47,12 +48,6 @@ class LeaveEvent extends RimeEvent{
 class StoreEvent extends RimeEvent{
   final RimeChannel channel;
   StoreEvent(this.channel);
-}
-
-///Stores a chat into the chat state and binds it to the client
-class InitChannelEvent extends RimeEvent{
-  final RimeChannel channel;
-  InitChannelEvent(this.channel);
 }
 
 ///Clears all chats from state and resets the chat client

@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+// import 'package:equatable/equatable.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/api/rime_api.dart';
 import 'package:rime/model/channel.dart';
@@ -6,7 +6,7 @@ import 'package:rime/rime.dart';
 import 'package:rime/state/RimeRepository.dart';
 
 /// base state for a rime application
-abstract class RimeState extends Equatable {}
+abstract class RimeState {}
 
 /// Innitial state for a rime appllication.
 /// Pre authentication
@@ -22,18 +22,31 @@ class RimeLiveState extends RimeState {
 
   final List<RimeChannel> channels;
 
-  RimeLiveState._internal(this.timeToken, this.channels);
+  RimeLiveState({this.timeToken, this.channels});
+
+  factory RimeLiveState.internal(){
+    return RimeLiveState();
+  }
+
+  ///Edits an exsisting chat state
+  @override
+  factory RimeLiveState.editState(RimeLiveState original, {List<RimeChannel> channels, int timeToken}){
+    return RimeLiveState(
+      timeToken: timeToken ?? original.timeToken,
+      channels: channels ?? original.channels
+    );
+  }
+
 
   /// Initializes the RimeState by connecting a repository
   static Future<RimeLiveState> fromRepo(RimeRepository rime) async {
-    assert(Rime.INITIALIZED);
-    Channel f;
-    
-    List<RimeChannel> channels = await RimeApi.getChannels('change this fag');
-
+    assert(Rime.INITIALIZED);    
+    //get channels from api
+    List<RimeChannel> channels = await RimeApi.getChannels('change this');
+    //get time token from PubNub
     Timetoken time = await rime.client.time();
 
-    return RimeLiveState._internal(time.value, channels);
+    return RimeLiveState(timeToken: time.value, channels: channels);
   }
 
   @override
