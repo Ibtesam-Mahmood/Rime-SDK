@@ -1,4 +1,4 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pubnub/core.dart';
 import 'package:pubnub/pubnub.dart';
@@ -11,11 +11,10 @@ import 'package:rime/state/rime_bloc/rime_bloc_state.dart';
 class RimeBloc extends Bloc<RimeEvent, RimeState> {
   /// Instance of rime that connects to the microservices
   final RimeRepository rime;
-
-  /// Maps the initial state for the RimeBloc
-  RimeBloc._(RimeState initialState)
-      : rime = RimeRepository(),
-        super(initialState);
+  
+  /// Maps the innitial state for the RimeBloc  
+  RimeBloc._(RimeState initialState)  
+    : rime = RimeRepository(), super(initialState);
 
   /// Primary contructor for the RimeBloc singleton
   factory RimeBloc() {
@@ -87,7 +86,13 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     await RimeApi.leaveChannel(RimeRepository().userID, channel);
   }
 
-  Stream<RimeState> _mapStoreToState(RimeChannel channel) async* {}
+  Stream<RimeState> _mapStoreToState(RimeChannel channel) async* {
+
+    List<Channel> storedChannels = state.channels;
+
+    // Channel storedCurrent = storedChannels.where((channel) => )
+
+  }
 
   Stream<RimeState> _mapClearToState() async* {
     for (RimeChannel chan in (state as RimeLiveState).channels) {}
