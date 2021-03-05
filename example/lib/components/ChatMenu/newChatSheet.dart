@@ -38,7 +38,7 @@ class _NewChatSheetState extends State<NewChatSheet> {
 
 
   //Load state for the search
-  final LoadBloc<List<UserInfo>> searchBloc = LoadBloc(null, innitialLoad: false);
+  final LoadBloc<List<UserInfo>> searchBloc = LoadBloc<List<UserInfo>>(null, innitialLoad: false);
 
   //Controls search text field
   TextEditingController _controller;

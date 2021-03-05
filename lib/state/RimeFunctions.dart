@@ -54,4 +54,35 @@ class RimeFunctions {
     return channels.channels.length;
 
   }
+
+  static Future<List<String>> getValidChannelGroups(String userID) async {
+
+    List<String> groups = [];
+    int groupNo = 0;
+
+    while(groupNo <= 9){
+
+      // Get the channel group with the given nam
+      String channelGroup = channelGroupID(userID, groupNo);
+
+      //Retreive the number of channels in group
+      int count = await getChannelGroupCount(channelGroup);
+
+      if(count == 2000){
+        groups.add(channelGroup);
+        groupNo++;
+      }
+      else if(count == 0){
+        break;
+      }
+      else if(count < 2000){
+        groups.add(channelGroup);
+        break;
+      }
+
+    }
+
+    return groups;
+
+  }
 }

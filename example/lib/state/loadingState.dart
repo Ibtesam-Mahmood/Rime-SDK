@@ -77,7 +77,7 @@ class LoadBloc<T> extends Bloc<LoadStateEvent<T>, LoadState<T>>{
   final Function(T) onSuccess;
   final Function() onFail;
 
-  LoadBloc(this._loadCall, {bool innitialLoad = true, this.onComplete, this.onSuccess, this.onFail}) : super(initialState) {
+  LoadBloc(this._loadCall, {bool innitialLoad = true, this.onComplete, this.onSuccess, this.onFail}) : super(LoadState<T>()) {
     //Runs the load call if the innitialLoad value is set to true
     if(innitialLoad){
       add(Load<T>());

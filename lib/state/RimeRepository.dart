@@ -28,7 +28,10 @@ class RimeRepository {
   String _userID;
 
   /// All pubnub subscriptions
-  Subscription _subscription;
+  Map<String, Subscription> _subscriptions = {};
+
+  /// Root subscription for recieving events
+  Subscription _rootSubscription;
   
   /// Subscription functions
   /// Run when something is subscribed to the
@@ -82,20 +85,40 @@ class RimeRepository {
     // Initialize the pubnub client
     _client = PubNub(defaultKeyset: pubnubKeySet);
 
-    //Retreive all user channel groups
-    List<String> channelGroups = RimeFunctions.getChannelGroups(userID);
+    //Subscribe to the root subscription
+    _rootSubscription = _client.subscribe(channels: Set.from([userID]));
+    _rootSubscription.messages.listen(_onRootCallBack);
 
-    //Subscribe to the channel
-    //And bind to listener
-    _subscription = await _client.subscribe(channelGroups: channelGroups.toSet());
-    _subscription.messages.listen(onMessageCallBack);
+    reset();
 
   }
 
+  ///Reset funtion. 
+  ///Subscribes to all valid channel groups
+  void reset() async {
+
+    //Retreive valid channel groups
+    List<String> channelGroups = await RimeFunctions.getValidChannelGroups(userID);
+
+    for (String groupID in channelGroups) {
+      if(!_subscriptions.containsKey(groupID)){
+        //Subscribe
+        Subscription sub = client.subscribe(channelGroups: Set.from([groupID]));
+        sub.messages.listen(onMessageCallBack);
+        _subscriptions[groupID] = sub;
+      }
+    }
+
+  }
+  
   /// Disposes the rime instance and all server connections
   void disposeRime() {
     //Unsubscribes from subscriptions
-    _subscription.cancel();
+    _rootSubscription.cancel();
+    for (var subscription in _subscriptions.keys) {
+      _subscriptions[subscription].cancel();
+    }
+    _subscriptions.clear();
 
     // Disposes the pubnub instance
     _client = null;
@@ -115,6 +138,13 @@ class RimeRepository {
   }
 
   // ~~~~~~~~~~~~~~~~~~~~ Interal Helpers ~~~~~~~~~~~~~~~~~~~~
+
+  /// Callback for root subscription
+  /// 
+  /// Responds to rime events
+  void _onRootCallBack(Envelope en){
+    reset();
+  }
 
   /// Calls all the lisnsters
   ///
