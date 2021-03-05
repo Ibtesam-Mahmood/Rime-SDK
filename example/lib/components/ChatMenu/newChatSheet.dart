@@ -92,7 +92,7 @@ class _NewChatSheetState extends State<NewChatSheet> {
 
   ///Function that runs when the users are confirmed
   void onConfirm() async {
-    RimeChannel newChat = await RimeApi.createChannel(users.map<String>((u) => u.id).toList());
+    RimeChannel newChat = await RimeApi.createChannel([PollarStoreBloc().loggedInUserID, ...users.map<String>((u) => u.id).toList()]);
 
     //Call the call back function
     if(widget.onCreate != null){
