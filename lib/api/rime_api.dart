@@ -7,9 +7,7 @@ import 'package:rime/state/RimeRepository.dart';
 
 class RimeApi {
   static Future<List<RimeChannel>> getChannels(int timeToken, [int size = 50]) {
-
-
-
+    
   }
 
   static Future<RimeChannel> createChannel(List<String> users) async {
@@ -86,11 +84,17 @@ class RimeApi {
     
   }
 
-  static void sendMessage(String loginID, BaseMessage message, String channel) {}
+  static void sendMessage(String loginID, BaseMessage message, String channel) {
 
-  static bool deleteChannel(String loginID, String channel) {}
+  }
 
-  static bool leaveChannel(String loginID, String channel) {}
+  static bool deleteChannel(String loginID, String channel) {
+
+  }
+
+  static bool leaveChannel(String loginID, String channel) {
+
+  }
 
   static Future<List<String>> getChannelGroups(String loginID) async {
     String availableGroup =

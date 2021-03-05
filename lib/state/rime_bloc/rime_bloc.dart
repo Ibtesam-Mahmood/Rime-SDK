@@ -30,9 +30,8 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
   @override
   Stream<RimeState> mapEventToState(RimeEvent event) async* {
     if(event is InitializeRime){
-
-    }
-    if (event is GetChannelsEvent) {
+      yield* _mapInitializeToState(event.userID);
+    } else if (event is GetChannelsEvent) {
       yield* _mapChannelsToState();
     } else if (event is CreateChannelEvent) {
       yield* _mapCreateChannelToState(event.channel, event.users, event.onSuccess);
@@ -55,27 +54,16 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     RimeRepository().initializeRime(userID);
 
     RimeRepository().addListener('rime-bloc-listener', onMessageCallBack);
+
+    RimeLiveState.initial();
     
     //Load in first batch of channels
     add(GetChannelsEvent());
-
-    // Retreive channels by userID
-    // TODO: API Call for getting more channels
-    // TODO: Make sure channels come in chronologically
-    // TODO: uncomment List<RimeChannel> moreChannels = RimeApi().
-    
-    // Get more channels
-    // TODO: uncomment following
-    /* for(RimeChannel chan in moreChannels){
-      _mapChannelToState(chan);
-    } */
   }
 
   Stream<RimeState> _mapChannelsToState() async* {
     List<RimeChannel> newChannels = await RimeApi.getChannels(DateTime.now().toTimetoken().value);
-    Map<String, RimeChannel> storedChannels = { for (var v in newChannels) v.channel : v };
-    List<String> channels = newChannels.map<String>((e) => e.channel);
-    yield RimeLiveState.initial().intializeChannels(channels, storedChannels);
+    yield (state as RimeLiveState).addChannelsBatch(newChannels, (await RimeRepository().client.time()).value);
   }
 
 
@@ -115,7 +103,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     //Api call to delete channel on PubNub
     RimeApi.deleteChannel(RimeRepository().userID, channel);
     //Delete channel from state
-    yield RimeLiveState.initial().removeChannel(currentChannel, DateTime.now().toTimetoken().value);
+    yield RimeLiveState.initial().removeChannel(currentChannel, (await RimeRepository().client.time()).value);
   }
 
   Stream<RimeState> _mapLeaveToState(String channel) async* {
@@ -126,18 +114,18 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     //Api call to leave channel on PubNub
     RimeApi.leaveChannel(RimeRepository().userID, channel);
     //Delete channel from state
-    yield RimeLiveState.initial().removeChannel(currentChannel, DateTime.now().toTimetoken().value);
+    yield RimeLiveState.initial().removeChannel(currentChannel, (await RimeRepository().client.time()).value);
   }
 
   /// Map a channel to state
   Stream<RimeState> _mapStoreToState(RimeChannel channel) async* {
     try{
       //new channel
-      yield RimeLiveState.initial().addChannel(channel, DateTime.now().toTimetoken().value);
+      yield RimeLiveState.initial().addChannel(channel, (await RimeRepository().client.time()).value);
     }
     catch(e){
       //update channel with info
-      yield RimeLiveState.initial().modifyChannel(channel, DateTime.now().toTimetoken().value);
+      yield RimeLiveState.initial().modifyChannel(channel, (await RimeRepository().client.time()).value);
     }
   }
 

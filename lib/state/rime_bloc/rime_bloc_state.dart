@@ -47,6 +47,22 @@ class RimeLiveState extends RimeState {
     orgainizedChannels.sort((a, b) => storedChannels[a].compareTo(storedChannels[b]));
     return RimeLiveState._(storedChannels: storedChannels, orgainizedChannels: orgainizedChannels, timeToken: timeToken);
   }
+
+  /// Generator for new state
+  /// 
+  /// Adds all channels to the state
+  /// Sorts the channels
+  RimeLiveState addChannelsBatch(List<RimeChannel> channels, int timeToken){
+
+    for (RimeChannel channel in channels) {
+      if(storedChannels.containsKey(channel.channel)){
+        storedChannels[channel.channel] = channel;
+        orgainizedChannels.add(channel.channel);
+      } 
+    }
+    orgainizedChannels.sort((a, b) => storedChannels[a].compareTo(storedChannels[b]));
+    return RimeLiveState._(storedChannels: storedChannels, orgainizedChannels: orgainizedChannels, timeToken: timeToken);
+  }
   
   /// Genenrator for a new state.
   /// 
@@ -68,10 +84,6 @@ class RimeLiveState extends RimeState {
     storedChannels[channel.channel] = storedChannels[channel.channel].copyWith(channel);
     orgainizedChannels.sort((a, b) => storedChannels[a].compareTo(storedChannels[b]));
     return RimeLiveState._(storedChannels: storedChannels, orgainizedChannels: orgainizedChannels, timeToken: timeToken);
-  }
-
-  RimeLiveState intializeChannels(List<String> orgainizedChannels, Map<String, RimeChannel> storedChannels){
-    return RimeLiveState._(storedChannels: storedChannels, orgainizedChannels: orgainizedChannels);
   }
 
   
