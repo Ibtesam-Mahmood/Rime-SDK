@@ -14,7 +14,11 @@ dependencies:
   get_it: 5.0.6
   flutter_bloc: ^6.1.2
   firebase_messaging: 7.0.3
-  pubnub: ^3.1.0
+  pubnub: 
+    git: 
+      url: https://github.com/ChristopherGuay/dart.git
+      path: ./pubnub
+      ref: b4dfdfee4999dfcc4f1417017724604475499f8d
   crypto: ^2.1.5
   tuple: ^1.0.3
   flutter_easyrefresh: ^2.1.8
