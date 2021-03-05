@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rime/model/channel.dart';
 import 'chatTile.dart';
 import 'chatTileAction.dart';
 import 'chatSpacer.dart';
@@ -7,10 +8,10 @@ class ChatList extends StatelessWidget {
 
   final Widget tile;
   final Widget spacer;
-  final int childCount;
+  final List<RimeChannel> children;
 
-  ChatList({this.tile, this.spacer, @required this.childCount}) : 
-  assert(childCount != null);
+  ChatList({this.tile, this.spacer, @required this.children}) : 
+  assert(children != null);
 
   Widget build(BuildContext context) {
     return SliverList(
@@ -21,6 +22,7 @@ class ChatList extends StatelessWidget {
               tile ?? ChatTile(
                 //TODO: Add id of chat to ValueKey
                 key: ValueKey('chatTile - '),
+
                 actions: [
                   ChatTileAction(
                     decoration: BoxDecoration(
@@ -48,7 +50,7 @@ class ChatList extends StatelessWidget {
             ],
           );
         },
-        childCount: childCount
+        childCount: children.length
       ),
     );
   }

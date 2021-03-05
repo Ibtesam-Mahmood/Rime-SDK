@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:rime/model/channel.dart';
 import '../../pages/Chat/ChatPage.dart';
 import 'wrappedListTile.dart';
 import 'overLappingProfilePictures.dart';
 
 class ChatTile extends StatefulWidget {
 
+  final RimeChannel rimeChannel;
 
   final List<Widget> actions;
 
   //TODO: Insert chat object
-  const ChatTile({Key key, this.actions}) : super(key: key);
+  const ChatTile({Key key, this.actions, this.rimeChannel}) : super(key: key);
 
   @override
   _ChatTileState createState() => _ChatTileState();
