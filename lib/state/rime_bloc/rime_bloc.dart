@@ -17,12 +17,16 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
 
   /// Primary contructor for the RimeBloc singleton
   factory RimeBloc() {
-    //Binds singleton if not bound
-    if (GetIt.I.get<RimeBloc>() == null) {
-      GetIt.I.registerSingleton<RimeBloc>(RimeBloc._(RimeBloc.initialState));
+    RimeBloc bloc;
+
+    try {
+      bloc = GetIt.instance.get<RimeBloc>();
+    } catch (e) {
+      GetIt.instance.registerSingleton(RimeBloc._(initialState));
+      bloc = GetIt.instance.get<RimeBloc>();
     }
 
-    return GetIt.I.get<RimeBloc>();
+    return bloc;
   }
 
   /// Getter for initial state

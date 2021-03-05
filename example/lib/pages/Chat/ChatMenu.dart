@@ -135,7 +135,7 @@ class _RimeMessagesMenuState extends State<RimeMessagesMenu> {
         //Organized channels
         List<RimeChannel> channels = liveState.orgainizedChannels.map<RimeChannel>((channel){
           return liveState.storedChannels[channel];
-        });
+        }).toList();
         
         return EasyRefresh(
           bottomBouncing: false,

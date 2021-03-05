@@ -52,7 +52,7 @@ class _MainLoginPageState extends State<MainLoginPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: PollarBackButton()
+        // leading: PollarBackButton()
       ),
       body: Padding(
         padding: const EdgeInsets.only(left: 24.0),

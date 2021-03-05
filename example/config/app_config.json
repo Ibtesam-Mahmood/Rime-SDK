@@ -1,7 +1,0 @@
-{
-    "env": "d1e2v3",
-    "devURL": "https://pollar-app-dev.herokuapp.com/api",
-    "pubNubPublush": "pub-c-8a6d1d25-24cf-4b8e-b773-fa37f59b854e",
-    "pubNubSubscribe": "sub-c-2245b5aa-9c69-11ea-8e71-f2b83ac9263d",
-    "awsBase": "https://pollar-app-topics.s3.amazonaws.com/"
-  }

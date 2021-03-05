@@ -12,8 +12,7 @@ import './util/config_reader.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
 
 void main(List<String> args) async {
-  // WidgetsFlutterBinding.ensureInitialized();
-  // await ConfigReader.initialize();
+  WidgetsFlutterBinding.ensureInitialized();
 
   print('Initializing');
   await DotEnv.load(fileName: '.env');
