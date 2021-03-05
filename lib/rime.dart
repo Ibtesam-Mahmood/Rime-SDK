@@ -1,5 +1,7 @@
 library rime;
 
+export 'package:pubnub/pubnub.dart';
+
 import 'package:get_it/get_it.dart';
 import 'package:rime/state/RimeRepository.dart';
 import 'package:rime/state/core/rime_root_functions.dart';

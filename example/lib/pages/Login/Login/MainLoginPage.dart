@@ -23,10 +23,10 @@ class MainLoginPage extends StatefulWidget {
 class _MainLoginPageState extends State<MainLoginPage> {
 
   ///Login credentials used, either username, phone or email
-  String credentials = '';
+  String credentials = 'befy';
 
   ///Password the user enters to attempt login
-  String password = '';
+  String password = 'password';
 
   ///Getter used to define if the login button is enabled
   bool get enableLogin {
@@ -73,6 +73,7 @@ class _MainLoginPageState extends State<MainLoginPage> {
               style: textStyles.headline4.copyWith(color: appColors.onBackground, decoration: TextDecoration.none),
               decoration: InputDecoration(
                 hintText: 'Username, mobile or email',
+
                 hintStyle: textStyles.headline4.copyWith(color: appColors.grey),
                 border: InputBorder.none
               ),

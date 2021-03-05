@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'innerShadow.dart';
 
 class ChatMenuHeader extends StatelessWidget {
+  
 
   @override
   Widget build(BuildContext context) {
@@ -42,16 +43,9 @@ class ChatMenuHeader extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 Text('Messages'),
-                GestureDetector(
-                  //TODO: Implement number of requests
-                  child: Text('Requests'),
-                  onTap: () {
-                    //TODO: Implement onTap
-                  },
-                )
               ],
             ),
           ),

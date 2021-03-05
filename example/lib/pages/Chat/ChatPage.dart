@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:rime/state/channel_state/channel_state.dart';
 
 import '../../components/ChatMessage/messageScreen.dart';
 import '../../components/Picker/picker.dart';
@@ -10,7 +11,8 @@ import '../../util/colorProvider.dart';
 
 class ChatPage extends StatefulWidget {
   // final Chat chatModel;
-  // ChatPage({Key key, this.chatModel}) : super(key: key);
+  final String channelID;
+  ChatPage({Key key, this.channelID}) : super(key: key);
   @override
   _ChatPageState createState() => _ChatPageState();
 }
@@ -44,6 +46,8 @@ class _ChatPageState extends State<ChatPage> {
   bool keyBoardOpen = false;
 
   ScrollController controller;
+
+  ChannelProviderController _channelStateProviderController;
 
   ///The current chat model, null if new chat
   // Chat chat;
@@ -90,6 +94,8 @@ class _ChatPageState extends State<ChatPage> {
 
     chatViewMenuController = ChatPageController();
 
+    _channelStateProviderController = ChannelProviderController();
+
     pickerController = PickerController(
       onImageReceived: (value){
         setState(() {
@@ -115,6 +121,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void dispose() {
     chatViewMenuController?.dispose();
+    _channelStateProviderController?.dispose();
 
     ///Unblock push notifications
     // Notifeye().add(DismissNotification(unBlock: true));
@@ -173,177 +180,183 @@ class _ChatPageState extends State<ChatPage> {
     final textStyles = Theme.of(context).textTheme;
 
 
-    return Picker(
-      controller: pickerController,
-      backgroundColor: appColors.surface,
-      initialExtent: 0.4,
-      expandedExtent: 1.0,
-      child: Scaffold(
+    return ChannelStateProvider(
+      channelID: widget.channelID,
+      controller: _channelStateProviderController,
+      builder: (context, channel, messages) {
+        return Picker(
+          controller: pickerController,
+          backgroundColor: appColors.surface,
+          initialExtent: 0.4,
+          expandedExtent: 1.0,
+          child: Scaffold(
 
-        resizeToAvoidBottomInset: false,
-        backgroundColor: appColors.surface,
+            resizeToAvoidBottomInset: false,
+            backgroundColor: appColors.surface,
 
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(kToolbarHeight),
-          child: FrostedEffect(
-            frost: true,
-            child: Container(
-              color: appColors.surface.withOpacity(0.7),
-              height: 88,
-              width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 8, left: 16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back_ios),
-                      onPressed: (){
-                        Navigator.pop(context);
-                      },
+            appBar: PreferredSize(
+              preferredSize: Size.fromHeight(kToolbarHeight),
+              child: FrostedEffect(
+                frost: true,
+                child: Container(
+                  color: appColors.surface.withOpacity(0.7),
+                  height: 88,
+                  width: double.infinity,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8, left: 16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.arrow_back_ios),
+                          onPressed: (){
+                            Navigator.pop(context);
+                          },
+                        ),
+                        // user.isNotEmpty ? Padding(
+                        //   padding: const EdgeInsets.only(left: 16),
+                        //   child: Text(chatName, style: textStyles.headline3.copyWith(color: appColors.onBackground)),
+                        // ) : Container(),
+                        Spacer(),
+                        // Padding(
+                        //   padding: const EdgeInsets.only(right: 20),
+                        //   child: id != 'DUMMY-${PollarStoreBloc().loggedInUserID}' ? GestureDetector(
+                        //     child: Icon(PollarIcons.more_options, color: appColors.grey),
+                        //     onTap: (){
+                        //       if(user.length == 1){
+                        //         showModalBottomSheet(
+                        //           context: context, 
+                        //           backgroundColor: Colors.transparent,
+                        //           builder: (context){
+                        //             // return EditSingleChat(user: user[0], chatID: id);
+                        //           }
+                        //         );
+                        //       }
+                        //       else{
+                        //         showModalBottomSheet(
+                        //           context: context, 
+                        //           backgroundColor: Colors.transparent,
+                        //           builder: (context){
+                        //             // return EditGroupChat(users: user, chat: widget.chatModel);
+                        //           }
+                        //         );
+                        //       }
+                        //     },
+                        //   ) : Container(),
+                        // )
+                      ],
                     ),
-                    // user.isNotEmpty ? Padding(
-                    //   padding: const EdgeInsets.only(left: 16),
-                    //   child: Text(chatName, style: textStyles.headline3.copyWith(color: appColors.onBackground)),
-                    // ) : Container(),
-                    Spacer(),
-                    // Padding(
-                    //   padding: const EdgeInsets.only(right: 20),
-                    //   child: id != 'DUMMY-${PollarStoreBloc().loggedInUserID}' ? GestureDetector(
-                    //     child: Icon(PollarIcons.more_options, color: appColors.grey),
-                    //     onTap: (){
-                    //       if(user.length == 1){
-                    //         showModalBottomSheet(
-                    //           context: context, 
-                    //           backgroundColor: Colors.transparent,
-                    //           builder: (context){
-                    //             // return EditSingleChat(user: user[0], chatID: id);
-                    //           }
-                    //         );
-                    //       }
-                    //       else{
-                    //         showModalBottomSheet(
-                    //           context: context, 
-                    //           backgroundColor: Colors.transparent,
-                    //           builder: (context){
-                    //             // return EditGroupChat(users: user, chat: widget.chatModel);
-                    //           }
-                    //         );
-                    //       }
-                    //     },
-                    //   ) : Container(),
-                    // )
-                  ],
+                  )
                 ),
-              )
+              ),
             ),
-          ),
-        ),
-        body: Container(
-          color: appColors.surface,
-          height: double.infinity,
-          child: NotificationListener<ScrollNotification>(
-            onNotification: (scrollNotification){
-              if(scrollNotification.metrics.extentBefore > 100){
-                setState(() {
-                  if(pickerController.type == PickerType.ImagePicker){
-                    pickerController.closeImagePicker();
-                    keyBoardOpen = false;
+            body: Container(
+              color: appColors.surface,
+              height: double.infinity,
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (scrollNotification){
+                  if(scrollNotification.metrics.extentBefore > 100){
+                    setState(() {
+                      if(pickerController.type == PickerType.ImagePicker){
+                        pickerController.closeImagePicker();
+                        keyBoardOpen = false;
+                      }
+                      else if(pickerController.type == PickerType.GiphyPickerView){
+                        pickerController.closeGiphyPicker();
+                        keyBoardOpen = false;
+                      }
+                      else{
+                        focusNode.unfocus();
+                        keyBoardOpen = false;
+                      }
+                    });
                   }
-                  else if(pickerController.type == PickerType.GiphyPickerView){
-                    pickerController.closeGiphyPicker();
-                    keyBoardOpen = false;
-                  }
-                  else{
-                    focusNode.unfocus();
-                    keyBoardOpen = false;
-                  }
-                });
-              }
-              return false;
-            },
-            child: Container(
-              child: MessageScreen(),
+                  return false;
+                },
+                child: Container(
+                  child: MessageScreen(messages: messages, channelProviderController: _channelStateProviderController),
+                ),
+              ),
             ),
-          ),
-        ),
-        //TODO: Implement ChatAppBar
-        // bottomNavigationBar: ChatAppBar(
-        //   controller: chatViewMenuController,
-        //   pickerController: pickerController,
-        //   focusNode: focusNode,
-        //   openImages: (){
+            //TODO: Implement ChatAppBar
+            // bottomNavigationBar: ChatAppBar(
+            //   controller: chatViewMenuController,
+            //   pickerController: pickerController,
+            //   focusNode: focusNode,
+            //   openImages: (){
 
-        //     //Close or open accordingly
-        //     if(pickerController?.type != PickerType.ImagePicker){
-        //       pickerController.openImagePicker();
-        //       setState(() {
-        //         focusNode.unfocus();
-        //       });
-        //     }
-        //     else if(keyBoardOpen){
-        //       pickerController.closeImagePicker();
-        //       setState(() {
-        //         focusNode.requestFocus();
-        //       });
-        //     }
-        //     else{
-        //       pickerController.closeImagePicker();
-        //       setState(() {
-        //         focusNode.unfocus();
-        //       });
-        //     }
+            //     //Close or open accordingly
+            //     if(pickerController?.type != PickerType.ImagePicker){
+            //       pickerController.openImagePicker();
+            //       setState(() {
+            //         focusNode.unfocus();
+            //       });
+            //     }
+            //     else if(keyBoardOpen){
+            //       pickerController.closeImagePicker();
+            //       setState(() {
+            //         focusNode.requestFocus();
+            //       });
+            //     }
+            //     else{
+            //       pickerController.closeImagePicker();
+            //       setState(() {
+            //         focusNode.unfocus();
+            //       });
+            //     }
 
-        //   },
-        //   openGif: (){
-        //     //Close or open accordingly
-        //     if(pickerController?.type != PickerType.GiphyPickerView){
-        //       pickerController.openGiphyPicker();
-        //       setState(() {
-        //         focusNode.unfocus();
-        //       });
-        //     }
-        //     else if(keyBoardOpen){
-        //       pickerController.closeGiphyPicker();
-        //       setState(() {
-        //         focusNode.requestFocus();
-        //       });
-        //     }
-        //     else{
-        //       pickerController.closeGiphyPicker();
-        //       setState(() {
-        //         focusNode.unfocus();
-        //       });
-        //     }
-        //   },
-        //   onTap: () {
-        //     setState(() {
+            //   },
+            //   openGif: (){
+            //     //Close or open accordingly
+            //     if(pickerController?.type != PickerType.GiphyPickerView){
+            //       pickerController.openGiphyPicker();
+            //       setState(() {
+            //         focusNode.unfocus();
+            //       });
+            //     }
+            //     else if(keyBoardOpen){
+            //       pickerController.closeGiphyPicker();
+            //       setState(() {
+            //         focusNode.requestFocus();
+            //       });
+            //     }
+            //     else{
+            //       pickerController.closeGiphyPicker();
+            //       setState(() {
+            //         focusNode.unfocus();
+            //       });
+            //     }
+            //   },
+            //   onTap: () {
+            //     setState(() {
 
-        //       if(pickerController?.type == PickerType.GiphyPickerView)
-        //         {pickerController.closeGiphyPicker();}
-        //       else if(pickerController?.type == PickerType.ImagePicker)
-        //         {pickerController.closeImagePicker();}
+            //       if(pickerController?.type == PickerType.GiphyPickerView)
+            //         {pickerController.closeGiphyPicker();}
+            //       else if(pickerController?.type == PickerType.ImagePicker)
+            //         {pickerController.closeImagePicker();}
 
-        //       keyBoardOpen = true;
-        //     });
-        //   },
-        //   onCreate: (newChat){
-        //     setState((){
-        //       id = newChat.id;
-        //       chat = newChat;
-        //     });
-        //   },
-        //   onSwap: (){
-        //     pickerController.openGiphyPicker();
-        //     setState(() {
-        //       focusNode.unfocus();
-        //     });
-        //   },
-        //   chat: widget.chatModel,
-        // ),
-        ),
-      );
+            //       keyBoardOpen = true;
+            //     });
+            //   },
+            //   onCreate: (newChat){
+            //     setState((){
+            //       id = newChat.id;
+            //       chat = newChat;
+            //     });
+            //   },
+            //   onSwap: (){
+            //     pickerController.openGiphyPicker();
+            //     setState(() {
+            //       focusNode.unfocus();
+            //     });
+            //   },
+            //   chat: widget.chatModel,
+            // ),
+            ),
+          );
+      }
+    );
   }
 }
 

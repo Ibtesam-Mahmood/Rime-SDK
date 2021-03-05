@@ -11,10 +11,10 @@ class WrappedListTile extends StatelessWidget {
   ///Default textStyle is `textStyles.bodyText1, onBackground, Semibold`
   final String title;
 
-  ///The style for the title, overides default style. 
+  ///The style for the title, overides default style.
   final TextStyle titleStyle;
 
-  ///The widget displayed under the title. 
+  ///The widget displayed under the title.
   final Widget subtitle;
 
   ///The widget to be displayed at the end
@@ -30,57 +30,65 @@ class WrappedListTile extends StatelessWidget {
   ///defualted to `EdgeInsets.zero`
   final EdgeInsets contentPadding;
 
-  const WrappedListTile({Key key, this.leading, this.title = '', this.subtitle, this.trailing, this.onTap, this.contentPadding = EdgeInsets.zero, this.titleOnTap, this.titleStyle}) : super(key: key);
+  const WrappedListTile(
+      {Key key,
+      this.leading,
+      this.title = '',
+      this.subtitle,
+      this.trailing,
+      this.onTap,
+      this.contentPadding = EdgeInsets.zero,
+      this.titleOnTap,
+      this.titleStyle})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-
     return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Padding(
-        padding: contentPadding ?? EdgeInsets.zero,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: [
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap ?? ()=>{},
+        child: Padding(
+          padding: contentPadding,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              //leading widget
+              if (leading != null)
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: titleOnTap ?? ()=>{},
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Center(child: leading),
+                  ),
+                ),
 
-            //leading widget
-            if(leading != null)
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: titleOnTap,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: Center(child: leading),
+              //title and subtitle
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: titleOnTap,
+                      //TODO: Add textStyle
+                      child: Text(
+                        title,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (subtitle != null)
+                      Flexible(fit: FlexFit.loose, child: subtitle)
+                  ],
                 ),
               ),
 
-          //title and subtitle
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: titleOnTap,
-                  //TODO: Add textStyle
-                  child: Text(
-                    title,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                if (subtitle != null)
-                  Flexible(fit: FlexFit.loose, child: subtitle)
-              ],
-            ),),
-
-            trailing ?? SizedBox.shrink()
-          ],
-        ),
-      )
-    );
+              trailing ?? SizedBox.shrink()
+            ],
+          ),
+        ));
   }
 }

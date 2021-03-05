@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:rime/rime.dart';
+import 'package:rime/state/channel_state/channel_state.dart';
 import '../ChatMenu/fadeInUserImage.dart';
 import '../ChatMenu/loading.dart';
 import '../Messages/textMessage.dart';
 
+
+
 class MessageScreen extends StatefulWidget {
+  final List<BaseMessage> messages;
+  final ChannelProviderController channelProviderController;
+
+  const MessageScreen({Key key, this.channelProviderController, this.messages}) : super(key: key);
+
   @override
   _MessageScreenState createState() => _MessageScreenState();
 }
@@ -22,10 +31,10 @@ class _MessageScreenState extends State<MessageScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
-    messages = ['hello', 'Whats good'];
+    widget.messages.forEach((element) { messages.add(element.content['message']); });// ['hello', 'Whats good'];
+    
     print(messages.length);
   }
 
