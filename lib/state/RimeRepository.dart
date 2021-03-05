@@ -128,12 +128,13 @@ class RimeRepository {
 
   ///Adding a listner to the rimeCallBack
   void addListener(String id, RimeCallBack callBack) {
+    assert(!_callBackSubscriptions.containsKey(id));
     _callBackSubscriptions[id] = callBack;
   }
 
   ///Removes a listner from the rimeCallBack
   void removeListener(String id) {
-    _callBackSubscriptions[id] = null;
+    _callBackSubscriptions.remove(id);
   }
 
   // ~~~~~~~~~~~~~~~~~~~~ Interal Helpers ~~~~~~~~~~~~~~~~~~~~

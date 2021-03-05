@@ -1,7 +1,8 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:rime/state/rime_bloc/rime_bloc_state.dart';
 
-class RimeChannel extends Comparable<RimeChannel> {
+class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
   String channel;
   String groupId;
   String title;
@@ -68,9 +69,27 @@ class RimeChannel extends Comparable<RimeChannel> {
     } 
     return -1;
   }
+
+  //Hashes the read map
+  String get _hashReadMap{
+
+    //If read map is not defined
+    String hash = ''; 
+    if(readMap == null) return hash;
+
+    //Maps the keys and values into a combined string
+    for (MapEntry<String, int> item in readMap.entries) {
+      hash = item.key + '-' + item.value.toString();
+    }
+    return hash;
+  }
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [channel, title, subtitle, image, isGroup, _hashReadMap, membership];
 }
 
-class RimeChannelMemebership {
+class RimeChannelMemebership with EquatableMixin {
   bool notifications;
   bool readAction;
   bool accepted;
@@ -112,4 +131,8 @@ class RimeChannelMemebership {
       deleted: json['deleted']
     );
   }
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [notifications, readAction, accepted, deleted];
 }
