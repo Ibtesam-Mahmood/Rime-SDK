@@ -11,10 +11,8 @@ dependencies:
     sdk: flutter
   get_it: 5.0.6
   firebase_messaging: 7.0.3
-  pubnub: ^3.1.0
   crypto: ^2.1.5
   tuple: ^1.0.3
-  flutter_dotenv: ^3.1.0
   flutter_easyrefresh: ^2.1.8
   flutter_slidable: ^0.5.7
   colorful_safe_area: ^0.2.1
@@ -27,12 +25,15 @@ dependencies:
   photo_manager: ^0.5.8
   flutter_linkify: ^3.1.0
   rime:
+  cached_network_image: ^2.5.0
+  flutter_dotenv: ^3.1.0
 
 dependency_overrides:
   rime:
     path: ../
 
 dev_dependencies:
+  test:
   flutter_test:
     sdk: flutter
   progress_dialog: 1.2.0
@@ -45,5 +46,6 @@ flutter:
   uses-material-design: true
 
   assets:
-  - config/
-  - assets/
+    - config/
+    - .env
+    - assets/
