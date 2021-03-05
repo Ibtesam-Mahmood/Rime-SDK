@@ -166,7 +166,7 @@ class _PickerState extends State<Picker> {
     var height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: false,
       backgroundColor: widget.backgroundColor,
       body: Stack(
         children: [
