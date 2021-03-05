@@ -263,8 +263,45 @@ void main() async {
               includeChannelFields: true,
               includeCustomFields: true,
               sort: Set.from(['channel.updated:desc']),
-              limit: 2,
-              start: "Mg");
+              limit: 1);
+      print('Got em');
+    });
+
+    test('Get Memberships page names', () async {
+      DateTime start = DateTime.now();
+      int pageSize = 1;
+      MembershipsResult memRes = await RimeRepository()
+          .client
+          .objects
+          .getMemberships(
+              includeChannelCustomFields: true,
+              includeChannelFields: true,
+              includeCustomFields: true,
+              sort: Set.from(['channel.updated:desc']),
+              limit: pageSize);
+      String nextPage = memRes.next;
+      int totalCount = memRes.totalCount;
+      int numPages = (totalCount ~/ pageSize);
+      List<String> pageNames = [];
+      pageNames.add(nextPage);
+      for (int i = 1; i < numPages; i++) {
+        MembershipsResult memRes = await RimeRepository()
+            .client
+            .objects
+            .getMemberships(
+                includeChannelCustomFields: true,
+                includeChannelFields: true,
+                includeCustomFields: true,
+                sort: Set.from(['channel.updated:desc']),
+                limit: pageSize,
+                start: nextPage);
+        nextPage = memRes.next;
+        pageNames.add(nextPage);
+      }
+
+      DateTime end = DateTime.now();
+      Duration duration = end.difference(start);
+      print(duration.inMilliseconds);
       print('Got em');
     });
 
