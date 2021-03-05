@@ -35,12 +35,16 @@ class ChannelStateProvider extends StatefulWidget {
   /// The amount of messages loaded in every load more request
   final int loadSize;
 
+  /// The controller for the channel 
+  final ChannelProviderController controller;
+
   const ChannelStateProvider({
     Key key, 
     @required this.channelID, 
     this.builder, 
     this.listner, 
-    this.loadSize = MESSAGE_CHUNK_SIZE
+    this.loadSize = MESSAGE_CHUNK_SIZE, 
+    this.controller
   }) : assert(channelID != null),
     assert(loadSize != null),
     super(key: key);
@@ -67,7 +71,14 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
 
     //Retreive channel from Rime
     _initialize();
+  }
 
+  @override
+  void didChangeDependencies(){
+    super.didChangeDependencies();
+
+    //Binds the controller
+    widget.controller?._bind(this);
   }
 
   @override
@@ -124,7 +135,7 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
   }
 
   /// Loads more messages into the history
-  void loadMore() async {
+  Future<bool> loadMore() async {
     
     //The length of the list
     //Used to add new messages to the list
@@ -135,6 +146,8 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
     setState(() {
       messages.addAll(history.messages.sublist(index));
     });
+
+    return history.hasMore;
 
   }
 
@@ -169,5 +182,26 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
         return widget.builder != null ? widget.builder(context, channel, messages) : Container();
       },
     );
+  }
+}
+
+///Controller for the channel provider
+class ChannelProviderController extends ChangeNotifier {
+  _ChannelStateProviderState _state;
+
+  ///Binds the state
+  void _bind(_ChannelStateProviderState bind) => _state = bind;
+
+  //Called to notify all listners
+  void _update() => notifyListeners();
+
+  // Loads more from state
+  void loadMore() => _state != null ? _state.loadMore() : null;
+
+  //Disposes of the controller
+  @override
+  void dispose() {
+    _state = null;
+    super.dispose();
   }
 }
