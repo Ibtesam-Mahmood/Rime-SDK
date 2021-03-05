@@ -180,7 +180,7 @@ class _ChatPageState extends State<ChatPage> {
       expandedExtent: 1.0,
       child: Scaffold(
 
-        resizeToAvoidBottomPadding: false,
+        resizeToAvoidBottomInset: false,
         backgroundColor: appColors.surface,
 
         appBar: PreferredSize(
