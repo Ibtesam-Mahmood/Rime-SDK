@@ -47,7 +47,15 @@ class RimeApi {
   }
 
   static RimeChannel getChannel(String channel) {
-
+    Channel currentChannel = RimeRepository().client.channel(channel);
+    BaseMessage message = currentChannel.history(chunkSize: 1).messages?.first ?? null;
+    RimeChannel rimeChannel = RimeChannel(
+      channel: channel,
+      title: currentChannel.name,
+      subtitle: message.content,
+      lastUpdated: message.publishedAt.toDateTime(),
+    );
+    return rimeChannel;
   }
 
   static bool deleteChannel(String loginID, String channel) {
