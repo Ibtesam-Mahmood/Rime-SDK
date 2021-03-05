@@ -35,7 +35,8 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     if (event is GetChannelsEvent) {
       yield* _mapChannelsToState(event.userID);
     } else if (event is CreateChannelEvent) {
-      yield* _mapCreateChannelToState(event.channel, event.users, event.onSuccess);
+      yield* _mapCreateChannelToState(
+          event.channel, event.users, event.onSuccess);
     } else if (event is MessageEvent) {
       yield* _mapMessageToState(event.message, event.channel);
     } else if (event is DeleteEvent) {
@@ -53,12 +54,12 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
   Stream<RimeState> _mapChannelsToState(String userID) async* {
     // Initialize rime state
     rime.initializeRime(userID);
-    
+
     // Retreive channels by userID
     // TODO: API Call for getting more channels
     // TODO: Make sure channels come in chronologically
     // TODO: uncomment List<RimeChannel> moreChannels = RimeApi().
-    
+
     // Get more channels
     // TODO: uncomment following
     /* for(RimeChannel chan in moreChannels){
@@ -66,16 +67,13 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     } */
   }
 
-
-  Stream<RimeState> _mapCreateChannelToState(RimeChannel channel, List<String> users, Function(RimeChannel) onSuccess) async* {
+  Stream<RimeState> _mapCreateChannelToState(RimeChannel channel,
+      List<String> users, Function(RimeChannel) onSuccess) async* {
     //Get users and create title so what is title ??
-    channel = channel.copyWith(
-      RimeChannel(
+    channel = channel.copyWith(RimeChannel(
         title: "Hello",
         channel: DateTime.now().toString(),
-        lastUpdated: DateTime.now()
-      )
-    );
+        lastUpdated: DateTime.now()));
 
     yield* _mapStoreToState(channel);
 
@@ -84,20 +82,19 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     await RimeApi.createChannel(users);
   }
 
-  Stream<RimeState> _mapMessageToState(BaseMessage message, String channel) async* {
+  Stream<RimeState> _mapMessageToState(
+      BaseMessage message, String channel) async* {
     //get channels from state
     List<RimeChannel> storedChannels = (state as RimeLiveState).channels;
     //get specific channel
-    RimeChannel currentChannel = storedChannels.firstWhere((element) => element.channel == channel, orElse: () => null);
+    RimeChannel currentChannel = storedChannels.firstWhere(
+        (element) => element.channel == channel,
+        orElse: () => null);
     //Remove channel from list to add to top
     storedChannels.remove(currentChannel);
     //update with content and new timestamp
     currentChannel = currentChannel.copyWith(
-      RimeChannel(
-        subtitle: message.content,
-        lastUpdated: DateTime.now()
-      )
-    );
+        RimeChannel(subtitle: message.content, lastUpdated: DateTime.now()));
 
     _mapStoreToState(currentChannel);
   }
@@ -106,28 +103,36 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     //get channels from state
     List<RimeChannel> storedChannels = (state as RimeLiveState).channels;
     //get specific channel
-    RimeChannel currentChannel = storedChannels.firstWhere((element) => element.channel == channel, orElse: () => null);
+    RimeChannel currentChannel = storedChannels.firstWhere(
+        (element) => element.channel == channel,
+        orElse: () => null);
     //remove channel from stored
-    if(currentChannel != null){
-      storedChannels.removeWhere((element) => element.channel == currentChannel.channel);
+    if (currentChannel != null) {
+      storedChannels
+          .removeWhere((element) => element.channel == currentChannel.channel);
     }
     //Api call to delete channel on PubNub
-    RimeApi.deleteChannel(RimeRepository().userID, channel);
-    yield RimeLiveState.editState((state as RimeLiveState), channels: storedChannels);
+    RimeApi.deleteChannel(channel);
+    yield RimeLiveState.editState((state as RimeLiveState),
+        channels: storedChannels);
   }
 
   Stream<RimeState> _mapLeaveToState(String channel) async* {
     //get channels from state
     List<RimeChannel> storedChannels = (state as RimeLiveState).channels;
     //get specific channel
-    RimeChannel currentChannel = storedChannels.firstWhere((element) => element.channel == channel, orElse: () => null);
+    RimeChannel currentChannel = storedChannels.firstWhere(
+        (element) => element.channel == channel,
+        orElse: () => null);
     //remove channel from stored
-    if(currentChannel != null){
-      storedChannels.removeWhere((element) => element.channel == currentChannel.channel);
+    if (currentChannel != null) {
+      storedChannels
+          .removeWhere((element) => element.channel == currentChannel.channel);
     }
     //Api call to leave channel on PubNub
     RimeApi.leaveChannel(RimeRepository().userID, channel);
-    yield RimeLiveState.editState((state as RimeLiveState), channels: storedChannels);
+    yield RimeLiveState.editState((state as RimeLiveState),
+        channels: storedChannels);
   }
 
   /// Map a channel to state
@@ -135,26 +140,29 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     //get channels from state
     List<RimeChannel> storedChannels = (state as RimeLiveState).channels;
     //get specific channel
-    RimeChannel currentChannel = storedChannels.firstWhere((element) => element.channel == channel.channel, orElse: () => null);
+    RimeChannel currentChannel = storedChannels.firstWhere(
+        (element) => element.channel == channel.channel,
+        orElse: () => null);
     //get channel index
-    int index = storedChannels.indexWhere((element) => element.channel == channel.channel);
+    int index = storedChannels
+        .indexWhere((element) => element.channel == channel.channel);
 
     if (currentChannel != null) {
       //update channel with info
       currentChannel = currentChannel.copyWith(channel);
       storedChannels[index] = currentChannel;
-    }
-    else{
+    } else {
       //new channel
       currentChannel = channel;
       storedChannels.insert(0, currentChannel);
     }
 
-    yield RimeLiveState.editState((state as RimeLiveState), channels: storedChannels);
+    yield RimeLiveState.editState((state as RimeLiveState),
+        channels: storedChannels);
   }
 
   Stream<RimeState> _mapClearToState() async* {
-    for(RimeChannel channel in (state as RimeLiveState).channels){
+    for (RimeChannel channel in (state as RimeLiveState).channels) {
       channel.dispose();
     }
 

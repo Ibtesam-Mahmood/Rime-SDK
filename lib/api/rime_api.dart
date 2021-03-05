@@ -79,7 +79,7 @@ class RimeApi {
             filter: filter);
 
     if (currentMembership.totalCount == 0) {
-      throw Exception('$loginID is not part of $channelID');
+      throw Exception('The user is not part of $channelID');
     }
 
     //Edit the deleted custom metadata

@@ -124,7 +124,7 @@ void main() async {
       String channelID = 'rime_testUser1_16148386848078668';
       String userID2 = RimeRepository().userID;
       String filter = 'channel.id == "$channelID"';
-      bool success = await RimeApi.deleteChannel(userID2, channelID);
+      bool success = await RimeApi.deleteChannel(channelID);
 
       MembershipsResult currentMembership = await RimeRepository()
           .client
@@ -677,5 +677,3 @@ Future printAllGroupsForUser(String userID) async {
   List<String> g = await RimeApi.getChannelGroups(userID);
   print('Groups: ' + g.toString());
 }
-
-
