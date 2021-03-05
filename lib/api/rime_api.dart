@@ -7,9 +7,6 @@ import 'package:rime/state/RimeRepository.dart';
 import 'package:tuple/tuple.dart';
 
 class RimeApi {
-  static Future<List<RimeChannel>> getChannels(String loginID,
-      {int timeToken}) {}
-
   static Future<String> createChannel(List<String> users) async {
     //Checks if the user iD's are unique
     if (users.length != users.toSet().length) {
@@ -49,22 +46,28 @@ class RimeApi {
     return userGroupID;
   }
 
-  static RimeChannel getChannel(String channel) {}
+  static RimeChannel getChannel(String channel) {
+
+  }
 
   static bool deleteChannel(String loginID, String channel) {
     PubNub client = RimeRepository().client;
 
-    
+
   }
 
   static Future<bool> leaveChannel(String loginID, String channel) async {
-    try{
-      RimeRepository().client.objects.manageChannelMembers(channel, [], Set<String>.from([loginID]));
-      return true;
+    RimeRepository().client.objects.manageChannelMembers(channel, [], Set<String>.from([loginID]));
+    List<String> channelGroups = await getChannelGroups(loginID);
+    for (var group in channelGroups) {
+      try{
+        await RimeRepository().client.channelGroups.removeChannels(group, Set.from([channel]));
+        return true;
+      }catch(e){
+        continue;
+      }
     }
-    catch(e){
-      return false;
-    }
+    return false;
   }
 
   static Future<List<String>> getChannelGroups(String loginID) async {
@@ -80,8 +83,7 @@ class RimeApi {
   // API Functions
   static Future<void> sendMessage(String channelID, BaseMessage message) async {
     // Send the message
-    PublishResult publish =
-        await RimeRepository().client.publish(channelID, message);
+    PublishResult publish = await RimeRepository().client.publish(channelID, message);
 
     //Get the current channel metadata
     GetChannelMetadataResult cmRes = await RimeRepository()
@@ -112,8 +114,7 @@ class RimeApi {
   /// returns: Tuple2<List<String>, String>
   /// List<String>: list of channel ids
   /// String: name of the next page
-  static Future<Tuple2<List<String>, String>> getMostRecentChannels(
-      {int limit = 50, String start}) async {
+  static Future<Tuple2<List<String>, String>> getMostRecentChannels({int limit = 50, String start}) async {
     MembershipsResult memRes = await RimeRepository()
         .client
         .objects
