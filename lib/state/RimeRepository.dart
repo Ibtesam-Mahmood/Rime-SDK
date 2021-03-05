@@ -81,6 +81,15 @@ class RimeRepository {
 
   }
 
+  ///Subscribes to a specifc group ID if not already subscribed 
+  Future<void> addChannelGroup(String groupID) async {
+    if(!_subscriptions.containsKey(groupID)){
+      Subscription temp = await client.subscribe(channelGroups: Set.from([groupID]));
+      _subscriptions[groupID] = temp;
+      _subscriptions[groupID].messages.listen(onMessageCallBack);
+    }
+  }
+
   /// Refreshes subscriptions for rime.
   /// 
   /// Reloads all possible user channel groups. 
@@ -93,11 +102,7 @@ class RimeRepository {
     //Subscribe to new channel groups
     //Store into subscriptions
     for (String group in channelGroups) {
-      if(!_subscriptions.containsKey(group)){
-        Subscription temp = await client.subscribe(channelGroups: Set.from([group]));
-        _subscriptions[group] = temp;
-        _subscriptions[group].messages.listen(onMessageCallBack);
-      }
+      await addChannelGroup(group);
     }
 
   }
