@@ -25,7 +25,6 @@ class RimeRepository {
 
   /// Logged in user ID
   String _userID;
-  String get userID => _userID;
 
   /// All pubnub subscriptions
   final Map<String, Subscription> _subscriptions = {};
@@ -52,8 +51,14 @@ class RimeRepository {
   /// Getter for the pubnub client.
   /// Ensures that client is initialized
   PubNub get client {
-    assert(_client != null);
+    if(_client == null) throw Exception('Client not iniitlaized');
     return _client;
+  }
+
+  //Returns a userID if initialized
+  String get userID{
+    if(_userID == null) throw Exception('Client not iniitlaized');
+    return _userID;
   }
 
   /// Used to initialize the repository.

@@ -39,7 +39,7 @@ class RimeLiveState extends RimeState {
   /// Adds a channel to the state.
   /// Sorts the channels
   RimeLiveState addChannel(RimeChannel channel, int timeToken){
-    if(!storedChannels.containsKey(channel.channel)){
+    if(storedChannels.containsKey(channel.channel)){
       throw Exception('Channel Already added');
     }
     storedChannels[channel.channel] = channel;
@@ -62,12 +62,16 @@ class RimeLiveState extends RimeState {
   /// Modifies a channel to the state.
   /// Sorts the channels.
   RimeLiveState modifyChannel(RimeChannel channel, int timeToken){
-    if(storedChannels.containsKey(channel.channel)){
+    if(!storedChannels.containsKey(channel.channel)){
       throw Exception('Channel Doesnt Exsist');
     }
     storedChannels[channel.channel] = storedChannels[channel.channel].copyWith(channel);
     orgainizedChannels.sort((a, b) => storedChannels[a].compareTo(storedChannels[b]));
     return RimeLiveState._(storedChannels: storedChannels, orgainizedChannels: orgainizedChannels, timeToken: timeToken);
+  }
+
+  RimeLiveState intializeChannels(List<String> orgainizedChannels, Map<String, RimeChannel> storedChannels){
+    return RimeLiveState._(storedChannels: storedChannels, orgainizedChannels: orgainizedChannels);
   }
 
   

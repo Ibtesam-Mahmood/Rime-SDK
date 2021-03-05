@@ -33,7 +33,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
 
     }
     if (event is GetChannelsEvent) {
-      yield* _mapChannelsToState(event.userID);
+      yield* _mapChannelsToState();
     } else if (event is CreateChannelEvent) {
       yield* _mapCreateChannelToState(event.channel, event.users, event.onSuccess);
     } else if (event is MessageEvent) {
@@ -56,6 +56,9 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
 
     RimeRepository().addListener('rime-bloc-listener', onMessageCallBack);
     
+    //Load in first batch of channels
+    add(GetChannelsEvent());
+
     // Retreive channels by userID
     // TODO: API Call for getting more channels
     // TODO: Make sure channels come in chronologically
@@ -68,8 +71,11 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     } */
   }
 
-  Stream<RimeState> _mapChannelsToState(String userID) async* {
-
+  Stream<RimeState> _mapChannelsToState() async* {
+    List<RimeChannel> newChannels = await RimeApi.getChannels(DateTime.now().toTimetoken().value);
+    Map<String, RimeChannel> storedChannels = { for (var v in newChannels) v.channel : v };
+    List<String> channels = newChannels.map<String>((e) => e.channel);
+    yield RimeLiveState.initial().intializeChannels(channels, storedChannels);
   }
 
 

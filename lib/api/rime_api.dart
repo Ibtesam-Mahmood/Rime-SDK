@@ -6,8 +6,11 @@ import 'package:rime/state/RimeFunctions.dart';
 import 'package:rime/state/RimeRepository.dart';
 
 class RimeApi {
-  static Future<List<RimeChannel>> getChannels(String loginID,
-      {int timeToken}) {}
+  static Future<List<RimeChannel>> getChannels(int timeToken, [int size = 50]) {
+
+
+
+  }
 
   static Future<RimeChannel> createChannel(List<String> users) async {
     

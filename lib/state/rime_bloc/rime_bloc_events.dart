@@ -18,9 +18,9 @@ class InitializeRime extends RimeEvent{
 
 class GetChannelsEvent extends RimeEvent{
 
-  final String userID;
+  
 
-  GetChannelsEvent(this.userID);
+  GetChannelsEvent();
 
 }
 
