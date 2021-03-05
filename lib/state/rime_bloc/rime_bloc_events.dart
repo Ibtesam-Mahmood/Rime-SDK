@@ -6,9 +6,16 @@ import 'package:rime/model/channel.dart';
 
 abstract class RimeEvent {}
 
-/// Iniitalizes the Rime channel service by retreiving and subscring to channels. 
+/// Initializes the Rime channel service by retreiving and subscring to channels. 
 /// 
 /// UserID provided is a unique identifier used to access user channels
+class InitializeRime extends RimeEvent{
+  final String userID;
+
+  InitializeRime(this.userID);
+}
+
+
 class GetChannelsEvent extends RimeEvent{
 
   final String userID;

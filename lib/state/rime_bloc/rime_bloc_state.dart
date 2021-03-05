@@ -20,35 +20,58 @@ class RimeLiveState extends RimeState {
   /// Represents the time stamp on the current state
   final int timeToken;
 
-  final List<RimeChannel> channels;
+  /// Holds the channel ID in chronological order
+  final List<String> orgainizedChannels;
+  
+  /// Holds all the stored channels [channel.channel => channel]
+  final Map<String, RimeChannel> storedChannels;
+  
+  /// Default private consturctor
+  RimeLiveState._({this.timeToken, this.storedChannels, this.orgainizedChannels});
 
-  RimeLiveState({this.timeToken, this.channels});
+  // ~~~~~~~~~~~~~~~~~~~ Constructers ~~~~~~~~~~~~~~~~~~~
 
-  factory RimeLiveState.internal(){
-    return RimeLiveState();
+  /// Innitial generator for rime state
+  factory RimeLiveState.initial() => RimeLiveState._(timeToken: 0, storedChannels: {}, orgainizedChannels: []);
+
+  /// Genenrator for a new state.
+  /// 
+  /// Adds a channel to the state.
+  /// Sorts the channels
+  RimeLiveState addChannel(RimeChannel channel, int timeToken){
+    if(!storedChannels.containsKey(channel.channel)){
+      throw Exception('Channel Already added');
+    }
+    storedChannels[channel.channel] = channel;
+    orgainizedChannels.add(channel.channel);
+    orgainizedChannels.sort((a, b) => storedChannels[a].compareTo(storedChannels[b]));
+    return RimeLiveState._(storedChannels: storedChannels, orgainizedChannels: orgainizedChannels, timeToken: timeToken);
+  }
+  
+  /// Genenrator for a new state.
+  /// 
+  /// Removes a channel to the state.
+  RimeLiveState removeChannel(RimeChannel channel, int timeToken){
+    storedChannels.remove(channel.channel);
+    orgainizedChannels.remove(channel.channel);
+    return RimeLiveState._(storedChannels: storedChannels, orgainizedChannels: orgainizedChannels, timeToken: timeToken);
+  }
+  
+  /// Genenrator for a new state.
+  /// 
+  /// Modifies a channel to the state.
+  /// Sorts the channels.
+  RimeLiveState modifyChannel(RimeChannel channel, int timeToken){
+    if(storedChannels.containsKey(channel.channel)){
+      throw Exception('Channel Doesnt Exsist');
+    }
+    storedChannels[channel.channel] = storedChannels[channel.channel].copyWith(channel);
+    orgainizedChannels.sort((a, b) => storedChannels[a].compareTo(storedChannels[b]));
+    return RimeLiveState._(storedChannels: storedChannels, orgainizedChannels: orgainizedChannels, timeToken: timeToken);
   }
 
-  ///Edits an exsisting chat state
+  
+
   @override
-  factory RimeLiveState.editState(RimeLiveState original, {List<RimeChannel> channels, int timeToken}){
-    return RimeLiveState(
-      timeToken: timeToken ?? original.timeToken,
-      channels: channels ?? original.channels
-    );
-  }
-
-
-  /// Initializes the RimeState by connecting a repository
-  static Future<RimeLiveState> fromRepo(RimeRepository rime) async {
-    assert(Rime.INITIALIZED);    
-    //get channels from api
-    List<RimeChannel> channels = await RimeApi.getChannels('change this');
-    //get time token from PubNub
-    Timetoken time = await rime.client.time();
-
-    return RimeLiveState(timeToken: time.value, channels: channels);
-  }
-
-  @override
-  List<Object> get props => [timeToken, channels];
+  List<Object> get props => [timeToken];
 }
