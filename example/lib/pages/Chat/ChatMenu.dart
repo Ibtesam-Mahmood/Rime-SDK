@@ -78,7 +78,7 @@ class _ChatMenuState extends State<ChatMenu> {
                     builder: (context) {
                       return NewChatSheet(
                         onCreate: (chat, isNew) {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => ChatPage()));
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage()));
                         },
                       );
                     });
