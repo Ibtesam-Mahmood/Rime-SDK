@@ -80,8 +80,7 @@ class RimeApi {
 
   static RimeChannel getChannel(String channel) {
     Channel currentChannel = RimeRepository().client.channel(channel);
-    BaseMessage message =
-        currentChannel.history(chunkSize: 1).messages?.first ?? null;
+    BaseMessage message = currentChannel.history(chunkSize: 1).messages?.first ?? null;
     RimeChannel rimeChannel = RimeChannel(
       channel: channel,
       title: currentChannel.name,
@@ -221,5 +220,22 @@ class RimeApi {
     }
     String nextPage = memRes.next;
     return Tuple2(channelIDList, nextPage);
+  }
+
+  RimeChannel hydrate(MembershipMetadata data){
+    BaseMessage baseMessage = RimeRepository().client.channel(data.channel.id).history(chunkSize: 1)?.messages?.first ?? null;
+    RimeChannel channel = RimeChannel(
+      channel: data.channel.id,
+      title: data.channel.name,
+    );
+    if(baseMessage != null){
+      channel = channel.copyWith(
+        RimeChannel(
+          subtitle: baseMessage.content,
+          lastUpdated: baseMessage.publishedAt.toDateTime()
+        )
+      );
+    }
+    return channel;
   }
 }
