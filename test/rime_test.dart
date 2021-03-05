@@ -94,101 +94,151 @@ void main() async {
       expect(actual, expected);
     });
 
-    test('Set memberdata for channel', () async {
-      //Send Message
-      var channelID = 'rime_testUser1_16148386848078668';
-
-      int time = (await RimeRepository().client.time()).value;
-
-      await RimeRepository().client.objects.setChannelMetadata(
-          channelID, ChannelMetadataInput(name: time.toString()));
-
-      GetChannelMetadataResult channelMeta =
-          await RimeRepository().client.objects.getChannelMetadata(channelID);
-
-      expect(channelMeta.metadata.name, time.toString());
-    });
-
-    test('Ensure Channel is not updated with message action', () async {
-      //Send Message
-      var channelID = 'rime_testUser1_16148386848078668';
-      var message = 'hello';
-
-      GetChannelMetadataResult channelMeta =
-          await RimeRepository().client.objects.getChannelMetadata(channelID);
-
-      String time = channelMeta.metadata.updated;
-      print("t1: " + time);
-
-      PublishResult publish =
-          await RimeRepository().client.publish(channelID, message);
-
-      channelMeta =
-          await RimeRepository().client.objects.getChannelMetadata(channelID);
-
-      time = channelMeta.metadata.updated;
-      print("t2: " + time);
-
-      //Get the TimeToken for the message that was just sent
-      int token = publish.timetoken;
-
-      //Add Test messageAction to the just sent message
-      AddMessageActionResult res = await RimeRepository()
+    test('Get a specific channel membership', () async {
+      MembershipsResult memRes = await RimeRepository()
           .client
-          .addMessageAction('test', 'true', channelID, Timetoken(token));
+          .objects
+          .getMemberships(
+              includeChannelCustomFields: true,
+              includeChannelFields: true,
+              includeCustomFields: true,
+              sort: Set.from(['channel.updated:desc']));
 
-      channelMeta =
-          await RimeRepository().client.objects.getChannelMetadata(channelID);
+      String channelID = memRes.metadataList.first.channel.id;
+      String filter = 'channel.id == "$channelID"';
 
-      time = channelMeta.metadata.updated;
-      print("t3: " + time);
-
-      expect(true, true);
+      MembershipsResult currentMembership = await RimeRepository()
+          .client
+          .objects
+          .getMemberships(
+              limit: 1,
+              includeCustomFields: true,
+              includeChannelFields: true,
+              includeChannelCustomFields: true,
+              includeCount: true,
+              filter: filter);
+      int totalCount = currentMembership.totalCount;
+      print('Got $totalCount membership');
     });
 
-    group('Check Channel order on paginated request for testUser1', () {
-      String userID = 'testUser1';
+    test('Soft Delete a Channel', () async {
+      String channelID = 'rime_testUser1_16148386848078668';
+      String userID2 = RimeRepository().userID;
+      String filter = 'channel.id == "$channelID"';
+      bool success = await RimeApi.deleteChannel(channelID);
 
-      test('User has channel memeberships', () async {
-        MembershipsResult res = await RimeRepository()
-            .client
-            .objects
-            .getMemberships(uuid: userID, limit: 10);
+      MembershipsResult currentMembership = await RimeRepository()
+          .client
+          .objects
+          .getMemberships(
+              limit: 1,
+              includeCustomFields: true,
+              includeChannelFields: true,
+              includeChannelCustomFields: true,
+              includeCount: true,
+              filter: filter);
 
-        expect(res.totalCount, greaterThan(0));
+      print('Soft Deleted Success: $success');
+    });
+
+    group('Ibte Tests', () {
+      test('Set memberdata for channel', () async {
+        //Send Message
+        var channelID = 'rime_testUser1_16148386848078668';
+
+        int time = (await RimeRepository().client.time()).value;
+
+        await RimeRepository().client.objects.setChannelMetadata(
+            channelID, ChannelMetadataInput(name: time.toString()));
+
+        GetChannelMetadataResult channelMeta =
+            await RimeRepository().client.objects.getChannelMetadata(channelID);
+
+        expect(channelMeta.metadata.name, time.toString());
       });
 
-      test('Memeberships mapped to channels', () async {
-        MembershipsResult res = await RimeRepository()
+      test('Ensure Channel is not updated with message action', () async {
+        //Send Message
+        var channelID = 'rime_testUser1_16148386848078668';
+        var message = 'hello';
+
+        GetChannelMetadataResult channelMeta =
+            await RimeRepository().client.objects.getChannelMetadata(channelID);
+
+        String time = channelMeta.metadata.updated;
+        print("t1: " + time);
+
+        PublishResult publish =
+            await RimeRepository().client.publish(channelID, message);
+
+        channelMeta =
+            await RimeRepository().client.objects.getChannelMetadata(channelID);
+
+        time = channelMeta.metadata.updated;
+        print("t2: " + time);
+
+        //Get the TimeToken for the message that was just sent
+        int token = publish.timetoken;
+
+        //Add Test messageAction to the just sent message
+        AddMessageActionResult res = await RimeRepository()
             .client
-            .objects
-            .getMemberships(uuid: userID, limit: 10);
+            .addMessageAction('test', 'true', channelID, Timetoken(token));
 
-        List<String> channels = res.metadataList
-            .map<String>((meta) => meta?.channel?.id ?? '')
-            .toList();
+        channelMeta =
+            await RimeRepository().client.objects.getChannelMetadata(channelID);
 
-        expect(channels.contains(''), false);
+        time = channelMeta.metadata.updated;
+        print("t3: " + time);
+
+        expect(true, true);
       });
 
-      test('Reset channel metadata', () async {
-        MembershipsResult res = await RimeRepository()
-            .client
-            .objects
-            .getMemberships(uuid: userID, limit: 10);
+      group('Check Channel order on paginated request for testUser1', () {
+        String userID = 'testUser1';
 
-        List<String> channels = res.metadataList
-            .map<String>((meta) => meta?.channel?.id ?? '')
-            .toList();
-
-        for (var channel in channels) {
-          SetChannelMetadataResult res = await RimeRepository()
+        test('User has channel memeberships', () async {
+          MembershipsResult res = await RimeRepository()
               .client
               .objects
-              .setChannelMetadata(channel, ChannelMetadataInput(name: userID));
+              .getMemberships(uuid: userID, limit: 10);
 
-          expect(res.metadata.name, userID);
-        }
+          expect(res.totalCount, greaterThan(0));
+        });
+
+        test('Memeberships mapped to channels', () async {
+          MembershipsResult res = await RimeRepository()
+              .client
+              .objects
+              .getMemberships(uuid: userID, limit: 10);
+
+          List<String> channels = res.metadataList
+              .map<String>((meta) => meta?.channel?.id ?? '')
+              .toList();
+
+          expect(channels.contains(''), false);
+        });
+
+        test('Reset channel metadata', () async {
+          MembershipsResult res = await RimeRepository()
+              .client
+              .objects
+              .getMemberships(uuid: userID, limit: 10);
+
+          List<String> channels = res.metadataList
+              .map<String>((meta) => meta?.channel?.id ?? '')
+              .toList();
+
+          for (var channel in channels) {
+            SetChannelMetadataResult res = await RimeRepository()
+                .client
+                .objects
+                .setChannelMetadata(
+                    channel, ChannelMetadataInput(name: userID));
+
+            expect(res.metadata.name, userID);
+          }
+        });
       });
     });
   });
@@ -303,7 +353,8 @@ void main() async {
       DateTime end = DateTime.now();
       Duration duration = end.difference(start);
       print(duration.inMilliseconds);
-      print('Got em');
+      // Allowing someone to give an int pageIndex number would probably be too long
+      // Just getting the 3 1-length pages took about 750ms
     });
 
     test('Create a channel with just testUser3', () async {
@@ -627,5 +678,3 @@ Future printAllGroupsForUser(String userID) {
   List<String> g = RimeFunctions.getChannelGroups(userID);
   print('Groups: ' + g.toString());
 }
-
-

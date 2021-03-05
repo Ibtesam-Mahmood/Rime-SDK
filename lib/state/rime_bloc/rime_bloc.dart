@@ -7,6 +7,7 @@ import 'package:rime/model/channel.dart';
 import 'package:rime/state/RimeRepository.dart';
 import 'package:rime/state/rime_bloc/rime_bloc_events.dart';
 import 'package:rime/state/rime_bloc/rime_bloc_state.dart';
+import 'package:tuple/tuple.dart';
 
 class RimeBloc extends Bloc<RimeEvent, RimeState> {
 
@@ -55,15 +56,31 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
 
     RimeRepository().addListener('rime-bloc-listener', onMessageCallBack);
 
-    RimeLiveState.initial();
+    yield RimeLiveState.initial();
     
     //Load in first batch of channels
     add(GetChannelsEvent());
   }
 
+  ///Retreives more channels based on a starting time token
   Stream<RimeState> _mapChannelsToState() async* {
-    List<RimeChannel> newChannels = await RimeApi.getChannels(DateTime.now().toTimetoken().value);
-    yield (state as RimeLiveState).addChannelsBatch(newChannels, (await RimeRepository().client.time()).value);
+
+    //Previous page token for retreiving channels
+    String pageToken = (state as RimeLiveState).pageToken;
+
+    //Channels in the state
+    Map<String, RimeChannel> currentChannels = (state as RimeLiveState).storedChannels;
+
+    Tuple2<List<String>, String> pagenatedResponse = await RimeApi.getMostRecentChannels(limit: 50, start: pageToken);
+
+    List<RimeChannel> newChannels = [];
+    for (String channel in pagenatedResponse.item1) {
+      if(!currentChannels.containsKey(channel)){
+        newChannels.add(await RimeApi.getChannel(channel));
+      }
+    }
+
+    yield (state as RimeLiveState).addChannelsBatch(newChannels, (await RimeRepository().client.time()).value, pagenatedResponse.item2);
   }
 
 
@@ -101,7 +118,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     //get specific channel
     RimeChannel currentChannel = storedChannels[channel];
     //Api call to delete channel on PubNub
-    RimeApi.deleteChannel(RimeRepository().userID, channel);
+    RimeApi.deleteChannel(channel);
     //Delete channel from state
     yield RimeLiveState.initial().removeChannel(currentChannel, (await RimeRepository().client.time()).value);
   }
