@@ -20,6 +20,9 @@ class RimeLiveState extends RimeState {
   /// Represents the time stamp on the current state
   final int timeToken;
 
+  ///The pagenated channel token
+  final String pageToken;
+
   /// Holds the channel ID in chronological order
   final List<String> orgainizedChannels;
   
@@ -27,12 +30,12 @@ class RimeLiveState extends RimeState {
   final Map<String, RimeChannel> storedChannels;
   
   /// Default private consturctor
-  RimeLiveState._({this.timeToken, this.storedChannels, this.orgainizedChannels});
+  RimeLiveState._({this.timeToken, this.storedChannels, this.orgainizedChannels, this.pageToken});
 
   // ~~~~~~~~~~~~~~~~~~~ Constructers ~~~~~~~~~~~~~~~~~~~
 
   /// Innitial generator for rime state
-  factory RimeLiveState.initial() => RimeLiveState._(timeToken: 0, storedChannels: {}, orgainizedChannels: []);
+  factory RimeLiveState.initial() => RimeLiveState._(timeToken: 0, storedChannels: {}, orgainizedChannels: [], pageToken: '');
 
   /// Genenrator for a new state.
   /// 
@@ -52,7 +55,7 @@ class RimeLiveState extends RimeState {
   /// 
   /// Adds all channels to the state
   /// Sorts the channels
-  RimeLiveState addChannelsBatch(List<RimeChannel> channels, int timeToken){
+  RimeLiveState addChannelsBatch(List<RimeChannel> channels, int timeToken, String pageToken){
 
     for (RimeChannel channel in channels) {
       if(storedChannels.containsKey(channel.channel)){
@@ -61,7 +64,7 @@ class RimeLiveState extends RimeState {
       } 
     }
     orgainizedChannels.sort((a, b) => storedChannels[a].compareTo(storedChannels[b]));
-    return RimeLiveState._(storedChannels: storedChannels, orgainizedChannels: orgainizedChannels, timeToken: timeToken);
+    return RimeLiveState._(storedChannels: storedChannels, orgainizedChannels: orgainizedChannels, timeToken: timeToken, pageToken: pageToken);
   }
   
   /// Genenrator for a new state.
