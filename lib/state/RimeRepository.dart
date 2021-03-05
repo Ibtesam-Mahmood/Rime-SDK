@@ -25,7 +25,6 @@ class RimeRepository {
 
   /// Logged in user ID
   String _userID;
-  String get userID => _userID;
 
   /// All pubnub subscriptions
   final Map<String, Subscription> _subscriptions = {};
@@ -53,8 +52,14 @@ class RimeRepository {
   /// Getter for the pubnub client.
   /// Ensures that client is initialized
   PubNub get client {
-    assert(_client != null);
+    if(_client == null) throw Exception('Client not iniitlaized');
     return _client;
+  }
+
+  //Returns a userID if initialized
+  String get userID{
+    if(_userID == null) throw Exception('Client not iniitlaized');
+    return _userID;
   }
 
   /// Used to initialize the repository.
@@ -82,6 +87,15 @@ class RimeRepository {
 
   }
 
+  ///Subscribes to a specifc group ID if not already subscribed 
+  Future<void> addChannelGroup(String groupID) async {
+    if(!_subscriptions.containsKey(groupID)){
+      Subscription temp = await client.subscribe(channelGroups: Set.from([groupID]));
+      _subscriptions[groupID] = temp;
+      _subscriptions[groupID].messages.listen(onMessageCallBack);
+    }
+  }
+
   /// Refreshes subscriptions for rime.
   /// 
   /// Reloads all possible user channel groups. 
@@ -94,11 +108,7 @@ class RimeRepository {
     //Subscribe to new channel groups
     //Store into subscriptions
     for (String group in channelGroups) {
-      if(!_subscriptions.containsKey(group)){
-        Subscription temp = await client.subscribe(channelGroups: Set.from([group]));
-        _subscriptions[group] = temp;
-        _subscriptions[group].messages.listen(onMessageCallBack);
-      }
+      await addChannelGroup(group);
     }
 
   }
