@@ -51,17 +51,20 @@ class RimeApi {
 
   static RimeChannel getChannel(String channel) {}
 
-  static bool deleteChannel(String loginID, String channel) {}
+  static bool deleteChannel(String loginID, String channel) {
+    PubNub client = RimeRepository().client;
+
+    
+  }
 
   static Future<bool> leaveChannel(String loginID, String channel) async {
-    // ChannelMembersResult cmRes = await RimeRepository()
-    //     .client
-    //     .objects
-    //     .getChannelMembers(channelId);
-
-    // List<ChannelMemberMetadata> usersMeta = cmRes.metadataList;
-
-    // RimeRepository().client.objects.manageChannelMembers(channel, usersMeta, Set<String>.from([loginID]));
+    try{
+      RimeRepository().client.objects.manageChannelMembers(channel, [], Set<String>.from([loginID]));
+      return true;
+    }
+    catch(e){
+      return false;
+    }
   }
 
   static Future<List<String>> getChannelGroups(String loginID) async {
