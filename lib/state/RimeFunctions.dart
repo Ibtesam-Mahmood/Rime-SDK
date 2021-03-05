@@ -4,6 +4,13 @@ import 'RimeRepository.dart';
 
 /// Group of functions to interact with pubnub
 class RimeFunctions {
+
+  /// Retreives all channel groups for a userID
+  static List<String> getChannelGroups(String loginID) {
+    return List.generate(
+        10, (index) => RimeFunctions.channelGroupID(loginID, index));
+  }
+
   /// Helper function to turn a userID and int into a channel group name
   static String channelGroupID(String userID, int groupNo) {
     return 'rime_cg_${userID}_$groupNo';

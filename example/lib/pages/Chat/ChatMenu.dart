@@ -101,6 +101,9 @@ class _RimeMessagesMenuState extends State<RimeMessagesMenu> {
         
         return EasyRefresh(
           bottomBouncing: false,
+          onLoad: () {
+            
+          },
           header: CustomHeader(
               extent: 40.0,
               triggerDistance: 50.0,
@@ -151,7 +154,7 @@ class _RimeMessagesMenuState extends State<RimeMessagesMenu> {
               )),
               ChatList(
                 children: channels,
-                
+
               )
             ],
           ),

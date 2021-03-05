@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:rime/model/channel.dart';
 import 'package:rime/state/channel_state/channel_state.dart';
 
 import '../../components/ChatMessage/messageScreen.dart';
@@ -11,8 +12,8 @@ import '../../util/colorProvider.dart';
 
 class ChatPage extends StatefulWidget {
   // final Chat chatModel;
-  final String channelID;
-  ChatPage({Key key, this.channelID}) : super(key: key);
+  final String rimeChannelID;
+  ChatPage({Key key, this.rimeChannelID}) : super(key: key);
   @override
   _ChatPageState createState() => _ChatPageState();
 }
@@ -181,7 +182,7 @@ class _ChatPageState extends State<ChatPage> {
 
 
     return ChannelStateProvider(
-      channelID: widget.channelID,
+      channelID: widget.rimeChannelID,
       controller: _channelStateProviderController,
       builder: (context, channel, messages) {
         return Picker(

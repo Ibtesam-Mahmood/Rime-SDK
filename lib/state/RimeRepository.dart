@@ -5,6 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/api/rime_api.dart';
 import 'package:rime/model/channel.dart';
+import 'package:rime/state/RimeFunctions.dart';
 import '../rime.dart';
 
 typedef RimeCallBack = void Function(Envelope);
@@ -27,9 +28,8 @@ class RimeRepository {
   String _userID;
 
   /// All pubnub subscriptions
-  final Map<String, Subscription> _subscriptions = {};
+  Subscription _subscription;
   
-
   /// Subscription functions
   /// Run when something is subscribed to the
   final Map<String, RimeCallBack> _callBackSubscriptions = {};
@@ -82,43 +82,20 @@ class RimeRepository {
     // Initialize the pubnub client
     _client = PubNub(defaultKeyset: pubnubKeySet);
 
-    // Populates the group subscriptions
-    refresh();
-
-  }
-
-  ///Subscribes to a specifc group ID if not already subscribed 
-  Future<void> addChannelGroup(String groupID) async {
-    if(!_subscriptions.containsKey(groupID)){
-      Subscription temp = await client.subscribe(channelGroups: Set.from([groupID]));
-      _subscriptions[groupID] = temp;
-      _subscriptions[groupID].messages.listen(onMessageCallBack);
-    }
-  }
-
-  /// Refreshes subscriptions for rime.
-  /// 
-  /// Reloads all possible user channel groups. 
-  /// Subscribes to any new channel groups
-  Future<void> refresh() async {
-    
     //Retreive all user channel groups
-    List<String> channelGroups = await RimeApi.getChannelGroups(userID);
+    List<String> channelGroups = RimeFunctions.getChannelGroups(userID);
 
-    //Subscribe to new channel groups
-    //Store into subscriptions
-    for (String group in channelGroups) {
-      await addChannelGroup(group);
-    }
+    //Subscribe to the channel
+    //And bind to listener
+    _subscription = await _client.subscribe(channelGroups: channelGroups.toSet());
+    _subscription.messages.listen(onMessageCallBack);
 
   }
 
   /// Disposes the rime instance and all server connections
   void disposeRime() {
-    //Unsubscribes from all instances
-    for (Subscription sub in _subscriptions.values) {
-      sub.cancel();
-    }
+    //Unsubscribes from subscriptions
+    _subscription.cancel();
 
     // Disposes the pubnub instance
     _client = null;

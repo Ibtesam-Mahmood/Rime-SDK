@@ -6,6 +6,7 @@ import 'package:pubnub/pubnub.dart';
 import 'package:rime/api/rime_api.dart';
 
 import 'package:rime/rime.dart';
+import 'package:rime/state/RimeFunctions.dart';
 import 'package:rime/state/RimeRepository.dart';
 
 // ignore: library_prefixes
@@ -306,8 +307,8 @@ void main() async {
     });
 
     test('Create a channel with just testUser3', () async {
-      String channelGroupName = await RimeApi.createChannel([userID]);
-      print(channelGroupName);
+      String channelName = (await RimeApi.createChannel([userID])).channel;
+      print(channelName);
     }, skip: "Don't want to create channels everytime");
 
     test("Send a test message to testUser3's Channel 1", () async {
@@ -607,7 +608,7 @@ Future printEveryMessageInAChannel(String channel) async {
 }
 
 Future printAllGroupsAndChannelsForUser(String userID) async {
-  List<String> g = await RimeApi.getChannelGroups(userID);
+  List<String> g = RimeFunctions.getChannelGroups(userID);
 
   String groupName;
   for (groupName in g) {
@@ -622,8 +623,8 @@ Future printAllChannelsInAGroup(String groupName) async {
   print('Channels: ' + channelGroupList.channels.toList().toString());
 }
 
-Future printAllGroupsForUser(String userID) async {
-  List<String> g = await RimeApi.getChannelGroups(userID);
+Future printAllGroupsForUser(String userID) {
+  List<String> g = RimeFunctions.getChannelGroups(userID);
   print('Groups: ' + g.toString());
 }
 
