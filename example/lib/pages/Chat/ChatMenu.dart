@@ -1,3 +1,7 @@
+import 'dart:ui';
+
+import 'package:example/components/ChatMenu/newChatSheet.dart';
+import 'package:example/pages/Chat/ChatPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:rime/model/channel.dart';
@@ -57,7 +61,41 @@ class _ChatMenuState extends State<ChatMenu> {
           ),
         ),
       ),
-      body: RimeMessagesMenu());
+      body: RimeMessagesMenu(),
+      //Create new chat app bar
+      bottomNavigationBar: SafeArea(
+        bottom: true,
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: GestureDetector(
+              onTap: () {
+                //Opens the new chat sheet
+                showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) {
+                      return NewChatSheet(
+                        onCreate: (chat, isNew) {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => ChatPage()));
+                        },
+                      );
+                    });
+              },
+              child: Container(
+                height: kToolbarHeight,
+                color: Colors.white,
+                child: Center(
+                  child: Text('New Message',
+                      style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ));
   }
 }
 

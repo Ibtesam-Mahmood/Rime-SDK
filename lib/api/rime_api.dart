@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:pubnub/core.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/model/channel.dart';
@@ -23,6 +26,9 @@ class RimeApi {
     String channelID = 'rime_${RimeRepository().userID}_${time.toString()}';
     List<ChannelMemberMetadataInput> members = [];
 
+    //The readMap being created for channel metadata
+    Map<String, int> readMap = {};
+
     // Group ID for the loggedIn user
     String userGroupID;
 
@@ -31,6 +37,8 @@ class RimeApi {
 
     // Creates memeberships for a channel
     for (String userID in users) {
+
+      readMap[userID] = 0;
 
       //Retreive next active group id for a user
       String groupID = await RimeFunctions.getAvailableChannelGroup(userID);
@@ -60,7 +68,16 @@ class RimeApi {
         userMembership = membership;
       }
     }
+
+    // Set the memeberships
     await client.objects.setChannelMembers(channelID, members);
+
+    //Create channel metadata
+    await client.objects.setChannelMetadata(channelID, ChannelMetadataInput(
+      custom: {
+        "read": jsonEncode(readMap)
+      }
+    ));
 
     //No channel made for the loggedIn user
     if(userGroupID == null || userMembership == null){
@@ -78,15 +95,16 @@ class RimeApi {
     return createdChannel;
   }
 
-  static RimeChannel getChannel(String channel) {
-    Channel currentChannel = RimeRepository().client.channel(channel);
-    BaseMessage message = currentChannel.history(chunkSize: 1).messages?.first ?? null;
-    RimeChannel rimeChannel = RimeChannel(
-      channel: channel,
-      title: currentChannel.name,
-      subtitle: message.content,
-      lastUpdated: message.publishedAt.value,
-    );
+  static Future<RimeChannel> getChannel(String channel) async {
+
+      MembershipsResult currentMembership = await RimeRepository()
+        .client
+        .objects.getMemberships(uuid: RimeRepository().userID, limit: 1, includeCustomFields: true, filter: 'channel.id == \"$channel\"');
+
+    if(currentMembership.metadataList.isEmpty) return Future.error('Channel not found');
+  
+    RimeChannel rimeChannel = await hydrate(currentMembership.metadataList.first);
+
     return rimeChannel;
   }
 
@@ -97,7 +115,7 @@ class RimeApi {
   ///String channelID: the id of the channel you want to soft-delete
   static Future<bool> deleteChannel(String channelID) async {
     //Get the membership metadata for the specified channel
-    String filter = 'channel.id == "$channelID"';
+    String filter = 'channel.id == \"$channelID\"';
     MembershipsResult currentMembership = await RimeRepository()
         .client
         .objects
@@ -200,7 +218,7 @@ class RimeApi {
   /// returns: Tuple2<List<String>, String>
   /// List<String>: list of channel ids
   /// String: name of the next page
-  static Future<Tuple2<List<String>, String>> getMostRecentChannels(
+  static Future<Tuple2<List<RimeChannel>, String>> getMostRecentChannels(
       {int limit = 50, String start}) async {
     MembershipsResult memRes = await RimeRepository()
         .client
@@ -213,26 +231,41 @@ class RimeApi {
             limit: limit,
             start: start);
 
-    List<String> channelIDList = [];
-    MembershipMetadata memMD;
-    for (memMD in memRes.metadataList) {
-      channelIDList.add(memMD.channel.id);
+    List<RimeChannel> rimeChannels = [];
+    for (MembershipMetadata memMD in memRes.metadataList) {
+      rimeChannels.add(await hydrate(memMD));
     }
     String nextPage = memRes.next;
-    return Tuple2(channelIDList, nextPage);
+    return Tuple2(rimeChannels, nextPage);
   }
 
-  RimeChannel hydrate(MembershipMetadata data){
-    BaseMessage baseMessage = RimeRepository().client.channel(data.channel.id).history(chunkSize: 1)?.messages?.first ?? null;
+  /// Populates the channel and membership data
+  /// 
+  /// Takes a MemberShipMetatdata so it can be used for both [getMostRecentChannels()] and [getChannel()]
+  /// 
+  /// Returns a populated Future<RimeChannel> object
+  static Future<RimeChannel> hydrate(MembershipMetadata data) async {
+    BaseMessage baseMessage;
+    PaginatedChannelHistory history = RimeRepository().client.channel(data.channel.id).history(chunkSize: 1);
+    await history.more();
+    baseMessage = history.messages.isEmpty ? null : history.messages.first;
+    GetChannelMetadataResult cmRes = await RimeRepository()
+        .client
+        .objects
+        .getChannelMetadata(data.channel.id, includeCustomFields: true);
+    Map<String, int> readMap = cmRes.metadata.custom['readMap'];
+    RimeChannelMemebership memebership = RimeChannelMemebership.fromJson(data.custom);
     RimeChannel channel = RimeChannel(
       channel: data.channel.id,
       title: data.channel.name,
+      readMap: readMap,
+      membership: memebership,
     );
     if(baseMessage != null){
       channel = channel.copyWith(
         RimeChannel(
-          subtitle: baseMessage.content,
-          lastUpdated: baseMessage.publishedAt.toDateTime()
+          subtitle: baseMessage.content['text'],
+          lastUpdated: baseMessage.publishedAt.value
         )
       );
     }

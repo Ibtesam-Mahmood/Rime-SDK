@@ -68,19 +68,9 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     //Previous page token for retreiving channels
     String pageToken = (state as RimeLiveState).pageToken;
 
-    //Channels in the state
-    Map<String, RimeChannel> currentChannels = (state as RimeLiveState).storedChannels;
+    Tuple2<List<RimeChannel>, String> pagenatedResponse = await RimeApi.getMostRecentChannels(limit: 50, start: pageToken);
 
-    Tuple2<List<String>, String> pagenatedResponse = await RimeApi.getMostRecentChannels(limit: 50, start: pageToken);
-
-    List<RimeChannel> newChannels = [];
-    for (String channel in pagenatedResponse.item1) {
-      if(!currentChannels.containsKey(channel)){
-        newChannels.add(await RimeApi.getChannel(channel));
-      }
-    }
-
-    yield (state as RimeLiveState).addChannelsBatch(newChannels, (await RimeRepository().client.time()).value, pagenatedResponse.item2);
+    yield (state as RimeLiveState).addChannelsBatch(pagenatedResponse.item1, (await RimeRepository().client.time()).value, pagenatedResponse.item2);
   }
 
 

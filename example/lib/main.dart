@@ -18,7 +18,6 @@ void main(List<String> args) async {
   print('Initializing');
   await DotEnv.load(fileName: '.env');
   await Rime.initialize(DotEnv.env);
-  await RimeRepository().initializeRime('testUser1');
   print('Initialized');
 
   runApp(Pollar());
@@ -39,11 +38,6 @@ class _PollarState extends State<Pollar> {
   @override
   void initState() {
     super.initState();
-
-    Future.delayed(Duration(milliseconds: 500)).then((value) async {
-      await RimeApi.createChannel(['testUser1', 'testUser2']);
-      print("Created");
-    });
   }
 
   @override

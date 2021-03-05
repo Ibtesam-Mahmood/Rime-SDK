@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   get_it: 5.0.6
-  firebase_messaging: 7.0.3
+  # firebase_messaging: 7.0.3
   crypto: ^2.1.5
   tuple: ^1.0.3
   flutter_easyrefresh: ^2.1.8

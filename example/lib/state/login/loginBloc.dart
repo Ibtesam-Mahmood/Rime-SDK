@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:bloc/bloc.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:rime/state/rime_bloc/rime_bloc.dart';
+import 'package:rime/state/rime_bloc/rime_bloc_events.dart';
 import '../../api/endpoints/userMainApi.dart';
 import '../../models/userInfo.dart';
 import '../../models/userMain.dart';
@@ -15,9 +16,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   //Login bloc singleton
   static final LoginBloc _store = LoginBloc._internal();
-
-  //FirebaseMessaging initialization
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   //Private constructor to innitialize the singleton
   LoginBloc._internal() : super(initialState);
@@ -61,6 +59,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       PollarStoreBloc().add(EditPollarStoreState(loginUserId: event.user.id, loginSettings: event.settings));
       //load state
       PollarStoreBloc().add(LoadPollarState(event.user.id));
+
+      //Initialize rime
+      RimeBloc().add(InitializeRime(event.user.id));
 
       yield* _mapLoginSucessfulToState(event.user, event.userMain);
 

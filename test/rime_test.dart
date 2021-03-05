@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/api/rime_api.dart';
+import 'package:rime/model/channel.dart';
 
 import 'package:rime/rime.dart';
 import 'package:rime/state/RimeFunctions.dart';
@@ -613,7 +614,86 @@ void main() async {
 
       print('Got smRes');
     });
+
+    test('Create sets metadata for read action', () async {
+
+      String channelName = (await RimeApi.createChannel(['testUser1', 'testUser2', 'testUser3'])).channel;
+
+      print(channelName);
+
+      GetChannelMetadataResult res = await RimeRepository().client.objects.getChannelMetadata(channelName, includeCustomFields: true);
+
+      expect(res.metadata.custom.containsKey('read'), true);
+
+      Map<String, dynamic> readActions = jsonDecode(res.metadata.custom['read'] as String);
+
+      expect(readActions.containsKey('testUser1'), true);
+    });
+
+    test('Ensure channelMemebership event is received', () async {
+
+      String channelName = 'rime_testUser3_16149450794304603';
+      String listenerID = 'listener-id';
+
+      print("Retreiving");
+
+      GetChannelMetadataResult res = await RimeRepository().client.objects.getChannelMetadata(channelName, includeCustomFields: true);
+
+      expect(res.metadata.custom.containsKey('read'), true);
+
+      Map<String, dynamic> readActions = jsonDecode(res.metadata.custom['read'] as String);
+
+      RimeRepository().addListener(listenerID, (en) {
+        print(en.messageType.toString());
+      });
+
+      print("Binded");
+
+      expect(readActions.containsKey('testUser1'), true);
+
+      readActions['testUser1'] = 100;
+
+      print("Sending");
+
+      await RimeRepository().client.objects.setChannelMetadata(channelName, ChannelMetadataInput(
+        custom: {
+          "read": jsonEncode(readActions)
+        }
+      ));
+
+      print("Delaying");
+
+      await Future.delayed(Duration(seconds: 10));
+
+      RimeRepository().removeListener(listenerID);
+
+      expect(true, true);
+      
+    });
+
+    test('Get Channel membership associated to user and channel', () async {
+
+      String channel = 'rime_testUser3_16149449132204146';
+      String userID = 'testUser1';
+
+      MembershipsResult currentMembership = await RimeRepository()
+        .client
+        .objects.getMemberships(uuid: userID, limit: 1, includeCustomFields: true, filter: 'channel.id == \"$channel\"');
+
+      expect(currentMembership.metadataList.length, 1);
+    });
+
+    test('Get RimeChannel from getChannel request', () async {
+
+      String channel = 'rime_testUser3_16149449132204146';
+
+      RimeChannel wap = await RimeApi.getChannel(channel);
+
+      expect(wap, isNot(null));
+    });
+
   });
+  
 }
 
 ///Publish message to the channel with channelID and also update the channel metadata at the same time
