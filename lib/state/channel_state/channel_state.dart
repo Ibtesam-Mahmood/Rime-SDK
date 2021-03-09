@@ -61,7 +61,7 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
   PaginatedChannelHistory history;
 
   ///Storage for messages from this channel
-  List<BaseMessage> messages;
+  List<BaseMessage> messages = [];
 
   // ~~~~~~~~~~~~~~ Life Cycle ~~~~~~~~~~~~~~~~~~
 

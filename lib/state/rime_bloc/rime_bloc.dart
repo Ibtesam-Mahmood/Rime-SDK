@@ -74,7 +74,9 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
 
     Tuple2<List<RimeChannel>, String> pagenatedResponse = await RimeApi.getMostRecentChannels(limit: 50, start: pageToken);
 
-    yield (state as RimeLiveState).addChannelsBatch(pagenatedResponse.item1, (await RimeRepository().client.time()).value, pagenatedResponse.item2);
+    RimeLiveState newState = (state as RimeLiveState).addChannelsBatch(pagenatedResponse.item1, (await RimeRepository().client.time()).value, pagenatedResponse.item2);
+
+    yield newState;
   }
 
 

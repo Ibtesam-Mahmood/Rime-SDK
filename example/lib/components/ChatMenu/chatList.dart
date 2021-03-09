@@ -13,6 +13,7 @@ class ChatList extends StatelessWidget {
   ChatList({this.tile, this.spacer, @required this.children}) : 
   assert(children != null);
 
+  @override
   Widget build(BuildContext context) {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
@@ -22,7 +23,7 @@ class ChatList extends StatelessWidget {
               tile ?? ChatTile(
                 //TODO: Add id of chat to ValueKey
                 key: ValueKey('chatTile - '),
-
+                rimeChannel: children[index],
                 actions: [
                   ChatTileAction(
                     decoration: BoxDecoration(

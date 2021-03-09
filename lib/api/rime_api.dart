@@ -60,7 +60,7 @@ class RimeApi {
       );
 
       //Add the channel to the user specific group
-      await client.channelGroups.addChannels(groupID, Set.from([channelID]));
+      ChannelGroupChangeChannelsResult addGroup = await client.channelGroups.addChannels(groupID, Set.from([channelID]));
 
       // retreive data for login user
       if(userID == RimeRepository().userID){
@@ -73,7 +73,7 @@ class RimeApi {
     await client.objects.setChannelMembers(channelID, members);
 
     //Create channel metadata
-    await client.objects.setChannelMetadata(channelID, ChannelMetadataInput(
+    SetChannelMetadataResult setMemRes = await client.objects.setChannelMetadata(channelID, ChannelMetadataInput(
       custom: {
         "read": jsonEncode(readMap)
       }
@@ -231,6 +231,8 @@ class RimeApi {
             limit: limit,
             start: start);
 
+    // print(memRes.metadataList.length);
+
     List<RimeChannel> rimeChannels = [];
     for (MembershipMetadata memMD in memRes.metadataList) {
       rimeChannels.add(await hydrate(memMD));
@@ -249,11 +251,8 @@ class RimeApi {
     PaginatedChannelHistory history = RimeRepository().client.channel(data.channel.id).history(chunkSize: 1);
     await history.more();
     baseMessage = history.messages.isEmpty ? null : history.messages.first;
-    GetChannelMetadataResult cmRes = await RimeRepository()
-        .client
-        .objects
-        .getChannelMetadata(data.channel.id, includeCustomFields: true);
-    Map<String, int> readMap = cmRes.metadata.custom['readMap'];
+    ChannelMetadataDetails cmRes = data.channel;
+    Map<String, int> readMap = cmRes.custom['readMap'];
     RimeChannelMemebership memebership = RimeChannelMemebership.fromJson(data.custom);
     RimeChannel channel = RimeChannel(
       channel: data.channel.id,

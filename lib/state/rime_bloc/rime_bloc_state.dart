@@ -58,7 +58,7 @@ class RimeLiveState extends RimeState {
   RimeLiveState addChannelsBatch(List<RimeChannel> channels, int timeToken, String pageToken){
 
     for (RimeChannel channel in channels) {
-      if(storedChannels.containsKey(channel.channel)){
+      if(!storedChannels.containsKey(channel.channel)){
         storedChannels[channel.channel] = channel;
         orgainizedChannels.add(channel.channel);
       } 
