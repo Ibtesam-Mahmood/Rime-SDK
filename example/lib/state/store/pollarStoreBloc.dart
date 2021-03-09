@@ -2,7 +2,6 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:tuple/tuple.dart';
 
 import '../../models/poll.dart';
@@ -137,42 +136,6 @@ class PollarStoreState {
 
         //States
         loadedTopics: original.loadedTopics);
-  }
-
-  //Saves the topics map in the local storage
-  static void setTopics(List<Topic> topics) async {
-    List<String> topicsJsonList =
-        topics.map<String>((t) => jsonEncode(t.toJson())).toList();
-
-    final localStorage = FlutterSecureStorage();
-
-    await localStorage.write(
-        key: 'topics', value: jsonEncode({'topics': topicsJsonList}));
-
-    PollarStoreBloc().add(EditPollarStoreState(topics: topics));
-  }
-
-  //Gets the topics from the local storage and updates the pollar bloc state
-  static void _getTopics() async {
-    List<Topic> topics = [];
-
-    final localStorage = FlutterSecureStorage();
-
-    try {
-      List<String> storedTopics =
-          (jsonDecode(await localStorage.read(key: 'topics'))['topics'] as List)
-              .cast<String>();
-
-      topics = storedTopics
-          .map<Topic>((t) => Topic.fromJson(jsonDecode(t)))
-          .toList();
-
-      // if (topics.isNotEmpty && topics != null) {
-      //   PollarStoreBloc().add(EditPollarStoreState(topics: topics));
-      // }
-    } catch (e) {print(e);}
-
-    //Breaks and exits if no instance found
   }
 
   ///Takes [Topic] id to retreive subscriptions
