@@ -89,7 +89,7 @@ class RimeRepository {
     _rootSubscription = _client.subscribe(channels: Set.from([userID]));
     _rootSubscription.messages.listen(_onRootCallBack);
 
-    reset();
+    // reset();
 
   }
 
@@ -103,7 +103,7 @@ class RimeRepository {
     for (String groupID in channelGroups) {
       if(!_subscriptions.containsKey(groupID)){
         //Subscribe
-        Subscription sub = client.subscribe(channelGroups: Set.from([groupID]));
+        Subscription sub = await client.subscribe(channelGroups: Set.from([groupID]));
         sub.messages.listen(onMessageCallBack);
         _subscriptions[groupID] = sub;
       }
