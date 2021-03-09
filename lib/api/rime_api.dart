@@ -77,7 +77,7 @@ class RimeApi {
       custom: {
         "read": jsonEncode(readMap)
       }
-    ));
+    ), includeCustomFields: true);
 
     //No channel made for the loggedIn user
     if(userGroupID == null || userMembership == null){
@@ -99,7 +99,7 @@ class RimeApi {
 
       MembershipsResult currentMembership = await RimeRepository()
         .client
-        .objects.getMemberships(uuid: RimeRepository().userID, limit: 1, includeCustomFields: true, filter: 'channel.id == \"$channel\"');
+        .objects.getMemberships(uuid: RimeRepository().userID, limit: 1, includeChannelCustomFields: true, includeChannelFields: true, includeCustomFields: true, filter: 'channel.id == \"$channel\"');
 
     if(currentMembership.metadataList.isEmpty) return Future.error('Channel not found');
   
@@ -252,7 +252,7 @@ class RimeApi {
     await history.more();
     baseMessage = history.messages.isEmpty ? null : history.messages.first;
     ChannelMetadataDetails cmRes = data.channel;
-    Map<String, int> readMap = cmRes.custom['readMap'];
+    Map<String, int> readMap = Map<String, int>.from( jsonDecode(cmRes.custom['read']) );
     RimeChannelMemebership memebership = RimeChannelMemebership.fromJson(data.custom);
     RimeChannel channel = RimeChannel(
       channel: data.channel.id,
@@ -263,7 +263,7 @@ class RimeApi {
     if(baseMessage != null){
       channel = channel.copyWith(
         RimeChannel(
-          subtitle: baseMessage.content['text'],
+          subtitle: baseMessage.content,
           lastUpdated: baseMessage.publishedAt.value
         )
       );

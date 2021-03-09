@@ -12,6 +12,7 @@ import 'package:rime/state/RimeRepository.dart';
 
 // ignore: library_prefixes
 import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
+import 'package:rime/state/rime_bloc/rime_bloc.dart';
 
 void main() async {
   // I believe this was example flutter test code
@@ -31,7 +32,7 @@ void main() async {
       print('\n' 'Initializing');
       await DotEnv.load(fileName: '.env');
       await Rime.initialize(DotEnv.env);
-      await RimeRepository().initializeRime('testUser1');
+      await RimeRepository().initializeRime('testUser12');
       print('Initialized');
     });
 
@@ -242,6 +243,35 @@ void main() async {
         });
       });
     });
+
+    group('Testing creating, hydrating, and sending message', (){
+
+      String channel = 'rime_testUser12_16152858276361764';
+
+      test('create a channel', () async {
+        RimeChannel createdChannel = await RimeApi.createChannel([RimeRepository().userID, 'testUser2']);
+
+        channel = createdChannel.channel;
+
+        print(channel);
+
+        createdChannel = await RimeApi.getChannel(channel);
+
+        expect(createdChannel.readMap?.isEmpty ?? false, false);
+      }, skip: 'Already created');
+
+      test('Test message subtitle', () async {
+
+        String message = 'hello' + DateTime.now().toString();
+
+        await RimeRepository().client.publish(channel, message);
+
+        RimeChannel rimeChannel = await RimeApi.getChannel(channel);
+        
+        expect(rimeChannel.subtitle, message);
+      });
+
+    });
   });
 
   group('RimeApi Tests - testUser3', () {
@@ -359,7 +389,7 @@ void main() async {
     });
 
     test('Create a channel with just testUser3', () async {
-      String channelName = (await RimeApi.createChannel([userID])).channel;
+      String channelName = (await RimeApi.createChannel([userID, 'testUser12'])).channel;
       print(channelName);
     }, skip: "Don't want to create channels everytime");
 
