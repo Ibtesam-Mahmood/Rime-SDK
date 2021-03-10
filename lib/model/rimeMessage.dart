@@ -1,68 +1,100 @@
+import 'package:flutter/material.dart';
 import 'package:rime/rime.dart';
 
-abstract class RimeMessage<T> extends BaseMessage{
+/// Basic rime message model
+class RimeMessage extends BaseMessage{
+
   /// PubNub UUID
-  String uuid;
+  final String uuid;
+
+  /// The type of a message
+  /// Used to differenieate message types in parsing
+  final String type;
 
   ///Base constructor for Rime message
-  RimeMessage._({
+  RimeMessage({
     this.uuid,
-    Timetoken publishedAt,
+    this.type,
     dynamic content,
-    dynamic originalMessage,
+    Timetoken publishedAt,
+    dynamic originalMessage
   }) : super(publishedAt: publishedAt, content: content, originalMessage: originalMessage);
 
-  /// Decode BaseMessage
-  static RimeMessage decodeMessage(dynamic content){
-    
+  /// Creates a rime message by parsing the provided base message content
+  factory RimeMessage.fromBaseMessage(BaseMessage message){
+
+    //The payload within a message
+    dynamic content = message.content['payload'];
+
+    //The message user
+    String uuid = message.content['uuid'];
+
+    //The type of the message
+    String type = message.content['type'];
+
+    //Contructs the Rime message
+    return RimeMessage(
+      uuid: uuid,
+      type: type,
+      content: content,
+      publishedAt: message.publishedAt,
+      originalMessage: message.originalMessage
+    );
   }
 
-  T fromRimeMessage(RimeMessage<ConcreteRimeMessage> rimeMessage);
-  
-}
-
-class ConcreteRimeMessage extends RimeMessage<ConcreteRimeMessage> {
-
-  ConcreteRimeMessage._({
-    String uuid,
-    Timetoken publishedAt,
-    dynamic content,
-    dynamic originalMessage,
-  }) : super._(uuid: uuid, publishedAt: publishedAt, content: content, originalMessage: originalMessage);
-
-  @override
-  ConcreteRimeMessage fromRimeMessage(RimeMessage<ConcreteRimeMessage> rimeMessage) {
-    return rimeMessage;
+  /// Creates JSON serlized RimeMessage
+  static Map<String, dynamic> encode(String uuid, String type, dynamic content){
+    return {
+      'uuid': uuid,
+      'type': type,
+      'payload': content
+    };
   }
-
   
-
+  
 }
 
 /// Message only containing text
-class TextMessage extends RimeMessage<TextMessage>{
+class TextMessage extends RimeMessage{
+
+  ///The type of the message when it is a rime message
+  static const String RIME_MESSAGE_TYPE = 'text-message';
   
   /// Content
   String text;
 
-  TextMessage({String uuid, this.text});
+  ///Constructor to create a text message
+  TextMessage._({
+    @required this.text,
+    @required RimeMessage message
+  }) : assert(message != null),
+      assert(message.type == RIME_MESSAGE_TYPE),
+      super(
+        uuid: message.uuid,
+        type: message.type,
+        content: message.content,
+        publishedAt: message.publishedAt,
+        originalMessage: message.originalMessage
+      );
 
-  factory TextMessage.fromJson(dynamic content){
-    String uuid = content['message']['content']['uuid'];
-    String text = content['message']['content']['text'];
-    return TextMessage(uuid: uuid, text: text);
+  /// Parsing constructor,
+  /// Converts the RimeMessage object into a textmessage object by parsing its content
+  factory TextMessage.fromRimeMessage(RimeMessage message){
+
+    //Extract text object from content
+    String text = message.content['text'];
+
+    return TextMessage._(
+      text: text,
+      message: message
+    );
+
   }
 
-  @override
-  Map<String, dynamic> toJson() {
+  /// Creates a Rime Message payload from defined inputs
+  static Map<String, dynamic> toPayload(String text){
     return {
-      'uuid': uuid, 
-      'message': {
-        'type': 'text',
-        'content': {
-          'text': text, 
-        }
-      }
+      'text': text
     };
   }
 }
