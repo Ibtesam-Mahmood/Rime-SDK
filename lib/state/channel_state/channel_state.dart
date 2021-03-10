@@ -125,7 +125,7 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
     switch (en.messageType) {
       case MessageType.normal:
         setState(() {
-          messages.insert(0, RimeMessage.decodeMessage(en.content));
+          messages.insert(0, RimeMessage.fromBaseMessage(en));
         });
         break;
       default:
@@ -146,7 +146,7 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
     setState(() {
       List<BaseMessage> baseMessages = history.messages.sublist(index);
       for(BaseMessage message in baseMessages){
-        messages.add(RimeMessage.decodeMessage(message.content));
+        messages.add(RimeMessage.fromBaseMessage(message));
       }
     });
 

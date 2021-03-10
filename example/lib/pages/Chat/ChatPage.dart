@@ -285,7 +285,7 @@ class _ChatPageState extends State<ChatPage> {
                 });
               },
               // Pass in RimeModel
-              chat: channel,
+              channel: channel,
             ),
             ),
           );

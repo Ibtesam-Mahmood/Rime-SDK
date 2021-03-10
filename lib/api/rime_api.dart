@@ -263,7 +263,7 @@ class RimeApi {
     if(baseMessage != null){
       channel = channel.copyWith(
         RimeChannel(
-          subtitle: baseMessage.content,
+          subtitle: baseMessage.content['payload']['text'],
           lastUpdated: baseMessage.publishedAt.value
         )
       );

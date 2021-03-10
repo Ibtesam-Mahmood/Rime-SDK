@@ -1,5 +1,5 @@
 import 'dart:ui';
-
+import 'package:rime/model/rimeMessage.dart';
 import 'package:example/components/Picker/picker.dart';
 import 'package:example/components/widgets/frosted_effect.dart';
 import 'package:example/pages/Chat/ChatPage.dart';
@@ -8,6 +8,9 @@ import 'package:example/util/pollar_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:rime/model/channel.dart';
+import 'package:rime/state/RimeRepository.dart';
+import 'package:rime/state/rime_bloc/rime_bloc.dart';
+import 'package:rime/state/rime_bloc/rime_bloc_events.dart';
 
 import 'appBarGif.dart';
 import 'appBarImage.dart';
@@ -38,7 +41,7 @@ class ChatAppBar extends StatefulWidget {
   final FocusNode focusNode;
 
   ///Chat model
-  final RimeChannel chat;
+  final RimeChannel channel;
 
   ///Contains expandable TextField that contains Images and Gifs
   ///Contains Picker which opens up Image picker or GifPicker
@@ -49,7 +52,7 @@ class ChatAppBar extends StatefulWidget {
       this.onSwap,
       this.controller,
       this.focusNode,
-      this.chat,
+      this.channel,
       this.onCreate,
       this.pickerController});
 
@@ -64,7 +67,7 @@ class _ChatAppBarState extends State<ChatAppBar> {
   int numLines = 0;
 
   /// Chat model
-  RimeChannel chat;
+  RimeChannel channel;
 
   /// List of images or videos
   List<AssetEntity> images = [];
@@ -107,7 +110,7 @@ class _ChatAppBarState extends State<ChatAppBar> {
 
     controller.buildTextSpan(withComposing: true);
 
-    chat = widget.chat;
+    channel = widget.channel;
   }
 
   @override
@@ -193,107 +196,30 @@ class _ChatAppBarState extends State<ChatAppBar> {
   // }
 
   ///Sends a message
-  // void sendMessage(Chat chatModel) async {
-  //   setState(() {
-  //     hideOptions = false;
-  //     numLines = 1;
-  //   });
+  void sendMessage(RimeChannel channel) async {
+    setState(() {
+      hideOptions = false;
+      numLines = 1;
+    });
 
-  //   sendPresence(false);
+    if (controller.text != '') {
+      //Create Text Message
+      RimeMessage message = RimeMessage(
+        uuid: RimeRepository().userID,
+        type: 'text-message',
+        content: TextMessage.toPayload(controller.text),
+        publishedAt: (await RimeRepository().client.time()),
+        originalMessage: TextMessage.toPayload(controller.text)
+      );
 
-  //   if (controller.text != '') {
-  //     //Create Text Message
-  //     ChatMessage message = TextMessage(
-  //         clientID: PollarStoreBloc().loggedInUserID,
-  //         timeToken: DateTime.now(),
-  //         delivered: false,
-  //         text: controller.text);
+      RimeBloc().add(MessageEvent(channel.channel, message));
 
-  //     //Publish message
-  //     ChatBloc().add(MessageEvent(chatModel.id, message));
-
-  //     //Clear the textField
-  //     setState(() {
-  //       controller.clear();
-  //     });
-  //   }
-
-  //   if (widget.controller.images.length == 1 &&
-  //       widget.controller.images[0].duration > 0) {
-  //     images = [...widget.controller.images];
-
-  //     setState(() {});
-
-  //     DateTime time = DateTime.now();
-
-  //     widget.controller.removeAll();
-
-  //     LocalVideoMessage localVideo = LocalVideoMessage(
-  //         clientID: PollarStoreBloc().loggedInUserID,
-  //         timeToken: time,
-  //         delivered: false,
-  //         video: images[0]);
-
-  //     chatModel.messages.add(localVideo);
-
-  //     ChatBloc().add(StoreChatEvent(chat));
-
-  //     print(images[0].title);
-
-  //     Tuple2<String, String> video = await sendVideo(images[0]);
-
-  //     VideoMessage videoMessage = VideoMessage(
-  //         clientID: PollarStoreBloc().loggedInUserID,
-  //         timeToken: time,
-  //         delivered: false,
-  //         video: video.item2,
-  //         thumbNail: video.item1);
-
-  //     ChatBloc().add(MessageEvent(chatModel.id, videoMessage));
-  //   } else if (widget.controller.images.isNotEmpty) {
-  //     images = [...widget.controller.images];
-
-  //     setState(() {});
-
-  //     DateTime time = DateTime.now();
-
-  //     widget.controller.removeAll();
-
-  //     LocalImage localImage = LocalImage(
-  //         clientID: PollarStoreBloc().loggedInUserID,
-  //         timeToken: time,
-  //         delivered: false,
-  //         link: images);
-
-  //     chatModel.messages.add(localImage);
-
-  //     ChatBloc().add(StoreChatEvent(chatModel));
-
-  //     List<String> imageLinks = await sendImage(images);
-
-  //     //Create image message
-  //     ImageMessage image = ImageMessage(
-  //         clientID: PollarStoreBloc().loggedInUserID,
-  //         timeToken: time,
-  //         delivered: false,
-  //         link: imageLinks);
-
-  //     //Publish image message
-  //     ChatBloc().add(MessageEvent(chatModel.id, image));
-  //   } else if (widget.controller.gif.isNotEmpty) {
-  //     //Create gif message
-  //     GifMessage message = GifMessage(
-  //         clientID: PollarStoreBloc().loggedInUserID,
-  //         timeToken: DateTime.now(),
-  //         delivered: false,
-  //         link: widget.controller.gif);
-
-  //     widget.controller.removeGif();
-
-  //     //Publish gif message
-  //     ChatBloc().add(MessageEvent(chatModel.id, message));
-  //   }
-  // }
+      //Clear the textField
+      setState(() {
+        controller.clear();
+      });
+    }
+  }
 
   TextSpan textSpan(String message, TextTheme textStyles) {
     return TextSpan(
@@ -606,7 +532,7 @@ class _ChatAppBarState extends State<ChatAppBar> {
                                               emojiCounter = 0;
                                             });
                                             // Implement create chat
-                                            // createChat();
+                                            sendMessage(widget.channel);
                                           },
                                         ),
                                       )

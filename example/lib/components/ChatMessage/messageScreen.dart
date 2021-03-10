@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:rime/model/rimeMessage.dart' as model;
 import 'package:rime/rime.dart';
 import 'package:rime/state/channel_state/channel_state.dart';
 import '../ChatMenu/fadeInUserImage.dart';
@@ -102,7 +103,7 @@ class _MessageScreenState extends State<MessageScreen> {
                             padding: EdgeInsets.only(left: 12, bottom: 5),
                             child: Text("Killua"),
                           ),
-                          TextMessage(message: widget.messages[i].content)
+                          TextMessage(message: model.TextMessage.fromRimeMessage(widget.messages[i]).text)
                         ],
                       )
                     ],

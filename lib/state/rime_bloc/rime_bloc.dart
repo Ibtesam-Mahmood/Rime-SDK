@@ -4,6 +4,7 @@ import 'package:pubnub/core.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/api/rime_api.dart';
 import 'package:rime/model/channel.dart';
+import 'package:rime/model/rimeMessage.dart';
 import 'package:rime/state/RimeRepository.dart';
 import 'package:rime/state/rime_bloc/rime_bloc_events.dart';
 import 'package:rime/state/rime_bloc/rime_bloc_state.dart';
@@ -100,10 +101,12 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     //update with content and new timestamp
     currentChannel = currentChannel.copyWith(
       RimeChannel(
-        subtitle: message.content,
+        subtitle: message.content['text'],
         lastUpdated: message.publishedAt.value
       )
     );
+    //Send message to PubNub channel
+    await RimeApi.sendMessage(channel, message);
 
     _mapStoreToState(currentChannel);
   }

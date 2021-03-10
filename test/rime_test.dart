@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/api/rime_api.dart';
 import 'package:rime/model/channel.dart';
+import 'package:rime/model/rimeMessage.dart';
 
 import 'package:rime/rime.dart';
 import 'package:rime/state/RimeFunctions.dart';
@@ -422,6 +423,34 @@ void main() async {
           await publishMessageWithChannelUpdate(channelID, message);
 
       print(publish.timetoken);
+    });
+
+    test('Send a RimeMessage through PubNub', () async {
+      MembershipsResult memRes = await RimeRepository()
+          .client
+          .objects
+          .getMemberships(
+              includeChannelCustomFields: true,
+              includeChannelFields: true,
+              includeCustomFields: true,
+              sort: Set.from(['channel.name']));
+
+      String channelID = memRes.metadataList[0].channel.id;
+      String userID = 'testUser1';
+      String message = 'Hello';
+      RimeMessage rimeMessage = RimeMessage(
+        uuid: userID,
+        type: message,
+        content: TextMessage.toPayload('Hello'),
+        publishedAt: (await RimeRepository().client.time()),
+        originalMessage: message
+      );
+
+      // Send the message
+      PublishResult publish =
+          await RimeRepository().client.publish(channelID, rimeMessage);
+
+        expect(true, true);
     });
 
     test("Get testUser3's Channel 1's metadata", () async {
