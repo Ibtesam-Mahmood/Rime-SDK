@@ -3,6 +3,9 @@ description: A new Flutter package project.
 version: 0.0.1
 author: "Perceive Software Solutions"
 homepage: " "
+# This is to suppress a warning about publishable packages not allowing git dependencies
+# When preparing the package for final release, remove this line
+publish_to: none 
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
