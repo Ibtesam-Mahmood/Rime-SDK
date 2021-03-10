@@ -2,6 +2,8 @@ import 'package:pubnub/pubnub.dart';
 
 import 'RimeRepository.dart';
 
+import 'package:intl/intl.dart';
+
 /// Group of functions to interact with pubnub
 class RimeFunctions {
   /// Retreives all the non-empty channel groups for the given user
@@ -63,5 +65,28 @@ class RimeFunctions {
     ChannelGroupListChannelsResult channels = await RimeRepository().client.channelGroups.listChannels(groupID);
 
     return channels.channels.length;
+  }
+
+  //Formats the time since the post was posted
+  //Formats(x) xm - xh - xd
+  static String formatTime(DateTime time) {
+    DateTime now = DateTime.now();
+    int timeDifernce = now.difference(time).inMinutes;
+    if (timeDifernce / 60 > 1) {
+      timeDifernce = (timeDifernce / 60).floor();
+      if (timeDifernce / 24 > 1) {
+        timeDifernce = (timeDifernce / 24).floor();
+
+        if (timeDifernce >= 7) {
+          return DateFormat('MMM dd, yyyy').format(now);
+        }
+
+        return '${timeDifernce}d'; //Return time in days
+      } else {
+        return '${timeDifernce}h';
+      } //Return time in hours
+    } else {
+      return '${timeDifernce == 0 ? 1 : timeDifernce}m';
+    } //Return time in minutes
   }
 }

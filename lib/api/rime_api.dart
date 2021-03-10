@@ -86,15 +86,8 @@ class RimeApi {
       return null;
     }
 
-    //Retrun channel for logged in user
-    RimeChannel createdChannel = RimeChannel(
-      channel: channelID,
-      lastUpdated: time.value,
-      membership: userMembership,
-      groupId: userGroupID
-    );
-
-    return createdChannel;
+    //Verifies request
+    return await getChannel(channelID);
   }
 
   static Future<RimeChannel> getChannel(String channel) async {
@@ -262,19 +255,28 @@ class RimeApi {
   /// 
   /// Returns a populated Future<RimeChannel> object
   static Future<RimeChannel> hydrate(MembershipMetadata data) async {
+
+    //Retreives the latest message
     BaseMessage baseMessage;
     PaginatedChannelHistory history = RimeRepository().client.channel(data.channel.id).history(chunkSize: 1);
     await history.more();
     baseMessage = history.messages.isEmpty ? null : history.messages.first;
+
+    //Retreives channel meta data
     ChannelMetadataDetails cmRes = data.channel;
+    List<String> uuids = (await getChannelMemebers(cmRes.id)).map<String>((mem) => mem.uuid.id).toList();
+
+    //Retreives channel memebership meta data
     Map<String, int> readMap = Map<String, int>.from( jsonDecode(cmRes.custom['read']) );
     RimeChannelMemebership memebership = RimeChannelMemebership.fromJson(data.custom);
+    
     RimeChannel channel = RimeChannel(
       channel: data.channel.id,
       lastUpdated: cmRes.custom['lastUpdated'],
       title: data.channel.name,
       readMap: readMap,
       membership: memebership,
+      uuids: uuids
     );
     if(baseMessage != null){
       channel = channel.copyWith(
@@ -285,5 +287,14 @@ class RimeApi {
       );
     }
     return channel;
+  }
+
+  ///Retreives the memeberships within a channel
+  static Future<List<ChannelMemberMetadata>> getChannelMemebers(String channel) async {
+
+    //Retreive memeberships
+    ChannelMembersResult result = await RimeRepository().client.objects.getChannelMembers(channel, includeUUIDFields: true, includeCustomFields: true);
+
+    return result.metadataList;
   }
 }
