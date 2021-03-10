@@ -30,6 +30,8 @@ class _MessageScreenState extends State<MessageScreen> {
   @override
   void initState() {
     super.initState();
+
+    _refreshController = EasyRefreshController();
   }
 
   @override
@@ -39,6 +41,7 @@ class _MessageScreenState extends State<MessageScreen> {
           controller: _refreshController,
           scrollController: _scrollController,
           reverse: true,
+
           footer: CustomFooter(
           extent: 40.0,
           triggerDistance: 50.0,
@@ -114,10 +117,15 @@ class _MessageScreenState extends State<MessageScreen> {
           ],
           //TODO: Implement onLoad
           onLoad: () async {
-          if (mounted) {
-            widget.channelProviderController.loadMore();
-          }
-        }
+            if (mounted) {
+              await widget.channelProviderController.loadMore();
+            }
+          },
+          onRefresh: () async {
+            if (mounted) {
+              await widget.channelProviderController.refresh();
+            }
+          },
       ),
       //TODO: Implement time message was sent animation
       //Swipe left animation

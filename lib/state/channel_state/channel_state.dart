@@ -105,7 +105,7 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
     //Checks if the channel exsists
     //Retreives the channel from api
     if(channel == null){
-      RimeChannel retreivedChannel =  await RimeApi.getChannel(widget.channelID);
+      RimeChannel retreivedChannel = await RimeApi.getChannel(widget.channelID);
 
       RimeBloc().add(StoreEvent(retreivedChannel));
     }
@@ -114,6 +114,9 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
     RimeRepository().addListener(widget.channelID, onMessageCallback);
 
     history = RimeRepository().client.channel(widget.channelID).history(chunkSize: widget.loadSize);
+
+    //Loads the innitial batch of messages
+    await resetLoad();
   }
 
   ///State listsner for message events
@@ -134,6 +137,15 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
 
   }
 
+  /// Loads the innitial batch of messages
+  Future<bool> resetLoad() async {
+
+    await history.reset();
+
+    return loadMore();
+
+  }
+
   /// Loads more messages into the history
   Future<bool> loadMore() async {
     
@@ -146,7 +158,11 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
     setState(() {
       List<BaseMessage> baseMessages = history.messages.sublist(index);
       for(BaseMessage message in baseMessages){
-        messages.add(RimeMessage.fromBaseMessage(message));
+        try{
+          messages.add(RimeMessage.fromBaseMessage(message));
+        }catch(e){
+          print('corrupt mesage');
+        }
       }
     });
 
@@ -198,8 +214,11 @@ class ChannelProviderController extends ChangeNotifier {
   //Called to notify all listners
   void _update() => notifyListeners();
 
-  // Loads more from state
-  void loadMore() => _state != null ? _state.loadMore() : null;
+  /// Loads more from state
+  Future<bool> loadMore() async => _state != null ? await _state.loadMore() : null;
+
+  /// Refreshes the history cursor to the beginning
+  Future<bool> refresh() async => _state != null ? await _state.resetLoad() : null;
 
   //Disposes of the controller
   @override
