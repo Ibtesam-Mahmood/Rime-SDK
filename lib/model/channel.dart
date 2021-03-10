@@ -6,7 +6,7 @@ class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
   String channel;
   String groupId;
   String title;
-  String subtitle;
+  dynamic subtitle;
   int lastUpdated;
   String image;
   bool isGroup;

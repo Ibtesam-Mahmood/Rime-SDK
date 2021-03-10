@@ -43,12 +43,11 @@ class RimeMessage extends BaseMessage{
   }
 
   /// Creates JSON serlized RimeMessage
-  @override
-  Map<String, dynamic> toJson(){
+  static Map<String, dynamic> encode(String uuid, String type, dynamic content){
     return {
       'uuid': uuid,
       'type': type,
-      'payload': content,
+      'payload': content
     };
   }
   

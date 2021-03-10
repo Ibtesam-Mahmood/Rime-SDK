@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pubnub/core.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/model/channel.dart';
+import 'package:rime/model/rimeMessage.dart';
 import 'package:rime/rime.dart';
 import 'package:rime/state/RimeFunctions.dart';
 import 'package:rime/state/RimeRepository.dart';
@@ -75,7 +76,8 @@ class RimeApi {
     //Create channel metadata
     SetChannelMetadataResult setMemRes = await client.objects.setChannelMetadata(channelID, ChannelMetadataInput(
       custom: {
-        "read": jsonEncode(readMap)
+        'read': jsonEncode(readMap),
+        'lastUpdated': time.value
       }
     ), includeCustomFields: true);
 
@@ -184,30 +186,43 @@ class RimeApi {
   ///
   ///String channelID: the id of the channel that you want to send to
   ///BaseMessage message: the message that you want to send
-  static Future<void> sendMessage(String channelID, BaseMessage message) async {
-    // Send the message
-    PublishResult publish =
-        await RimeRepository().client.publish(channelID, message);
-
+  static Future<Tuple2<ChannelMetadataDetails, RimeMessage>> sendMessage(String channelID, Map<String, dynamic> message) async {
+    
     //Get the current channel metadata
     GetChannelMetadataResult cmRes = await RimeRepository()
         .client
         .objects
         .getChannelMetadata(channelID, includeCustomFields: true);
+    
+    // Send the message
+    PublishResult publish =
+        await RimeRepository().client.publish(channelID, message, storeMessage: true);
+
 
     //Update the lastUpdated metadata
     Map customMetaData = cmRes.metadata?.custom ?? Map();
-    customMetaData['lastUpdated'] = DateTime.now().toString();
+    customMetaData['lastUpdated'] = publish.timetoken;
 
     //Re-Set the channel metadata
     ChannelMetadataInput channelMetadataInput = ChannelMetadataInput(
         name: cmRes.metadata.name,
         description: cmRes.metadata.description,
         custom: customMetaData);
+
     SetChannelMetadataResult smRes = await RimeRepository()
         .client
         .objects
-        .setChannelMetadata(channelID, channelMetadataInput);
+        .setChannelMetadata(channelID, channelMetadataInput, includeCustomFields: true);
+
+
+    //Create time message from sent message
+    RimeMessage messageResult = RimeMessage.fromBaseMessage(BaseMessage(
+      content: message,
+      originalMessage: message,
+      publishedAt: Timetoken(publish.timetoken)
+    ));
+
+    return Tuple2<ChannelMetadataDetails, RimeMessage>(smRes.metadata, messageResult);
   }
 
   /// Gets one page of the most recent channels
@@ -256,6 +271,7 @@ class RimeApi {
     RimeChannelMemebership memebership = RimeChannelMemebership.fromJson(data.custom);
     RimeChannel channel = RimeChannel(
       channel: data.channel.id,
+      lastUpdated: cmRes.custom['lastUpdated'],
       title: data.channel.name,
       readMap: readMap,
       membership: memebership,
@@ -263,7 +279,7 @@ class RimeApi {
     if(baseMessage != null){
       channel = channel.copyWith(
         RimeChannel(
-          subtitle: baseMessage.content['payload']['text'],
+          subtitle: baseMessage.content,
           lastUpdated: baseMessage.publishedAt.value
         )
       );

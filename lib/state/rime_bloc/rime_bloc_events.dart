@@ -3,6 +3,7 @@
 
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/model/channel.dart';
+import 'package:rime/model/rimeMessage.dart';
 
 abstract class RimeEvent {}
 
@@ -34,9 +35,10 @@ class CreateChannelEvent extends RimeEvent{
 
 ///Sends a message through the pubnub RimeChannel and adds the Message object to state
 class MessageEvent extends RimeEvent{
-  final BaseMessage message;
+  final Map<String, dynamic> payload;
+  final String type;
   final String channel;
-  MessageEvent(this.channel, this.message);
+  MessageEvent(this.channel, this.type, this.payload);
 }
 
 ///Sends a Delete Message though the pubnub RimeChannel and deletes and hides a chat for a user

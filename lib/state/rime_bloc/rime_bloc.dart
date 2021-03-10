@@ -37,27 +37,32 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
   Stream<RimeState> mapEventToState(RimeEvent event) async* {
     if(event is InitializeRime){
       yield* _mapInitializeToState(event.userID);
-    } else if (event is GetChannelsEvent) {
-      yield* _mapChannelsToState();
-    } else if (event is CreateChannelEvent) {
-      yield* _mapCreateChannelToState(event.channel, event.users, event.onSuccess);
-    } else if (event is MessageEvent) {
-      yield* _mapMessageToState(event.message, event.channel);
-    } else if (event is DeleteEvent) {
-      yield* _mapDeleteToState(event.channel);
-    } else if (event is LeaveEvent) {
-      yield* _mapLeaveToState(event.channel);
-    } else if (event is StoreEvent) {
-      yield* _mapStoreToState(event.channel);
     } else if (event is ClearRimeEvent) {
       yield* _mapClearToState();
+    }
+
+    //Rime must be live to run the following requests
+    if(state is RimeLiveState){
+      if (event is GetChannelsEvent) {
+        yield* _mapChannelsToState();
+      } else if (event is CreateChannelEvent) {
+        yield* _mapCreateChannelToState(event.channel, event.users, event.onSuccess);
+      } else if (event is MessageEvent) {
+        yield* _mapMessageToState(event.payload, event.channel, event.type);
+      } else if (event is DeleteEvent) {
+        yield* _mapDeleteToState(event.channel);
+      } else if (event is LeaveEvent) {
+        yield* _mapLeaveToState(event.channel);
+      } else if (event is StoreEvent) {
+        yield* _mapStoreToState(event.channel);
+      }
     }
   }
 
   /// Initializes the pubnub service and requests channels
   Stream<RimeState> _mapInitializeToState(String userID) async* {
     // Initialize rime state
-    RimeRepository().initializeRime(userID);
+    await RimeRepository().initializeRime(userID);
 
     RimeRepository().addListener('rime-bloc-listener', onMessageCallBack);
 
@@ -90,25 +95,25 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     await RimeApi.createChannel(users);
   }
 
-  Stream<RimeState> _mapMessageToState(BaseMessage message, String channel) async* {
-    //get channels from state
-    Map<String, RimeChannel> storedChannels = (state as RimeLiveState).storedChannels;
-    List<String> organizedChannels = (state as RimeLiveState).orgainizedChannels;
-    //get specific channel
-    RimeChannel currentChannel = storedChannels[channel];
-    //Remove channel from list to add to top
-    organizedChannels.remove(currentChannel);
-    //update with content and new timestamp
-    currentChannel = currentChannel.copyWith(
+  Stream<RimeState> _mapMessageToState(Map<String, dynamic> message, String channel, String type) async* {
+
+    RimeChannel rimeChannel = retireveChannel(channel);
+
+    //Create Rime message
+    Map<String, dynamic> encodedRimeMessage = RimeMessage.encode(RimeRepository().userID, type, message);
+
+    //Send Message request
+    Tuple2<ChannelMetadataDetails, RimeMessage> res = await RimeApi.sendMessage(channel, encodedRimeMessage);
+
+
+    rimeChannel = rimeChannel.copyWith(
       RimeChannel(
-        subtitle: message.content['text'],
-        lastUpdated: message.publishedAt.value
+        subtitle: res.item2.content,
+        lastUpdated: res.item2.publishedAt.value
       )
     );
-    //Send message to PubNub channel
-    await RimeApi.sendMessage(channel, message);
 
-    _mapStoreToState(currentChannel);
+    _mapStoreToState(rimeChannel);
   }
 
   Stream<RimeState> _mapDeleteToState(String channel) async* {

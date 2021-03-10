@@ -1,4 +1,5 @@
 import 'dart:ui';
+// import 'package:example/components/Messages/textMessage.dart';
 import 'package:rime/model/rimeMessage.dart';
 import 'package:example/components/Picker/picker.dart';
 import 'package:example/components/widgets/frosted_effect.dart';
@@ -203,16 +204,8 @@ class _ChatAppBarState extends State<ChatAppBar> {
     });
 
     if (controller.text != '') {
-      //Create Text Message
-      RimeMessage message = RimeMessage(
-        uuid: RimeRepository().userID,
-        type: 'text-message',
-        content: TextMessage.toPayload(controller.text),
-        publishedAt: (await RimeRepository().client.time()),
-        originalMessage: TextMessage.toPayload(controller.text)
-      );
 
-      RimeBloc().add(MessageEvent(channel.channel, message));
+      RimeBloc().add(MessageEvent(channel.channel, TextMessage.RIME_MESSAGE_TYPE, TextMessage.toPayload(controller.text)));
 
       //Clear the textField
       setState(() {
