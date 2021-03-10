@@ -1,7 +1,5 @@
 PODS:
   - Flutter (1.0.0)
-  - flutter_secure_storage (3.3.1):
-    - Flutter
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
   - FMDB/standard (2.7.5)
@@ -19,7 +17,6 @@ PODS:
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
-  - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - photo_manager (from `.symlinks/plugins/photo_manager/ios`)
@@ -33,8 +30,6 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
-  flutter_secure_storage:
-    :path: ".symlinks/plugins/flutter_secure_storage/ios"
   path_provider:
     :path: ".symlinks/plugins/path_provider/ios"
   permission_handler:
@@ -48,7 +43,6 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  flutter_secure_storage: 7953c38a04c3fdbb00571bcd87d8e3b5ceb9daec
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   permission_handler: 8278954f2382902f63f00dd8828769c0bd6d511b
@@ -56,6 +50,6 @@ SPEC CHECKSUMS:
   sqflite: 4001a31ff81d210346b500c55b17f4d6c7589dd0
   video_player: 9cc823b1d9da7e8427ee591e8438bfbcde500e6e
 
-PODFILE CHECKSUM: a75497545d4391e2d394c3668e20cfb1c2bbd4aa
+PODFILE CHECKSUM: b7c33aa202e0204c28dac89f7bb8a1a8864e687f
 
 COCOAPODS: 1.10.1
