@@ -192,7 +192,6 @@ class _RimeMessagesMenuState extends State<RimeMessagesMenu> {
               )),
               ChatList(
                 children: channels,
-
               )
             ],
           ),

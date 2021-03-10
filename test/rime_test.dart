@@ -271,6 +271,18 @@ void main() async {
         expect(rimeChannel.subtitle, message);
       });
 
+      test('Check history', () async {
+
+        PaginatedChannelHistory history = RimeRepository().client.channel(channel).history();
+
+        await history.more();
+
+        print('Hello');
+        
+        expect(true, true);
+      
+      });
+
     });
   });
 

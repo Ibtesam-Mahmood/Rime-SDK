@@ -1,8 +1,8 @@
 import 'dart:ui';
 
+import 'package:example/components/ChatMessage/chatAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:rime/model/channel.dart';
 import 'package:rime/state/channel_state/channel_state.dart';
 
 import '../../components/ChatMessage/messageScreen.dart';
@@ -11,18 +11,14 @@ import '../../components/widgets/frosted_effect.dart';
 import '../../util/colorProvider.dart';
 
 class ChatPage extends StatefulWidget {
-  // final Chat chatModel;
   final String rimeChannelID;
+  
   ChatPage({Key key, this.rimeChannelID}) : super(key: key);
   @override
   _ChatPageState createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
-
-
-  //Stores the users currently in the chat
-  // List<UserInfo> user = [];
 
   //Stores url for gifs
   String gif = '';
@@ -40,43 +36,10 @@ class _ChatPageState extends State<ChatPage> {
   //Gets gifs from GifPicker
   ChatPageController chatViewMenuController;
 
-  ///The ID for the chat
-  String id;
-
   ///previous state of keyBoard
   bool keyBoardOpen = false;
 
-  ScrollController controller;
-
   ChannelProviderController _channelStateProviderController;
-
-  ///The current chat model, null if new chat
-  // Chat chat;
-
-  ///Retreives the chat model passed in or the new chat defined
-  // Chat get currentChat{
-  //   if(chat == null) return widget.chatModel;
-  //   return chat;
-  // }
-
-  ///The chat name
-  // String get chatName{
-
-  //   if(currentChat?.chatName?.isNotEmpty == true){
-  //     return currentChat.chatName;
-  //   }
-
-  //   else if(user.length == 1){
-  //     return '${user[0].firstName} ${user[0].lastName}';
-  //   }
-
-  //   else if(user.length >= 2){
-  //     return '${user[0].firstName} and ${user.length - 1} other';
-  //   }
-
-  //   return '';
-
-  // }
 
   //Loads in all messages of a specific chat
   //Responsible for receiving new messages as well (onMessageReceived)
@@ -84,14 +47,6 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-
-    controller = ScrollController();
-
-    ///Apply notification block while on page
-    // Notifeye().add(BlockPushNotif(BlockPushNotif.blockIDByType(widget.chatModel)));
-
-    //Grab all users associated with a chat
-    // getUserInfo();
 
     chatViewMenuController = ChatPageController();
 
@@ -112,21 +67,12 @@ class _ChatPageState extends State<ChatPage> {
     );
 
     focusNode = FocusNode();
-
-    // id = widget.chatModel.id;
-
-    // chat = ChatBloc().state[id];
-
   }
 
   @override
   void dispose() {
     chatViewMenuController?.dispose();
     _channelStateProviderController?.dispose();
-
-    ///Unblock push notifications
-    // Notifeye().add(DismissNotification(unBlock: true));
-
     super.dispose();
   }
 
@@ -138,17 +84,6 @@ class _ChatPageState extends State<ChatPage> {
       chatViewMenuController._bind(this);
     }
   }
-
-  //Get all user info for all users in the current chat
-  // void getUserInfo() async {
-  //   List<UserInfo> newUsers = [];
-  //   for (int i = 0; i < currentChat.users?.length ?? 0; i++) {
-  //     newUsers.add(await UserInfoApi.getUserInfoFromId(currentChat.users[i]));
-  //   }
-  //   setState(() {
-  //     user = newUsers;
-  //   });
-  // }
 
   //Remove an image from AppBar
   void removeImage(int index){
@@ -215,11 +150,12 @@ class _ChatPageState extends State<ChatPage> {
                             Navigator.pop(context);
                           },
                         ),
-                        // user.isNotEmpty ? Padding(
-                        //   padding: const EdgeInsets.only(left: 16),
-                        //   child: Text(chatName, style: textStyles.headline3.copyWith(color: appColors.onBackground)),
-                        // ) : Container(),
+                        channel?.title != null ? Padding(
+                          padding: const EdgeInsets.only(left: 16),
+                          child: Text(channel.title, style: textStyles.headline3.copyWith(color: appColors.onBackground)),
+                        ) : Container(),
                         Spacer(),
+                        // TODO: Implement edit chat
                         // Padding(
                         //   padding: const EdgeInsets.only(right: 20),
                         //   child: id != 'DUMMY-${PollarStoreBloc().loggedInUserID}' ? GestureDetector(
@@ -275,85 +211,82 @@ class _ChatPageState extends State<ChatPage> {
                   }
                   return false;
                 },
-                child: Container(
-                  child: MessageScreen(messages: messages, channelProviderController: _channelStateProviderController),
-                ),
+                child: MessageScreen(messages: messages, channelProviderController: _channelStateProviderController),
               ),
             ),
-            //TODO: Implement ChatAppBar
-            // bottomNavigationBar: ChatAppBar(
-            //   controller: chatViewMenuController,
-            //   pickerController: pickerController,
-            //   focusNode: focusNode,
-            //   openImages: (){
+            bottomNavigationBar: ChatAppBar(
+              controller: chatViewMenuController,
+              pickerController: pickerController,
+              focusNode: focusNode,
+              openImages: (){
 
-            //     //Close or open accordingly
-            //     if(pickerController?.type != PickerType.ImagePicker){
-            //       pickerController.openImagePicker();
-            //       setState(() {
-            //         focusNode.unfocus();
-            //       });
-            //     }
-            //     else if(keyBoardOpen){
-            //       pickerController.closeImagePicker();
-            //       setState(() {
-            //         focusNode.requestFocus();
-            //       });
-            //     }
-            //     else{
-            //       pickerController.closeImagePicker();
-            //       setState(() {
-            //         focusNode.unfocus();
-            //       });
-            //     }
+                //Close or open accordingly
+                if(pickerController?.type != PickerType.ImagePicker){
+                  pickerController.openImagePicker();
+                  setState(() {
+                    focusNode.unfocus();
+                  });
+                }
+                else if(keyBoardOpen){
+                  pickerController.closeImagePicker();
+                  setState(() {
+                    focusNode.requestFocus();
+                  });
+                }
+                else{
+                  pickerController.closeImagePicker();
+                  setState(() {
+                    focusNode.unfocus();
+                  });
+                }
 
-            //   },
-            //   openGif: (){
-            //     //Close or open accordingly
-            //     if(pickerController?.type != PickerType.GiphyPickerView){
-            //       pickerController.openGiphyPicker();
-            //       setState(() {
-            //         focusNode.unfocus();
-            //       });
-            //     }
-            //     else if(keyBoardOpen){
-            //       pickerController.closeGiphyPicker();
-            //       setState(() {
-            //         focusNode.requestFocus();
-            //       });
-            //     }
-            //     else{
-            //       pickerController.closeGiphyPicker();
-            //       setState(() {
-            //         focusNode.unfocus();
-            //       });
-            //     }
-            //   },
-            //   onTap: () {
-            //     setState(() {
+              },
+              openGif: (){
+                //Close or open accordingly
+                if(pickerController?.type != PickerType.GiphyPickerView){
+                  pickerController.openGiphyPicker();
+                  setState(() {
+                    focusNode.unfocus();
+                  });
+                }
+                else if(keyBoardOpen){
+                  pickerController.closeGiphyPicker();
+                  setState(() {
+                    focusNode.requestFocus();
+                  });
+                }
+                else{
+                  pickerController.closeGiphyPicker();
+                  setState(() {
+                    focusNode.unfocus();
+                  });
+                }
+              },
+              onTap: () {
+                setState(() {
 
-            //       if(pickerController?.type == PickerType.GiphyPickerView)
-            //         {pickerController.closeGiphyPicker();}
-            //       else if(pickerController?.type == PickerType.ImagePicker)
-            //         {pickerController.closeImagePicker();}
+                  if(pickerController?.type == PickerType.GiphyPickerView)
+                    {pickerController.closeGiphyPicker();}
+                  else if(pickerController?.type == PickerType.ImagePicker)
+                    {pickerController.closeImagePicker();}
 
-            //       keyBoardOpen = true;
-            //     });
-            //   },
-            //   onCreate: (newChat){
-            //     setState((){
-            //       id = newChat.id;
-            //       chat = newChat;
-            //     });
-            //   },
-            //   onSwap: (){
-            //     pickerController.openGiphyPicker();
-            //     setState(() {
-            //       focusNode.unfocus();
-            //     });
-            //   },
-            //   chat: widget.chatModel,
-            // ),
+                  keyBoardOpen = true;
+                });
+              },
+              onCreate: (newChat){
+                setState((){
+                  channel = newChat;
+                });
+              },
+              onSwap: (){
+                pickerController.openGiphyPicker();
+                setState(() {
+                  focusNode.unfocus();
+                });
+              },
+              // Pass in RimeModel
+              chat: channel,
+            ),
             ),
           );
       }

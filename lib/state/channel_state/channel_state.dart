@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/api/rime_api.dart';
 import 'package:rime/model/channel.dart';
+import 'package:rime/model/rimeMessage.dart';
 import 'package:rime/state/RimeRepository.dart';
 import 'package:rime/state/rime_bloc/rime_bloc.dart';
 import 'package:rime/state/rime_bloc/rime_bloc_events.dart';
 import 'package:rime/state/rime_bloc/rime_bloc_state.dart';
-import 'package:pubnub/src/dx/_endpoints/history.dart';
 
 ///The type of builder for the channel provider
 typedef ChannelStateBuilder = Widget Function(BuildContext context, RimeChannel channel, List<BaseMessage> history);
@@ -61,7 +61,7 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
   PaginatedChannelHistory history;
 
   ///Storage for messages from this channel
-  List<BaseMessage> messages = [];
+  List<RimeMessage> messages = [];
 
   // ~~~~~~~~~~~~~~ Life Cycle ~~~~~~~~~~~~~~~~~~
 
@@ -125,7 +125,7 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
     switch (en.messageType) {
       case MessageType.normal:
         setState(() {
-          messages.insert(0, en);
+          messages.insert(0, RimeMessage.decodeMessage(en.content));
         });
         break;
       default:
@@ -144,7 +144,10 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
     await history.more();
 
     setState(() {
-      messages.addAll(history.messages.sublist(index));
+      List<BaseMessage> baseMessages = history.messages.sublist(index);
+      for(BaseMessage message in baseMessages){
+        messages.add(RimeMessage.decodeMessage(message.content));
+      }
     });
 
     return history.hasMore;

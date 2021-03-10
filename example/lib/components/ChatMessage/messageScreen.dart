@@ -20,9 +20,6 @@ class MessageScreen extends StatefulWidget {
 
 class _MessageScreenState extends State<MessageScreen> {
 
-  ///Messages list
-  List<String> messages = [];
-
   ///Controller for the easy refresh
   EasyRefreshController _refreshController;
 
@@ -32,10 +29,6 @@ class _MessageScreenState extends State<MessageScreen> {
   @override
   void initState() {
     super.initState();
-
-    widget.messages.forEach((element) { messages.add(element.content['message']); });// ['hello', 'Whats good'];
-    
-    print(messages.length);
   }
 
   @override
@@ -83,7 +76,7 @@ class _MessageScreenState extends State<MessageScreen> {
                 shrinkWrap: true,
                 scrollDirection: Axis.vertical,
                 physics: BouncingScrollPhysics(),
-                itemCount: messages.length,
+                itemCount: widget.messages.length,
                 itemBuilder: (context, i){
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -107,9 +100,9 @@ class _MessageScreenState extends State<MessageScreen> {
                         children: [
                           Padding(
                             padding: EdgeInsets.only(left: 12, bottom: 5),
-                            child: Text('Killua'),
+                            child: Text("Killua"),
                           ),
-                          TextMessage(message: messages[i])
+                          TextMessage(message: widget.messages[i].content)
                         ],
                       )
                     ],
@@ -119,15 +112,11 @@ class _MessageScreenState extends State<MessageScreen> {
             )
           ],
           //TODO: Implement onLoad
-        //   onLoad: () async {
-        //   if (mounted) {
-        //     Completer _onSuccess = Completer();
-        //     ChatBloc().add(LoadMoreMessages(widget.chatID, (){
-        //       _onSuccess.complete(null);
-        //     }));
-        //     await _onSuccess.future;
-        //   }
-        // }
+          onLoad: () async {
+          if (mounted) {
+            widget.channelProviderController.loadMore();
+          }
+        }
       ),
       //TODO: Implement time message was sent animation
       //Swipe left animation
