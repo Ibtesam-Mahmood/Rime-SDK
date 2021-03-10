@@ -4,11 +4,22 @@ import 'RimeRepository.dart';
 
 /// Group of functions to interact with pubnub
 class RimeFunctions {
-
-  /// Retreives all channel groups for a userID
-  static List<String> getChannelGroups(String loginID) {
-    return List.generate(
+  /// Retreives all the non-empty channel groups for the given user
+  ///
+  /// loginID : the loginID for the user in question
+  static Future<List<String>> getChannelGroups(String loginID) async {
+    List possibleChannelGroupIDs = List.generate(
         10, (index) => RimeFunctions.channelGroupID(loginID, index));
+    List<String> nonEmptyChannelGroups = [];
+
+    for (String groupID in possibleChannelGroupIDs) {
+      int channelCount = await getChannelGroupCount(groupID);
+      if (channelCount > 0) {
+        nonEmptyChannelGroups.add(groupID);
+      }
+    }
+
+    return nonEmptyChannelGroups;
   }
 
   /// Helper function to turn a userID and int into a channel group name
@@ -16,7 +27,7 @@ class RimeFunctions {
     return 'rime_cg_${userID}_$groupNo';
   }
 
-  /// Retreives the next available channel group for a user.
+  /// Retreives the next channel group with room for a new channel for the given user.
   static Future<String> getAvailableChannelGroup(String userID) async {
     // Channel group to be constructed
     String channelGroup;
@@ -52,37 +63,5 @@ class RimeFunctions {
     ChannelGroupListChannelsResult channels = await RimeRepository().client.channelGroups.listChannels(groupID);
 
     return channels.channels.length;
-
-  }
-
-  static Future<List<String>> getValidChannelGroups(String userID) async {
-
-    List<String> groups = [];
-    int groupNo = 0;
-
-    while(groupNo <= 9){
-
-      // Get the channel group with the given nam
-      String channelGroup = channelGroupID(userID, groupNo);
-
-      //Retreive the number of channels in group
-      int count = await getChannelGroupCount(channelGroup);
-
-      if(count == 2000){
-        groups.add(channelGroup);
-        groupNo++;
-      }
-      else if(count == 0){
-        break;
-      }
-      else if(count < 2000){
-        groups.add(channelGroup);
-        break;
-      }
-
-    }
-
-    return groups;
-
   }
 }

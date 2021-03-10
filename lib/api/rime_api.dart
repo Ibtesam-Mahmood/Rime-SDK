@@ -163,7 +163,7 @@ class RimeApi {
         .client
         .objects
         .manageChannelMembers(channel, [], Set<String>.from([loginID]));
-    List<String> channelGroups = RimeFunctions.getChannelGroups(loginID);
+    List<String> channelGroups = await RimeFunctions.getChannelGroups(loginID);
     for (var group in channelGroups) {
       try {
         await RimeRepository()

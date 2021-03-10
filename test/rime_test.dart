@@ -40,7 +40,9 @@ void main() async {
     test('Print all groups for testUser1', () async {
       String userID = 'testUser1';
       await printAllGroupsForUser(userID);
-    }, skip: "Don't want this to print everytime");
+    }
+    // , skip: "Don't want this to print everytime"
+    );
 
     test('Print all groups and channels for testUser1', () async {
       String userID = 'testUser1';
@@ -810,7 +812,7 @@ Future printEveryMessageInAChannel(String channel) async {
 }
 
 Future printAllGroupsAndChannelsForUser(String userID) async {
-  List<String> g = RimeFunctions.getChannelGroups(userID);
+  List<String> g = await RimeFunctions.getChannelGroups(userID);
 
   String groupName;
   for (groupName in g) {
@@ -825,7 +827,7 @@ Future printAllChannelsInAGroup(String groupName) async {
   print('Channels: ' + channelGroupList.channels.toList().toString());
 }
 
-Future printAllGroupsForUser(String userID) {
-  List<String> g = RimeFunctions.getChannelGroups(userID);
+Future printAllGroupsForUser(String userID) async {
+  List<String> g = await RimeFunctions.getChannelGroups(userID);
   print('Groups: ' + g.toString());
 }
