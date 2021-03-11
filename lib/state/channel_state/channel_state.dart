@@ -23,7 +23,7 @@ class ChannelStateProvider extends StatefulWidget {
   static const int MESSAGE_CHUNK_SIZE = 5;
 
   ///Channel to be refrenced
-  final String channelID;
+  final String channelId;
 
   /// Builder for the channel state provider
   final ChannelStateBuilder builder;
@@ -39,12 +39,12 @@ class ChannelStateProvider extends StatefulWidget {
 
   const ChannelStateProvider(
       {Key key,
-      @required this.channelID,
+      @required this.channelId,
       this.builder,
       this.listner,
       this.loadSize = MESSAGE_CHUNK_SIZE,
       this.controller})
-      : assert(channelID != null),
+      : assert(channelId != null),
         assert(loadSize != null),
         super(key: key);
 
@@ -82,7 +82,7 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
   @override
   void dispose() {
     //Dispose the on message callBack
-    RimeRepository().removeListener(widget.channelID);
+    RimeRepository().removeListener(widget.channelId);
 
     super.dispose();
   }
@@ -95,20 +95,20 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
   /// Subscribes to channel and starts history channel.
   void _initialize() async {
     //Get channel from bloc
-    RimeChannel channel = RimeBloc().retireveChannel(widget.channelID);
+    RimeChannel channel = RimeBloc().retireveChannel(widget.channelId);
 
     //Checks if the channel exsists
     //Retreives the channel from api
     if (channel == null) {
-      RimeChannel retreivedChannel = await RimeApi.getChannel(widget.channelID);
+      RimeChannel retreivedChannel = await RimeAPI.getChannel(widget.channelId);
 
       RimeBloc().add(StoreEvent(retreivedChannel));
     }
 
     //Subscribe to the RimeRepository
-    RimeRepository().addListener(widget.channelID, onMessageCallback);
+    RimeRepository().addListener(widget.channelId, onMessageCallback);
 
-    history = RimeRepository().client.channel(widget.channelID).history(chunkSize: widget.loadSize);
+    history = RimeRepository().client.channel(widget.channelId).history(chunkSize: widget.loadSize);
 
     //Loads the innitial batch of messages
     await resetLoad();
@@ -117,7 +117,7 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
   ///State listsner for message events
   void onMessageCallback(Envelope en) {
     //Ignores changes from other channels
-    if (en.channel != widget.channelID) return;
+    if (en.channel != widget.channelId) return;
 
     switch (en.messageType) {
       case MessageType.normal:
@@ -171,14 +171,14 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
         if (previous is RimeEmptyState && current is RimeLiveState) return true;
 
         //Conditionally builds if the past channel is different from the new channel
-        return (previous as RimeLiveState).storedChannels[widget.channelID] !=
-            (current as RimeLiveState).storedChannels[widget.channelID];
+        return (previous as RimeLiveState).storedChannels[widget.channelId] !=
+            (current as RimeLiveState).storedChannels[widget.channelId];
       },
       builder: (context, state) {
         if (!(state is RimeLiveState)) return Container();
 
         //Retreive channel from state
-        RimeChannel channel = (state as RimeLiveState).storedChannels[widget.channelID];
+        RimeChannel channel = (state as RimeLiveState).storedChannels[widget.channelId];
 
         if (widget.listner != null) {
           widget.listner(context, channel, messages);

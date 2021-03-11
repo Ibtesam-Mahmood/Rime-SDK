@@ -16,7 +16,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart' as dot_env;
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('RimeApi Tests: ', () {
+  group('RimeAPI Tests: ', () {
     setUp(() async {
       HttpOverrides.global = null;
       print('\n' 'Initializing');
@@ -27,15 +27,15 @@ void main() async {
     });
 
     test('Print all groups for testUser1', () async {
-      String userID = 'testUser1';
-      await printAllGroupsForUser(userID);
+      String userId = 'testUser1';
+      await printAllGroupsForUser(userId);
     }
         // , skip: "Don't want this to print everytime"
         );
 
     test('Print all groups and channels for testUser1', () async {
-      String userID = 'testUser1';
-      await printAllGroupsAndChannelsForUser(userID);
+      String userId = 'testUser1';
+      await printAllGroupsAndChannelsForUser(userId);
     }, skip: "Don't want this to print everytime");
 
     group('Specific message and channel group tests', () {
@@ -89,8 +89,8 @@ void main() async {
           includeCustomFields: true,
           sort: Set.from(['channel.updated:desc']));
 
-      String channelID = memRes.metadataList.first.channel.id;
-      String filter = 'channel.id == "$channelID"';
+      String channelId = memRes.metadataList.first.channel.id;
+      String filter = 'channel.id == "$channelId"';
 
       MembershipsResult currentMembership = await RimeRepository().client.objects.getMemberships(
           limit: 1,
@@ -104,9 +104,9 @@ void main() async {
     });
 
     test('Soft Delete a Channel', () async {
-      String channelID = 'rime_testUser1_16148386848078668';
-      String filter = 'channel.id == "$channelID"';
-      bool success = await RimeApi.deleteChannel(channelID);
+      String channelId = 'rime_testUser1_16148386848078668';
+      String filter = 'channel.id == "$channelId"';
+      bool success = await RimeAPI.deleteChannel(channelId);
 
       // ignore: unused_local_variable
       MembershipsResult currentMembership = await RimeRepository().client.objects.getMemberships(
@@ -123,33 +123,33 @@ void main() async {
     group('Ibte Tests', () {
       test('Set memberdata for channel', () async {
         //Send Message
-        var channelID = 'rime_testUser1_16148386848078668';
+        var channelId = 'rime_testUser1_16148386848078668';
 
         int time = (await RimeRepository().client.time()).value;
 
         await RimeRepository()
             .client
             .objects
-            .setChannelMetadata(channelID, ChannelMetadataInput(name: time.toString()));
+            .setChannelMetadata(channelId, ChannelMetadataInput(name: time.toString()));
 
-        GetChannelMetadataResult channelMeta = await RimeRepository().client.objects.getChannelMetadata(channelID);
+        GetChannelMetadataResult channelMeta = await RimeRepository().client.objects.getChannelMetadata(channelId);
 
         expect(channelMeta.metadata.name, time.toString());
       });
 
       test('Ensure Channel is not updated with message action', () async {
         //Send Message
-        var channelID = 'rime_testUser1_16148386848078668';
+        var channelId = 'rime_testUser1_16148386848078668';
         var message = 'hello';
 
-        GetChannelMetadataResult channelMeta = await RimeRepository().client.objects.getChannelMetadata(channelID);
+        GetChannelMetadataResult channelMeta = await RimeRepository().client.objects.getChannelMetadata(channelId);
 
         String time = channelMeta.metadata.updated;
         print('t1: ' + time);
 
-        PublishResult publish = await RimeRepository().client.publish(channelID, message);
+        PublishResult publish = await RimeRepository().client.publish(channelId, message);
 
-        channelMeta = await RimeRepository().client.objects.getChannelMetadata(channelID);
+        channelMeta = await RimeRepository().client.objects.getChannelMetadata(channelId);
 
         time = channelMeta.metadata.updated;
         print('t2: ' + time);
@@ -160,9 +160,9 @@ void main() async {
         //Add Test messageAction to the just sent message
         // ignore: unused_local_variable
         AddMessageActionResult res =
-            await RimeRepository().client.addMessageAction('test', 'true', channelID, Timetoken(token));
+            await RimeRepository().client.addMessageAction('test', 'true', channelId, Timetoken(token));
 
-        channelMeta = await RimeRepository().client.objects.getChannelMetadata(channelID);
+        channelMeta = await RimeRepository().client.objects.getChannelMetadata(channelId);
 
         time = channelMeta.metadata.updated;
         print('t3: ' + time);
@@ -171,16 +171,16 @@ void main() async {
       });
 
       group('Check Channel order on paginated request for testUser1', () {
-        String userID = 'testUser1';
+        String userId = 'testUser1';
 
         test('User has channel memeberships', () async {
-          MembershipsResult res = await RimeRepository().client.objects.getMemberships(uuid: userID, limit: 10);
+          MembershipsResult res = await RimeRepository().client.objects.getMemberships(uuid: userId, limit: 10);
 
           expect(res.totalCount, greaterThan(0));
         });
 
         test('Memeberships mapped to channels', () async {
-          MembershipsResult res = await RimeRepository().client.objects.getMemberships(uuid: userID, limit: 10);
+          MembershipsResult res = await RimeRepository().client.objects.getMemberships(uuid: userId, limit: 10);
 
           List<String> channels = res.metadataList.map<String>((meta) => meta?.channel?.id ?? '').toList();
 
@@ -188,15 +188,15 @@ void main() async {
         });
 
         test('Reset channel metadata', () async {
-          MembershipsResult res = await RimeRepository().client.objects.getMemberships(uuid: userID, limit: 10);
+          MembershipsResult res = await RimeRepository().client.objects.getMemberships(uuid: userId, limit: 10);
 
           List<String> channels = res.metadataList.map<String>((meta) => meta?.channel?.id ?? '').toList();
 
           for (var channel in channels) {
             SetChannelMetadataResult res =
-                await RimeRepository().client.objects.setChannelMetadata(channel, ChannelMetadataInput(name: userID));
+                await RimeRepository().client.objects.setChannelMetadata(channel, ChannelMetadataInput(name: userId));
 
-            expect(res.metadata.name, userID);
+            expect(res.metadata.name, userId);
           }
         });
       });
@@ -206,13 +206,13 @@ void main() async {
       String channel = 'rime_testUser12_16152858276361764';
 
       test('create a channel', () async {
-        RimeChannel createdChannel = await RimeApi.createChannel([RimeRepository().userID, 'testUser2']);
+        RimeChannel createdChannel = await RimeAPI.createChannel([RimeRepository().userId, 'testUser2']);
 
         channel = createdChannel.channel;
 
         print(channel);
 
-        createdChannel = await RimeApi.getChannel(channel);
+        createdChannel = await RimeAPI.getChannel(channel);
 
         expect(createdChannel.readMap?.isEmpty ?? false, false);
       }, skip: 'Already created');
@@ -222,7 +222,7 @@ void main() async {
 
         await RimeRepository().client.publish(channel, message);
 
-        RimeChannel rimeChannel = await RimeApi.getChannel(channel);
+        RimeChannel rimeChannel = await RimeAPI.getChannel(channel);
 
         expect(rimeChannel.subtitle, message);
       });
@@ -239,15 +239,15 @@ void main() async {
     });
   });
 
-  group('RimeApi Tests - testUser3', () {
-    String userID = 'testUser3';
+  group('RimeAPI Tests - testUser3', () {
+    String userId = 'testUser3';
 
     setUp(() async {
       HttpOverrides.global = null;
       print('\n' 'Initializing');
       await dot_env.load(fileName: '.env');
       await Rime.initialize(dot_env.env);
-      await RimeRepository().initializeRime(userID);
+      await RimeRepository().initializeRime(userId);
       print('Initialized');
     });
 
@@ -259,17 +259,17 @@ void main() async {
           includeCustomFields: true,
           sort: Set.from(['channel.name']));
 
-      String channelID = memRes.metadataList[1].channel.id;
+      String channelId = memRes.metadataList[1].channel.id;
       String message = 'Test';
 
-      PublishResult publish = await RimeRepository().client.publish(channelID, message);
+      PublishResult publish = await RimeRepository().client.publish(channelId, message);
 
       //Get the TimeToken for the message that was just sent
       int time = publish.timetoken;
 
       //Add Test messageAction to the just sent message
       AddMessageActionResult res =
-          await RimeRepository().client.addMessageAction('test', 'true', channelID, Timetoken(time));
+          await RimeRepository().client.addMessageAction('test', 'true', channelId, Timetoken(time));
 
       //Confirm that it receives a successful response
       var actual = res.status;
@@ -337,7 +337,7 @@ void main() async {
     });
 
     test('Create a channel with just testUser3', () async {
-      String channelName = (await RimeApi.createChannel([userID, 'testUser12'])).channel;
+      String channelName = (await RimeAPI.createChannel([userId, 'testUser12'])).channel;
       print(channelName);
     }, skip: "Don't want to create channels everytime");
 
@@ -348,10 +348,10 @@ void main() async {
           includeCustomFields: true,
           sort: Set.from(['channel.name']));
 
-      String channelID = memRes.metadataList[0].channel.id;
+      String channelId = memRes.metadataList[0].channel.id;
       String message = 'Test';
 
-      PublishResult publish = await publishMessageWithChannelUpdate(channelID, message);
+      PublishResult publish = await publishMessageWithChannelUpdate(channelId, message);
 
       print(publish.timetoken);
     });
@@ -363,11 +363,11 @@ void main() async {
           includeCustomFields: true,
           sort: Set.from(['channel.name']));
 
-      String channelID = memRes.metadataList[0].channel.id;
-      String userID = 'testUser1';
+      String channelId = memRes.metadataList[0].channel.id;
+      String userId = 'testUser1';
       String message = 'Hello';
       RimeMessage rimeMessage = RimeMessage(
-          uuid: userID,
+          uuid: userId,
           type: message,
           content: TextMessage.toPayload('Hello'),
           publishedAt: (await RimeRepository().client.time()),
@@ -375,7 +375,7 @@ void main() async {
 
       // Send the message
       // ignore: unused_local_variable
-      PublishResult publish = await RimeRepository().client.publish(channelID, rimeMessage);
+      PublishResult publish = await RimeRepository().client.publish(channelId, rimeMessage);
 
       expect(true, true);
     });
@@ -387,10 +387,10 @@ void main() async {
           includeCustomFields: true,
           sort: Set.from(['channel.name']));
 
-      String channelID = memRes.metadataList[0].channel.id;
+      String channelId = memRes.metadataList[0].channel.id;
 
       GetChannelMetadataResult cmRes =
-          await RimeRepository().client.objects.getChannelMetadata(channelID, includeCustomFields: true);
+          await RimeRepository().client.objects.getChannelMetadata(channelId, includeCustomFields: true);
 
       // Got a 404. No Metadata exists for this channel...
       print('Got' + cmRes.toString());
@@ -403,13 +403,13 @@ void main() async {
           includeCustomFields: true,
           sort: Set.from(['channel.name']));
 
-      String channelID = memRes.metadataList[0].channel.id;
+      String channelId = memRes.metadataList[0].channel.id;
       ChannelMetadataInput channelMetadataInput =
           ChannelMetadataInput(name: 'testUser3 Channel 1', description: 'testUser3 Channel 1 Description!');
 
       // ignore: unused_local_variable
       SetChannelMetadataResult smRes =
-          await RimeRepository().client.objects.setChannelMetadata(channelID, channelMetadataInput);
+          await RimeRepository().client.objects.setChannelMetadata(channelId, channelMetadataInput);
 
       print('Got smRes');
     });
@@ -421,10 +421,10 @@ void main() async {
           includeCustomFields: true,
           sort: Set.from(['channel.name']));
 
-      String channelID = memRes.metadataList[1].channel.id;
+      String channelId = memRes.metadataList[1].channel.id;
       String message = 'Test';
 
-      PublishResult publish = await publishMessageWithChannelUpdate(channelID, message);
+      PublishResult publish = await publishMessageWithChannelUpdate(channelId, message);
 
       print(publish.timetoken);
     });
@@ -436,10 +436,10 @@ void main() async {
           includeCustomFields: true,
           sort: Set.from(['channel.name']));
 
-      String channelID = memRes.metadataList[1].channel.id;
+      String channelId = memRes.metadataList[1].channel.id;
 
       GetChannelMetadataResult cmRes =
-          await RimeRepository().client.objects.getChannelMetadata(channelID, includeCustomFields: true);
+          await RimeRepository().client.objects.getChannelMetadata(channelId, includeCustomFields: true);
 
       // Got a 404. No Metadata exists for this channel...
       print('Got' + cmRes.toString());
@@ -452,13 +452,13 @@ void main() async {
           includeCustomFields: true,
           sort: Set.from(['channel.name']));
 
-      String channelID = memRes.metadataList[1].channel.id;
+      String channelId = memRes.metadataList[1].channel.id;
       ChannelMetadataInput channelMetadataInput =
           ChannelMetadataInput(name: 'testUser3 Channel 2', description: 'testUser3 Channel 2 Description!');
 
       // ignore: unused_local_variable
       SetChannelMetadataResult smRes =
-          await RimeRepository().client.objects.setChannelMetadata(channelID, channelMetadataInput);
+          await RimeRepository().client.objects.setChannelMetadata(channelId, channelMetadataInput);
 
       print('Got smRes');
     });
@@ -470,10 +470,10 @@ void main() async {
           includeCustomFields: true,
           sort: Set.from(['channel.name']));
 
-      String channelID = memRes.metadataList[2].channel.id;
+      String channelId = memRes.metadataList[2].channel.id;
       String message = 'Test';
 
-      PublishResult publish = await publishMessageWithChannelUpdate(channelID, message);
+      PublishResult publish = await publishMessageWithChannelUpdate(channelId, message);
 
       print(publish.timetoken);
     });
@@ -485,10 +485,10 @@ void main() async {
           includeCustomFields: true,
           sort: Set.from(['channel.name']));
 
-      String channelID = memRes.metadataList[2].channel.id;
+      String channelId = memRes.metadataList[2].channel.id;
 
       GetChannelMetadataResult cmRes =
-          await RimeRepository().client.objects.getChannelMetadata(channelID, includeCustomFields: true);
+          await RimeRepository().client.objects.getChannelMetadata(channelId, includeCustomFields: true);
 
       // Got a 404. No Metadata exists for this channel...
       print('Got' + cmRes.toString());
@@ -501,13 +501,13 @@ void main() async {
           includeCustomFields: true,
           sort: Set.from(['channel.name']));
 
-      String channelID = memRes.metadataList[2].channel.id;
+      String channelId = memRes.metadataList[2].channel.id;
       ChannelMetadataInput channelMetadataInput =
           ChannelMetadataInput(name: 'testUser3 Channel 3', description: 'testUser3 Channel 3 Description!');
 
       // ignore: unused_local_variable
       SetChannelMetadataResult smRes =
-          await RimeRepository().client.objects.setChannelMetadata(channelID, channelMetadataInput);
+          await RimeRepository().client.objects.setChannelMetadata(channelId, channelMetadataInput);
 
       print('Got smRes');
     });
@@ -519,10 +519,10 @@ void main() async {
           includeCustomFields: true,
           sort: Set.from(['channel.name']));
 
-      String channelID = memRes.metadataList.last.channel.id;
+      String channelId = memRes.metadataList.last.channel.id;
       String message = 'Test';
 
-      PublishResult publish = await publishMessageWithChannelUpdate(channelID, message);
+      PublishResult publish = await publishMessageWithChannelUpdate(channelId, message);
 
       print(publish.timetoken);
     });
@@ -534,10 +534,10 @@ void main() async {
           includeCustomFields: true,
           sort: Set.from(['channel.name']));
 
-      String channelID = memRes.metadataList.last.channel.id;
+      String channelId = memRes.metadataList.last.channel.id;
 
       GetChannelMetadataResult cmRes =
-          await RimeRepository().client.objects.getChannelMetadata(channelID, includeCustomFields: true);
+          await RimeRepository().client.objects.getChannelMetadata(channelId, includeCustomFields: true);
 
       // Got a 404. No Metadata exists for this channel...
       print('Got' + cmRes.toString());
@@ -550,19 +550,19 @@ void main() async {
           includeCustomFields: true,
           sort: Set.from(['channel.name']));
 
-      String channelID = memRes.metadataList.last.channel.id;
+      String channelId = memRes.metadataList.last.channel.id;
       ChannelMetadataInput channelMetadataInput =
           ChannelMetadataInput(name: 'testUser3 Channel 3', description: 'testUser3 Channel 3 Description!');
 
       // ignore: unused_local_variable
       SetChannelMetadataResult smRes =
-          await RimeRepository().client.objects.setChannelMetadata(channelID, channelMetadataInput);
+          await RimeRepository().client.objects.setChannelMetadata(channelId, channelMetadataInput);
 
       print('Got smRes');
     });
 
     test('Create sets metadata for read action', () async {
-      String channelName = (await RimeApi.createChannel(['testUser1', 'testUser2', 'testUser3'])).channel;
+      String channelName = (await RimeAPI.createChannel(['testUser1', 'testUser2', 'testUser3'])).channel;
 
       print(channelName);
 
@@ -578,7 +578,7 @@ void main() async {
 
     test('Ensure channelMemebership event is received', () async {
       String channelName = 'rime_testUser3_16149450794304603';
-      String listenerID = 'listener-id';
+      String listenerId = 'listener-id';
 
       print('Retreiving');
 
@@ -589,7 +589,7 @@ void main() async {
 
       Map<String, dynamic> readActions = jsonDecode(res.metadata.custom['read'] as String);
 
-      RimeRepository().addListener(listenerID, (en) {
+      RimeRepository().addListener(listenerId, (en) {
         print(en.messageType.toString());
       });
 
@@ -610,19 +610,19 @@ void main() async {
 
       await Future.delayed(Duration(seconds: 10));
 
-      RimeRepository().removeListener(listenerID);
+      RimeRepository().removeListener(listenerId);
 
       expect(true, true);
     });
 
     test('Get Channel membership associated to user and channel', () async {
       String channel = 'rime_testUser3_16149449132204146';
-      String userID = 'testUser1';
+      String userId = 'testUser1';
 
       MembershipsResult currentMembership = await RimeRepository()
           .client
           .objects
-          .getMemberships(uuid: userID, limit: 1, includeCustomFields: true, filter: 'channel.id == \"$channel\"');
+          .getMemberships(uuid: userId, limit: 1, includeCustomFields: true, filter: 'channel.id == \"$channel\"');
 
       expect(currentMembership.metadataList.length, 1);
     });
@@ -630,7 +630,7 @@ void main() async {
     test('Get RimeChannel from getChannel request', () async {
       String channel = 'rime_testUser3_16149449132204146';
 
-      RimeChannel wap = await RimeApi.getChannel(channel);
+      RimeChannel wap = await RimeAPI.getChannel(channel);
 
       expect(wap, isNot(null));
     });
@@ -639,12 +639,12 @@ void main() async {
 
 // Random Test Functions for Basic Functionality
 
-///Publish message to the channel with channelID and also update the channel metadata at the same time
-Future<PublishResult> publishMessageWithChannelUpdate(String channelID, String message) async {
-  PublishResult publish = await RimeRepository().client.publish(channelID, message);
+///Publish message to the channel with channelId and also update the channel metadata at the same time
+Future<PublishResult> publishMessageWithChannelUpdate(String channelId, String message) async {
+  PublishResult publish = await RimeRepository().client.publish(channelId, message);
 
   GetChannelMetadataResult cmRes =
-      await RimeRepository().client.objects.getChannelMetadata(channelID, includeCustomFields: true);
+      await RimeRepository().client.objects.getChannelMetadata(channelId, includeCustomFields: true);
 
   Map customMetaData = cmRes.metadata?.custom ?? Map();
   customMetaData['lastUpdated'] = DateTime.now().toString();
@@ -653,7 +653,7 @@ Future<PublishResult> publishMessageWithChannelUpdate(String channelID, String m
       ChannelMetadataInput(name: cmRes.metadata.name, description: cmRes.metadata.description, custom: customMetaData);
   // ignore: unused_local_variable
   SetChannelMetadataResult smRes =
-      await RimeRepository().client.objects.setChannelMetadata(channelID, channelMetadataInput);
+      await RimeRepository().client.objects.setChannelMetadata(channelId, channelMetadataInput);
   return publish;
 }
 
@@ -670,8 +670,8 @@ Future printEveryMessageInAChannel(String channel) async {
   }
 }
 
-Future printAllGroupsAndChannelsForUser(String userID) async {
-  List<String> g = await RimeFunctions.getChannelGroups(userID);
+Future printAllGroupsAndChannelsForUser(String userId) async {
+  List<String> g = await RimeFunctions.getChannelGroups(userId);
 
   String groupName;
   for (groupName in g) {
@@ -685,7 +685,7 @@ Future printAllChannelsInAGroup(String groupName) async {
   print('Channels: ' + channelGroupList.channels.toList().toString());
 }
 
-Future printAllGroupsForUser(String userID) async {
-  List<String> g = await RimeFunctions.getChannelGroups(userID);
+Future printAllGroupsForUser(String userId) async {
+  List<String> g = await RimeFunctions.getChannelGroups(userId);
   print('Groups: ' + g.toString());
 }

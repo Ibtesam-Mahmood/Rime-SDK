@@ -7,7 +7,7 @@ typedef RimeCallBack = void Function(Envelope);
 
 /// Base extendable repository for Rime.
 ///
-/// Hold information about userIDs and channels.
+/// Hold information about userIds and channels.
 /// Both of these are held in seperate hive cointainers
 class RimeRepository {
   /// Meta data box name
@@ -19,8 +19,8 @@ class RimeRepository {
   /// The root pubnub client
   PubNub _client;
 
-  /// Logged in user ID
-  String _userID;
+  /// Logged in user Id
+  String _userId;
 
   /// All pubnub subscriptions
   final Map<String, Subscription> _subscriptions = {};
@@ -54,10 +54,10 @@ class RimeRepository {
     return _client;
   }
 
-  //Returns a userID if initialized
-  String get userID {
-    if (_userID == null) throw Exception('Client not iniitlaized');
-    return _userID;
+  //Returns a userId if initialized
+  String get userId {
+    if (_userId == null) throw Exception('Client not iniitlaized');
+    return _userId;
   }
 
   /// Used to initialize the repository.
@@ -65,15 +65,15 @@ class RimeRepository {
   /// Must be called to initialize the pubnub service.
   ///
   /// !!! Must be run after authentication
-  Future<void> initializeRime(String userID) async {
+  Future<void> initializeRime(String userId) async {
     assert(Rime.INITIALIZED);
 
     //Build keyset from dot env
     final pubnubKeySet =
-        Keyset(subscribeKey: Rime.env['RIME_SUB_KEY'], publishKey: Rime.env['RIME_PUB_KEY'], uuid: UUID(userID));
+        Keyset(subscribeKey: Rime.env['RIME_SUB_KEY'], publishKey: Rime.env['RIME_PUB_KEY'], uuid: UUID(userId));
 
-    //Assign the userID
-    _userID = userID;
+    //Assign the userId
+    _userId = userId;
 
     // Initialize the pubnub client
     _client = PubNub(defaultKeyset: pubnubKeySet);
@@ -85,14 +85,14 @@ class RimeRepository {
   ///Subscribes to all valid channel groups
   void reset() async {
     //Retreive valid channel groups
-    List<String> channelGroups = await RimeFunctions.getChannelGroups(userID);
+    List<String> channelGroups = await RimeFunctions.getChannelGroups(userId);
 
-    for (String groupID in channelGroups) {
-      if (!_subscriptions.containsKey(groupID)) {
+    for (String groupId in channelGroups) {
+      if (!_subscriptions.containsKey(groupId)) {
         //Subscribe
-        Subscription sub = await client.subscribe(channelGroups: Set.from([groupID]));
+        Subscription sub = await client.subscribe(channelGroups: Set.from([groupId]));
         sub.messages.listen(onMessageCallBack);
-        _subscriptions[groupID] = sub;
+        _subscriptions[groupId] = sub;
       }
     }
   }

@@ -20,7 +20,7 @@ class RimeLiveState extends RimeState {
   ///The pagenated channel token
   final String pageToken;
 
-  /// Holds the channel ID in chronological order
+  /// Holds the channel Id in chronological order
   final List<String> orgainizedChannels;
 
   /// Holds all the stored channels [channel.channel => channel]

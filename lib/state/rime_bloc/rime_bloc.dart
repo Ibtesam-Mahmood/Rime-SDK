@@ -37,7 +37,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
   @override
   Stream<RimeState> mapEventToState(RimeEvent event) async* {
     if (event is InitializeRime) {
-      yield* _mapInitializeToState(event.userID);
+      yield* _mapInitializeToState(event.userId);
     } else if (event is ClearRimeEvent) {
       yield* _mapClearToState();
     }
@@ -61,9 +61,9 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
   }
 
   /// Initializes the pubnub service and requests channels
-  Stream<RimeState> _mapInitializeToState(String userID) async* {
+  Stream<RimeState> _mapInitializeToState(String userId) async* {
     // Initialize rime state
-    await RimeRepository().initializeRime(userID);
+    await RimeRepository().initializeRime(userId);
 
     RimeRepository().addListener('rime-bloc-listener', onMessageCallBack);
 
@@ -79,7 +79,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     String pageToken = (state as RimeLiveState).pageToken;
 
     Tuple2<List<RimeChannel>, String> pagenatedResponse =
-        await RimeApi.getMostRecentChannels(limit: 50, start: pageToken);
+        await RimeAPI.getMostRecentChannels(limit: 50, start: pageToken);
 
     RimeLiveState newState = (state as RimeLiveState).addChannelsBatch(
         pagenatedResponse.item1, (await RimeRepository().client.time()).value, pagenatedResponse.item2);
@@ -89,7 +89,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
 
   Stream<RimeState> _mapCreateChannelToState(List<String> users, Function(RimeChannel) onSuccess) async* {
     //Create channel
-    RimeChannel channel = await RimeApi.createChannel(users);
+    RimeChannel channel = await RimeAPI.createChannel(users);
     //Map channel to state
     yield* _mapStoreToState(channel);
     //Successfully added
@@ -100,10 +100,10 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     RimeChannel rimeChannel = retireveChannel(channel);
 
     //Create Rime message
-    Map<String, dynamic> encodedRimeMessage = RimeMessage.toRimeMesageEncoding(RimeRepository().userID, type, message);
+    Map<String, dynamic> encodedRimeMessage = RimeMessage.toRimeMesageEncoding(RimeRepository().userId, type, message);
 
     //Send Message request
-    Tuple2<ChannelMetadataDetails, RimeMessage> res = await RimeApi.sendMessage(channel, encodedRimeMessage);
+    Tuple2<ChannelMetadataDetails, RimeMessage> res = await RimeAPI.sendMessage(channel, encodedRimeMessage);
 
     rimeChannel =
         rimeChannel.copyWith(RimeChannel(subtitle: res.item2.content, lastUpdated: res.item2.publishedAt.value));
@@ -116,8 +116,8 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     Map<String, RimeChannel> storedChannels = (state as RimeLiveState).storedChannels;
     //get specific channel
     RimeChannel currentChannel = storedChannels[channel];
-    //Api call to delete channel on PubNub
-    RimeApi.deleteChannel(channel);
+    //API call to delete channel on PubNub
+    RimeAPI.deleteChannel(channel);
     //Delete channel from state
     yield RimeLiveState.initial().removeChannel(currentChannel, (await RimeRepository().client.time()).value);
   }
@@ -127,8 +127,8 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     Map<String, RimeChannel> storedChannels = (state as RimeLiveState).storedChannels;
     //get specific channel
     RimeChannel currentChannel = storedChannels[channel];
-    //Api call to leave channel on PubNub
-    RimeApi.leaveChannel(RimeRepository().userID, channel);
+    //API call to leave channel on PubNub
+    RimeAPI.leaveChannel(RimeRepository().userId, channel);
     //Delete channel from state
     yield RimeLiveState.initial().removeChannel(currentChannel, (await RimeRepository().client.time()).value);
   }
@@ -166,7 +166,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
       //Check if state has channel
       RimeChannel channel = retireveChannel(en.channel);
       if (retireveChannel(en.channel) == null) {
-        channel = await RimeApi.getChannel(en.channel);
+        channel = await RimeAPI.getChannel(en.channel);
       }
 
       // Modify the primary content
@@ -185,14 +185,14 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
       //Check if state has channel
       RimeChannel channel = retireveChannel(en.channel);
       if (channel != null) {
-        //Get userID for read action
-        String readUserID;
+        //Get userId for read action
+        String readUserId;
 
         //Get value for read action
         int messageToken;
 
         Map<String, int> readMap = channel?.readMap;
-        readMap[readUserID] = messageToken;
+        readMap[readUserId] = messageToken;
 
         add(StoreEvent(channel.copyWith(RimeChannel(readMap: readMap))));
       }

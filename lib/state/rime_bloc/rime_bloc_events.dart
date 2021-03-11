@@ -4,11 +4,11 @@ abstract class RimeEvent {}
 
 /// Initializes the Rime channel service by retreiving and subscring to channels.
 ///
-/// UserID provided is a unique identifier used to access user channels
+/// UserId provided is a unique identifier used to access user channels
 class InitializeRime extends RimeEvent {
-  final String userID;
+  final String userId;
 
-  InitializeRime(this.userID);
+  InitializeRime(this.userId);
 }
 
 class GetChannelsEvent extends RimeEvent {

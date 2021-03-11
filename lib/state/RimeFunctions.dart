@@ -8,28 +8,28 @@ import 'package:intl/intl.dart';
 class RimeFunctions {
   /// Retreives all the non-empty channel groups for the given user
   ///
-  /// loginID : the loginID for the user in question
-  static Future<List<String>> getChannelGroups(String loginID) async {
-    List possibleChannelGroupIDs = List.generate(10, (index) => RimeFunctions.channelGroupID(loginID, index));
+  /// loginId : the loginId for the user in question
+  static Future<List<String>> getChannelGroups(String loginId) async {
+    List possibleChannelGroupIds = List.generate(10, (index) => RimeFunctions.channelGroupId(loginId, index));
     List<String> nonEmptyChannelGroups = [];
 
-    for (String groupID in possibleChannelGroupIDs) {
-      int channelCount = await getChannelGroupCount(groupID);
+    for (String groupId in possibleChannelGroupIds) {
+      int channelCount = await getChannelGroupCount(groupId);
       if (channelCount > 0) {
-        nonEmptyChannelGroups.add(groupID);
+        nonEmptyChannelGroups.add(groupId);
       }
     }
 
     return nonEmptyChannelGroups;
   }
 
-  /// Helper function to turn a userID and int into a channel group name
-  static String channelGroupID(String userID, int groupNo) {
-    return 'rime_cg_${userID}_$groupNo';
+  /// Helper function to turn a userId and int into a channel group name
+  static String channelGroupId(String userId, int groupNo) {
+    return 'rime_cg_${userId}_$groupNo';
   }
 
   /// Retreives the next channel group with room for a new channel for the given user.
-  static Future<String> getAvailableChannelGroup(String userID) async {
+  static Future<String> getAvailableChannelGroup(String userId) async {
     // Channel group to be constructed
     String channelGroup;
     int groupNo = 0;
@@ -42,7 +42,7 @@ class RimeFunctions {
       }
 
       // Get the channel group with the given nam
-      channelGroup = channelGroupID(userID, groupNo);
+      channelGroup = channelGroupId(userId, groupNo);
 
       // Check if the channel group is full
       // If there are less than 2000 channels then it can fit more channels
@@ -60,8 +60,8 @@ class RimeFunctions {
     return channelGroup;
   }
 
-  static Future<int> getChannelGroupCount(String groupID) async {
-    ChannelGroupListChannelsResult channels = await RimeRepository().client.channelGroups.listChannels(groupID);
+  static Future<int> getChannelGroupCount(String groupId) async {
+    ChannelGroupListChannelsResult channels = await RimeRepository().client.channelGroups.listChannels(groupId);
 
     return channels.channels.length;
   }

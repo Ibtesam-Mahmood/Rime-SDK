@@ -9,19 +9,19 @@ import 'package:rime/state/RimeFunctions.dart';
 import 'package:rime/state/RimeRepository.dart';
 import 'package:tuple/tuple.dart';
 
-/// The RimeApi class holds a set of functions that directly interface with the internal PubNub client
+/// The RimeAPI class holds a set of functions that directly interface with the internal PubNub client
 ///
-/// Sending requests through this Api will successfully modify your PubNub instance with Rime attributes.
+/// Sending requests through this API will successfully modify your PubNub instance with Rime attributes.
 /// However, these requests will **not** modify the RimeState.
 ///
 /// The functions defined in this class are 1-to-1 with [RimeEvent]s which **do** modify the state.
-class RimeApi {
+class RimeAPI {
   /// Creates a channel containing [users]
   ///
   /// This function creates a channel and will automatically create memberships for all [users]
   /// then add the newly created channel to each users' subscribed channel groups
   ///
-  /// * [List]<[String]> [users]: the userIDs for the users joining the newly created channel
+  /// * [List]<[String]> [users]: the userIds for the users joining the newly created channel
   ///
   /// * returns [RimeChannel]: The RimeChannel state object for the PubNub channel that was just created
   static Future<RimeChannel> createChannel(List<String> users) async {
@@ -33,74 +33,74 @@ class RimeApi {
     //Access Pubnub Client
     PubNub client = RimeRepository().client;
 
-    //Creates a unique channel ID
+    //Creates a unique channel Id
     Timetoken time = await client.time();
-    String channelID = 'rime_${RimeRepository().userID}_${time.toString()}';
+    String channelId = 'rime_${RimeRepository().userId}_${time.toString()}';
     List<ChannelMemberMetadataInput> members = [];
 
     //The readMap being created for channel metadata
     Map<String, int> readMap = {};
 
-    // Group ID for the loggedIn user
-    String userGroupID;
+    // Group Id for the loggedIn user
+    String userGroupId;
 
     // Memmebership for the user
     RimeChannelMemebership userMembership;
 
     // Creates memeberships for a channel
-    for (String userID in users) {
-      readMap[userID] = 0;
+    for (String userId in users) {
+      readMap[userId] = 0;
 
       //Create a channel memebership
       RimeChannelMemebership membership = RimeChannelMemebership(
           notifications: true,
           readAction: true,
-          accepted: Rime.functions.chatAccepted(RimeRepository().userID, users),
+          accepted: Rime.functions.chatAccepted(RimeRepository().userId, users),
           deleted: 0);
 
       //Create memebership data
-      members.add(ChannelMemberMetadataInput(userID, custom: membership.toJson()));
+      members.add(ChannelMemberMetadataInput(userId, custom: membership.toJson()));
 
       //Add the channel to the user's specific channel group
-      String groupID = await RimeFunctions.getAvailableChannelGroup(userID);
+      String groupId = await RimeFunctions.getAvailableChannelGroup(userId);
       // ignore: unused_local_variable
       ChannelGroupChangeChannelsResult addGroup =
-          await client.channelGroups.addChannels(groupID, Set.from([channelID]));
+          await client.channelGroups.addChannels(groupId, Set.from([channelId]));
 
       // retreive data for login user
-      if (userID == RimeRepository().userID) {
-        userGroupID = groupID;
+      if (userId == RimeRepository().userId) {
+        userGroupId = groupId;
         userMembership = membership;
       }
     }
 
     // Set the memeberships
-    await client.objects.setChannelMembers(channelID, members);
+    await client.objects.setChannelMembers(channelId, members);
 
     //Create channel metadata
     // ignore: unused_local_variable
     SetChannelMetadataResult setMemRes = await client.objects.setChannelMetadata(
-        channelID, ChannelMetadataInput(custom: {'read': jsonEncode(readMap), 'lastUpdated': time.value}),
+        channelId, ChannelMetadataInput(custom: {'read': jsonEncode(readMap), 'lastUpdated': time.value}),
         includeCustomFields: true);
 
     //No channel made for the loggedIn user
-    if (userGroupID == null || userMembership == null) {
+    if (userGroupId == null || userMembership == null) {
       return null;
     }
 
     //Verifies request
-    return await getChannel(channelID);
+    return await getChannel(channelId);
   }
 
   /// Gets a RimeChannel object for the specified channel
   ///
-  /// * [String] [channelID]: The id for the channel you are looking for
+  /// * [String] [channelId]: The id for the channel you are looking for
   ///
   /// * returns [Future]<[RimeChannel]>: A populated RimeChannel object corresponding to the given channel
-  static Future<RimeChannel> getChannel(String channelID) async {
-    String filterCondition = 'channel.id == \"$channelID\"';
+  static Future<RimeChannel> getChannel(String channelId) async {
+    String filterCondition = 'channel.id == \"$channelId\"';
     MembershipsResult currentMembership = await RimeRepository().client.objects.getMemberships(
-        uuid: RimeRepository().userID,
+        uuid: RimeRepository().userId,
         limit: 1,
         includeChannelCustomFields: true,
         includeChannelFields: true,
@@ -119,12 +119,12 @@ class RimeApi {
   /// Sets the custom membership metadata 'Deleted' to the current PubNub time.
   /// This **does not** leave or unsubscribe from the channel
   ///
-  /// * [String] [channelID]: the id of the channel you want to soft-delete
+  /// * [String] [channelId]: the id of the channel you want to soft-delete
   ///
   /// * returns [bool]: A bool specifying if the 'Deleted' metadata was successfully updated
-  static Future<bool> deleteChannel(String channelID) async {
+  static Future<bool> deleteChannel(String channelId) async {
     //Get the membership metadata for the specified channel
-    String filter = 'channel.id == \"$channelID\"';
+    String filter = 'channel.id == \"$channelId\"';
     MembershipsResult currentMembership = await RimeRepository().client.objects.getMemberships(
         limit: 1,
         includeCustomFields: true,
@@ -134,13 +134,13 @@ class RimeApi {
         filter: filter);
 
     if (currentMembership.totalCount == 0) {
-      throw Exception('The user is not part of $channelID');
+      throw Exception('The user is not part of $channelId');
     }
 
     //Edit the deleted custom metadata
     Map<String, dynamic> currentCustom = {...(currentMembership.metadataList?.first?.custom ?? Map())};
     currentCustom['Deleted'] = (await RimeRepository().client.time()).value;
-    MembershipMetadataInput membershipInput = MembershipMetadataInput(channelID, custom: currentCustom);
+    MembershipMetadataInput membershipInput = MembershipMetadataInput(channelId, custom: currentCustom);
 
     //Re-Set the membership metadata for the specified channel
     List<MembershipMetadataInput> setMetadata = [membershipInput];
@@ -160,15 +160,15 @@ class RimeApi {
   /// This function will remove the channel from the user's subscribed channel group and
   /// will delete the user's channel membership for the channel
   ///
-  /// * [String] [userID]: The userID for the user that is leaving the channel
-  /// * [String] [channelID]: The channelID for the channel that the user is leaving
-  static Future<void> leaveChannel(String userID, String channelID) async {
+  /// * [String] [userId]: The userId for the user that is leaving the channel
+  /// * [String] [channelId]: The channelId for the channel that the user is leaving
+  static Future<void> leaveChannel(String userId, String channelId) async {
     // Remove this channel from the user's channel groups
-    String groupID = await RimeApi.getGroupIDFromChannelID(userID, channelID);
-    await RimeRepository().client.channelGroups.removeChannels(groupID, Set.from([channelID]));
+    String groupId = await RimeAPI.getGroupIdFromChannelId(userId, channelId);
+    await RimeRepository().client.channelGroups.removeChannels(groupId, Set.from([channelId]));
 
     // Delete the user's membership for this channel
-    await RimeRepository().client.objects.removeChannelMembers(channelID, Set<String>.from([userID]));
+    await RimeRepository().client.objects.removeChannelMembers(channelId, Set<String>.from([userId]));
   }
 
   /// Sends a message to the specified channel
@@ -176,7 +176,7 @@ class RimeApi {
   /// Along with sending a message, this also updates the channel 'lastUpdated' metadata
   /// This will enable getMemberships to sort on the channel with the most recent message
   ///
-  /// * [String] [channelID]: the channelID for the channel being published to
+  /// * [String] [channelId]: the channelId for the channel being published to
   /// * [Map]<[String], [dynamic]> [message]: the message that you want to send, it can include custom fields
   ///
   /// When using the [RimeEvent]s some of the custom fields are needed and will defined for you
@@ -187,13 +187,13 @@ class RimeApi {
   ///
   /// The RimeMessage can be used to update the local state immediately after sending the message
   static Future<Tuple2<ChannelMetadataDetails, RimeMessage>> sendMessage(
-      String channelID, Map<String, dynamic> message) async {
+      String channelId, Map<String, dynamic> message) async {
     //Get the current channel metadata
     GetChannelMetadataResult cmRes =
-        await RimeRepository().client.objects.getChannelMetadata(channelID, includeCustomFields: true);
+        await RimeRepository().client.objects.getChannelMetadata(channelId, includeCustomFields: true);
 
     // Send the message
-    PublishResult publish = await RimeRepository().client.publish(channelID, message, storeMessage: true);
+    PublishResult publish = await RimeRepository().client.publish(channelId, message, storeMessage: true);
 
     //Update the lastUpdated metadata
     Map customMetaData = cmRes.metadata?.custom ?? Map();
@@ -206,7 +206,7 @@ class RimeApi {
     SetChannelMetadataResult smRes = await RimeRepository()
         .client
         .objects
-        .setChannelMetadata(channelID, channelMetadataInput, includeCustomFields: true);
+        .setChannelMetadata(channelId, channelMetadataInput, includeCustomFields: true);
 
     //Create time message from sent message
     RimeMessage messageResult = RimeMessage.fromBaseMessage(
@@ -278,34 +278,34 @@ class RimeApi {
 
   /// Gets the membership metadata for all users in a channel
   ///
-  /// * [String] [channelID]: The channelID of the channel you want to get the memberships for
+  /// * [String] [channelId]: The channelId of the channel you want to get the memberships for
   ///
   /// * returns [Future]<[List]<[ChannelMemberMetadata]>>: a list of the membership metadata for all users in that channel
-  static Future<List<ChannelMemberMetadata>> getChannelMemebers(String channelID) async {
+  static Future<List<ChannelMemberMetadata>> getChannelMemebers(String channelId) async {
     //Retreive memeberships
     ChannelMembersResult result = await RimeRepository()
         .client
         .objects
-        .getChannelMembers(channelID, includeUUIDFields: true, includeCustomFields: true);
+        .getChannelMembers(channelId, includeUUIDFields: true, includeCustomFields: true);
 
     return result.metadataList;
   }
 
   /// Finds the channel group that the given channel is part of
   ///
-  /// * [String] [userID]: The user whose channel group you are looking for
-  /// * [String] [channelID]: The channelID of the channel whose channel group you are looking for
+  /// * [String] [userId]: The user whose channel group you are looking for
+  /// * [String] [channelId]: The channelId of the channel whose channel group you are looking for
   ///
   /// * returns [Future]<[String]>: The Id of the channel group that contains the given channel
   ///   or [null] if user does not have that channel in any of their channel groups
-  static Future<String> getGroupIDFromChannelID(String userID, String channelID) async {
+  static Future<String> getGroupIdFromChannelId(String userId, String channelId) async {
     // Gets all non-empty channel groups
-    List<String> channelGroups = await RimeFunctions.getChannelGroups(userID);
+    List<String> channelGroups = await RimeFunctions.getChannelGroups(userId);
     // Loop through every channel group and see if it contains the channel
     for (String groupId in channelGroups) {
       ChannelGroupListChannelsResult channelGroupList =
           await RimeRepository().client.channelGroups.listChannels(groupId);
-      if (channelGroupList.channels.contains(channelID)) {
+      if (channelGroupList.channels.contains(channelId)) {
         return groupId;
       }
     }

@@ -16,21 +16,21 @@ void main() async {
     // This line allows the tests to send/receive HttpRequests
     // This is so we can interact with the real PubNub API in our tests
     HttpOverrides.global = null;
-    String userID = 'testUser_chris_1';
+    String userId = 'testUser_chris_1';
     setUp(() async {
       print('\n' 'Initializing');
       await DotEnv.load(fileName: '.env');
       await Rime.initialize(DotEnv.env);
-      await RimeRepository().initializeRime(userID);
+      await RimeRepository().initializeRime(userId);
       print('Initialized');
     });
 
     test('Join and then leave a channel', () async {
       //Create and join a channel
-      RimeChannel channel = await RimeApi.createChannel([userID]);
+      RimeChannel channel = await RimeAPI.createChannel([userId]);
 
       String channelName = channel.channel;
-      String groupId = await RimeApi.getGroupIDFromChannelID(userID, channelName);
+      String groupId = await RimeAPI.getGroupIdFromChannelId(userId, channelName);
 
       //Confirm that the channel is part of the channel group
       ChannelGroupListChannelsResult channelGroupList =
@@ -41,7 +41,7 @@ void main() async {
       //Confirm that the user has a membership for it
       String filterCondition = 'channel.id == \"$channelName\"';
       MembershipsResult channelMembership = await RimeRepository().client.objects.getMemberships(
-          uuid: RimeRepository().userID,
+          uuid: RimeRepository().userId,
           limit: 1,
           includeChannelCustomFields: true,
           includeChannelFields: true,
@@ -51,7 +51,7 @@ void main() async {
       expect(userHasChannelMembership, true, reason: 'User does not have a membership for this channel');
 
       // Leave the channel
-      await RimeApi.leaveChannel(userID, channelName);
+      await RimeAPI.leaveChannel(userId, channelName);
 
       // Ensure that it
       //  1. Removes the channel from the channel group
@@ -61,7 +61,7 @@ void main() async {
       expect(channelIsPartOfGroup_Updated, false, reason: 'Channel is still part of the channel group');
       //  2. Destroys the membership for that channel for that user
       MembershipsResult channelMembership_Updated = await RimeRepository().client.objects.getMemberships(
-          uuid: RimeRepository().userID,
+          uuid: RimeRepository().userId,
           limit: 1,
           includeChannelCustomFields: true,
           includeChannelFields: true,

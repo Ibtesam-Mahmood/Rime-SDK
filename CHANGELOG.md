@@ -3,7 +3,7 @@
 * The first release of Rime SDK
 * Added README.md documentation
 * Integrated Pubnub client functions into `RimeAPi`
-* Integrated `RimeApi` into `RimeBloc`
+* Integrated `RimeAPI` into `RimeBloc`
 * Created `RimeMessage`
 * Created `ChannelStateProvider`
   * Integrated `RimeBloc`
@@ -16,7 +16,7 @@
 * Defined Enivronment Reader `Rime`
 * Created `RimeRepository` for hosting Pubnub connection
   * Created interface for listening to subscriptions
-* Created `RimeApi`
+* Created `RimeAPI`
 * Defined `RimeChannel`
 * Defined `RimeFunction` and `RimeDeveloperFunctions`
 * Began defining `RimeBloc`, `RimeState`, and `RimeEvents`

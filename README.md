@@ -13,7 +13,7 @@ The plug and play nature of Rime ensures that the developer does not have to dea
 
 #### Authentication and Users
 :exclamation::exclamation::exclamation: **IMPORTANT** :exclamation::exclamation::exclamation:
-Rime does not provide authentication functionality, that is entirely up to the developer to implement. Rime assumes that each user has a unique userID that can be provided to access a user's Rime account. 
+Rime does not provide authentication functionality, that is entirely up to the developer to implement. Rime assumes that each user has a unique userId that can be provided to access a user's Rime account. 
 
 ## Jump to:
 
@@ -27,7 +27,7 @@ Rime does not provide authentication functionality, that is entirely up to the d
  5. [Rime Structure](#6)
     1. [Architectural Overview](#6.2)
     2. [Rime Bloc](#6.3)
-    3. [Rime Api](#6.4)
+    3. [Rime API](#6.4)
     4. [Rime Repository](#6.5)
         1. [Initialization](#6.5.1)
         2. [Channel Groups](#6.5.2)
@@ -39,7 +39,7 @@ Rime does not provide authentication functionality, that is entirely up to the d
             1. [Rime Message Encoding](#7.1.2.1)
             2. [Rime Message Decoding](#7.1.2.2)
             3. [Using Rime Message](#7.1.2.3)
-    2. [Rime Api](#7.2)
+    2. [Rime API](#7.2)
     3. [Rime State](#7.3)
     4. [Rime Events](#7.4)
         1. [Initialize Event](#7.4.1)
@@ -131,7 +131,7 @@ Rime SDK heavy relies on the underlying funcationality of Pubnub to provide a se
 
 ### Architectural Overview <a name="6.2"></a>
 
-Rime SDK is composed of 3 core elements `RimeApi`, `RimeRepository`, and `RimeBloc`. These work together to provide publish and subscribe functionality from Pubnub along with the management of Rime channel metadata.
+Rime SDK is composed of 3 core elements `RimeAPI`, `RimeRepository`, and `RimeBloc`. These work together to provide publish and subscribe functionality from Pubnub along with the management of Rime channel metadata.
 
 <figure class="image">
   <img src="readme_assets/rime_structure.png" alt="Rime Structure">
@@ -146,25 +146,25 @@ The `RimeBloc` object is an auto-instantiated singleton object that is generated
 ```dart
 RimeBloc();
 ```
-On first access the object is automaically created with a non-initialized state. In this state the `RimeBloc.state` will not contain any channels. It must first be initialized by the developer using a unique userID provided on user authentication.
+On first access the object is automaically created with a non-initialized state. In this state the `RimeBloc.state` will not contain any channels. It must first be initialized by the developer using a unique userId provided on user authentication.
 
-When initialized the user can push events to the `RimeBloc` to manipulate, create, and leave channels relative the provided UserID. 
+When initialized the user can push events to the `RimeBloc` to manipulate, create, and leave channels relative the provided UserId. 
 
 For more information on `RimeEvents` and `RimeState` see **Usage**.
 
 #### Implementation
 The `RimeBloc` is implemented using the [flutter_bloc](https://pub.dev/packages/flutter_bloc) package. Please refrence their [online documentation](https://pub.dev/documentation/flutter_bloc/latest/) for information on how to correctly interface with RimeBloc using Bloc.
 
-### RimeApi  <a name="6.4"></a>
-The `RimeApi` is a set of functions that directly interface with the internal Pubnub client stored within `RimeRepository`.
+### RimeAPI  <a name="6.4"></a>
+The `RimeAPI` is a set of functions that directly interface with the internal Pubnub client stored within `RimeRepository`.
 
-Sending request directly through the Api will successfully modify the PubNub instance with Rime attributes. However, using these methods will **not** make any local changes to the `RimeState`.  The functions defined in this class are 1-to-1 with `RimeEvents` which **do** modify the state.
+Sending request directly through the API will successfully modify the PubNub instance with Rime attributes. However, using these methods will **not** make any local changes to the `RimeState`.  The functions defined in this class are 1-to-1 with `RimeEvents` which **do** modify the state.
 
-For more information on `RimeApi` see **Usage**.
+For more information on `RimeAPI` see **Usage**.
 
 ### RimeRepository  <a name="6.5"></a>
 
-`RimeRepository` is a Singleton Storage Module that maintains the core Pubnub service. It is the root component of the Rime SDK and provides access to user subscription data, the client `userID`, and the live Pubnub client.
+`RimeRepository` is a Singleton Storage Module that maintains the core Pubnub service. It is the root component of the Rime SDK and provides access to user subscription data, the client `userId`, and the live Pubnub client.
 
 The `RimeRepository` object is an auto-instantiated singleton object that is generated using the the [get_it](https://pub.dev/packages/get_it) package. Use the following code to access the object from anywhere in your application.
 ```dart
@@ -173,29 +173,29 @@ RimeRepository();
 
 #### Initialization  <a name="6.5.1"></a>
 
-Initializing a RimeRepository is a crucial step before using any Rime/Pubnub related functionality. The developer is responisble for providing a `userID` into this function. it is assumed that the ID provided is an unique key associated to an authenticated user. Rime will use the `userID` to create a `UUID` for the Pubnub client. This will be used to associate channels and messages with the user.
+Initializing a RimeRepository is a crucial step before using any Rime/Pubnub related functionality. The developer is responisble for providing a `userId` into this function. it is assumed that the Id provided is an unique key associated to an authenticated user. Rime will use the `userId` to create a `UUID` for the Pubnub client. This will be used to associate channels and messages with the user.
 
 The following code initializes the RimeRepository for a user.
 ```dart
-await RimeRepository().initializeRime('userID');
+await RimeRepository().initializeRime('userId');
 ```
 
 ---
 :exclamation: **Important** :exclamation:
 
-The `RimeRepository` must be initialized before using the `RimeApi`. This extends to any events that are dependent on `RimeLiveState`.
+The `RimeRepository` must be initialized before using the `RimeAPI`. This extends to any events that are dependent on `RimeLiveState`.
 
 *The `RimeBloc` automatically initializes the `RimeRepository` when it is initialized* 
 
 ---
 
-Upon initilization the Pubnub client and the userID can be globally accessed.
+Upon initilization the Pubnub client and the userId can be globally accessed.
 ```dart
 //Accessing Pubnub client
 RimeRepository().client
 
-//Accessing the authenticated userID
-RimeRepository().userID
+//Accessing the authenticated userId
+RimeRepository().userId
 
 ```
 
@@ -211,7 +211,7 @@ When the `RimeRepository` is initiailized it automatically subscribes to all non
 await RimeRepository().reset()
 ```
 
-:+1: The `RimeApi` handles grouping and ungrouping channels.
+:+1: The `RimeAPI` handles grouping and ungrouping channels.
 
 For more information about Pubnub channel groups and client subscription limits please refer to the [Pubnub official documentation](https://www.pubnub.com/docs/channels/subscribe#channel-groups)
 
@@ -262,16 +262,16 @@ A `RimeChannel` object is used to encapsulate information related to a Pubnub ch
 ##### Properties
 | Name | Type | Description
 | --- | --- | --- |
-| channel | `String` | The Pubnub channel ID associated to this channel. |
+| channel | `String` | The Pubnub channel Id associated to this channel. |
 | groupId | `String` | The channel group this users channel memebership is within. |
 | title | `String` | The display title for the message. defaulted to `null` |
 | subtitle | `dynamic` | The most recent message sent in the channel in the form of `RimeMessage.enconde()` |
 | lastUpdated | `int` | The `TikeToken` value for the last message sent in the channel. Used in the `Comparable` interface to compare rime channels. |
 | image | `String` | The image of the channel, used to store a network url of a hosted image. defaulted to `null`  |
 | isGroup | `String` | Determines if the channel is group or individual channel. Determined at creation. |
-| readMap | `Map<String, int>` | A map containing channel memebers, refrenced by `userID`, mapped to the last message `Timetoken` read by the user. |
+| readMap | `Map<String, int>` | A map containing channel memebers, refrenced by `userId`, mapped to the last message `Timetoken` read by the user. |
 | membership | `RimeChannelMembership` | A `RimeChannelMembership` object containing the authenticated user's memebership settings. |
-| uuids | `List<String>` | A list of `userID`'s associated to current memebers in the channel |
+| uuids | `List<String>` | A list of `userId`'s associated to current memebers in the channel |
 
 #### RimeMessage <a name="7.1.2"></a>
 
@@ -281,7 +281,7 @@ A `RimeChannel` object is used to encapsulate information related to a Pubnub ch
 A `RimeMessage` is a **JSON** encoded set of properties.
 | Name | Type | Description
 | --- | --- | --- |
-| uuid | `String` | The `userID` for the sender of the message. |
+| uuid | `String` | The `userId` for the sender of the message. |
 | type | `String` | The type of the message. Allows you to determine the type of strategy to choose to decode the `payload` |
 | payload | `dynamic` | Developer defined payload for a message. Format should be associated to the `type` of the message |
 
@@ -315,7 +315,7 @@ print(receivedMessage.content['payload'] == rimeMessage.content);
 ##### Properties 
 | Name | Type | Description
 | --- | --- | --- |
-| uuid | `String` | The `userID` for the sender of the message. |
+| uuid | `String` | The `userId` for the sender of the message. |
 | type | `String` | The type of the message. Allows you to determine the type of strategy to choose to decode the `content` |
 | content | `dynamic` | Developer defined payload for a message. Format should be associated to the `type` of the message. Extracted from `payload` defined in the message encoding |
 | publishedAt | `Timetoken` | A Pubnub `TimeToken` associated to the time when this message was published |
@@ -384,24 +384,24 @@ RimeMessage encodeByType(BaseMessage receivedMessage){
 }
 ```
 
-### RimeApi  <a name="7.2"></a>
+### RimeAPI  <a name="7.2"></a>
 
-The `RimeApi` contains a set of requests to manipluate and format the Pubnub storage instance.
+The `RimeAPI` contains a set of requests to manipluate and format the Pubnub storage instance.
 
-:exclamation: The `RimeRepository` must be **initialized** before `RimeApi` functions can be used.
+:exclamation: The `RimeRepository` must be **initialized** before `RimeAPI` functions can be used.
 
 #### Requests
-The following is a specification of all `RimeApi` requests.
+The following is a specification of all `RimeAPI` requests.
 | Request name | Input(s) | Output | Description | Assertions |
 | --- | --- | --- | --- | --- |
-| createChannel | `List<String> users` | `RimeChannel` | Creates a new RimeChannel between the inputted `userIDs`. Creates a memebership for each of the users and adds the channel to each user's next available Channel Groups.<br/><br/>Outputs a fully populated `RimeChannel` | The authenticated user's `userID` must be within the list of userIDs. |
-| getChannel | `String channelID` | `RimeChannel` | Retreives a fully populated channel by the inputted `channelID` | The authenticated user must be a memeber of the channel. |
-| deleteChannel | `String channelID` | `bool` | Updates the user's channel memebership settings to indicate that the user has deleted messages within a channel for themselves. This is represented as the `Timetoken` value of the last sent message.<br/><br/>The value indicates to the UI that messages past the defined `Timetoken` should be ignored.<br/><br/>Outputs the sucess of the request. | The authenticated user must be a memeber of the channel. |
-| leaveChannel | `String userID`<br/>`String channelID` | `void` | Destroys a user's memebership to a channel and removes the channel from its channel group.<br/><br/>This request is not necissarily targetted at the authenticated user. it can be used to kick a user out of a channel aswell. | The input user but be a memeber within the channel |
-| sendMessage | `String channelID`<br/>`Map<String, dynamic> message` | `Tuple2<ChannelMetaDetails, RimeMessage>` | Sends the JSON payload in the `message` input to the channel defined by `channelID`.<br/><br/>Returns sent message along with any channel update results from Pubnub | The user within the message payload must be a member of the channel.<br/><br/>The message JSON must be an encoded `RimeMessage`|
+| createChannel | `List<String> users` | `RimeChannel` | Creates a new RimeChannel between the inputted `userIds`. Creates a memebership for each of the users and adds the channel to each user's next available Channel Groups.<br/><br/>Outputs a fully populated `RimeChannel` | The authenticated user's `userId` must be within the list of userIds. |
+| getChannel | `String channelId` | `RimeChannel` | Retreives a fully populated channel by the inputted `channelId` | The authenticated user must be a memeber of the channel. |
+| deleteChannel | `String channelId` | `bool` | Updates the user's channel memebership settings to indicate that the user has deleted messages within a channel for themselves. This is represented as the `Timetoken` value of the last sent message.<br/><br/>The value indicates to the UI that messages past the defined `Timetoken` should be ignored.<br/><br/>Outputs the sucess of the request. | The authenticated user must be a memeber of the channel. |
+| leaveChannel | `String userId`<br/>`String channelId` | `void` | Destroys a user's memebership to a channel and removes the channel from its channel group.<br/><br/>This request is not necissarily targetted at the authenticated user. it can be used to kick a user out of a channel aswell. | The input user but be a memeber within the channel |
+| sendMessage | `String channelId`<br/>`Map<String, dynamic> message` | `Tuple2<ChannelMetaDetails, RimeMessage>` | Sends the JSON payload in the `message` input to the channel defined by `channelId`.<br/><br/>Returns sent message along with any channel update results from Pubnub | The user within the message payload must be a member of the channel.<br/><br/>The message JSON must be an encoded `RimeMessage`|
 | getMostRecentChannels | (optional) `int limit`<br/>(optional) `String start` | `Tuple2<List<RimeChannel>, String>` | Paginated get channels reqeust for authenticated user. Retreived the list of channels ordered by `lastUpdated`.<br/><br/>Channels are retreived relative to a `start` cursor. If no `start==null` then the start of the channels list is returned.<br/><br/>The amount of channels requested is defined by the `limit` input, defaulted to `50`.<br/><br/>Along with the list of channels, the next cursor is outputted. | Always retrieves requests for authenticated user |
-| getChannelMemebers | `String channelID` | `List<ChannelMemberMetadata>` | Retreives the Pubnub memebership metadata for memebers within a channel | Channel must exsist |
-| getGroupIDFromChannelID | `String userID`<br/>`String channelID` | `String` | Returns the Channel Group ID hosting the channel the user is a memeber of | Channel must exsist.<br/><br/>User must exsisit.<br/><br/>User must be a memeber of the channel |
+| getChannelMemebers | `String channelId` | `List<ChannelMemberMetadata>` | Retreives the Pubnub memebership metadata for memebers within a channel | Channel must exsist |
+| getGroupIdFromChannelId | `String userId`<br/>`String channelId` | `String` | Returns the Channel Group Id hosting the channel the user is a memeber of | Channel must exsist.<br/><br/>User must exsisit.<br/><br/>User must be a memeber of the channel |
 
 
 :exclamation: Ensure that the assertions for each requests are met so that they may operate properly.
@@ -410,7 +410,7 @@ The following is a specification of all `RimeApi` requests.
 
 :+1: Example request to create channel:
 ```dart
-RimeChannel newChannel = await RimeApi.createChannel(['userID1', 'userID2']);
+RimeChannel newChannel = await RimeAPI.createChannel(['userId1', 'userId2']);
 ```
 
 
@@ -437,8 +437,8 @@ The following properties are cahced within the most relavent `RimeLiveState` for
 | --- | --- | --- |
 | timeToken | `int` | The `Timetoken` value associated to the last update of the `RimeLiveState` |
 | pageToken | `String` | The page index for the last `GetChannels` event |
-| orgainizedChannels | `List<String>` | A time decending ordered list of `channelIDs` stored within the current state |
-| storedChannels | `Map<String, RimeChannel>` | The cache of channels mapped to `channelID` allowing of `O(1)` retreival of a `RimeChannel` by ID |
+| orgainizedChannels | `List<String>` | A time decending ordered list of `channelIds` stored within the current state |
+| storedChannels | `Map<String, RimeChannel>` | The cache of channels mapped to `channelId` allowing of `O(1)` retreival of a `RimeChannel` by Id |
 
 
 These properties are aviable to the developer when subscribing to `RimeBloc` or accessing `RimeBloc().state`.
@@ -458,21 +458,21 @@ List<RimeChannel> channels = liveState.orgainizedChannels.map<RimeChannel>((chan
 
 ### RimeEvent <a name="7.4"></a>
 
-Each `RimeEvent` maps to unique logic within the `RimeBloc` and are added to the Bloc to manipulate the `RimeState`. Events are resposible for safely calling `RimeApi` and `RimeRepository` requests by ensuring input parameters and updating the state relative to the results. You will be resposible for invoking specific `RimeEvents` during the lifecycle of your application.
+Each `RimeEvent` maps to unique logic within the `RimeBloc` and are added to the Bloc to manipulate the `RimeState`. Events are resposible for safely calling `RimeAPI` and `RimeRepository` requests by ensuring input parameters and updating the state relative to the results. You will be resposible for invoking specific `RimeEvents` during the lifecycle of your application.
 
 Refer to the [bloc](https://pub.dev/packages/bloc) package documentation for insight on the relationships between Events and Blocs.
 
 #### Initialize Event <a name="7.4.1"></a>
-Initiailizes the `RimeBloc` by initiailizing `RimeRepository` on the defined `userID`. The event subscribes `RimeBloc` to `RimeRepository` to manage manipulations to channels based on incoming messages. The `RimeBloc` then moves to `RimeLiveState` and invokes a `GetChannels` Event to retreive the innitial set of channels.
+Initiailizes the `RimeBloc` by initiailizing `RimeRepository` on the defined `userId`. The event subscribes `RimeBloc` to `RimeRepository` to manage manipulations to channels based on incoming messages. The `RimeBloc` then moves to `RimeLiveState` and invokes a `GetChannels` Event to retreive the innitial set of channels.
 ```dart
 //Example
-RimeBloc().add(InitializeRime('userID'));
+RimeBloc().add(InitializeRime('userId'));
 ```
 
 :+1: `InitializeRime` is the only way to move from `RimeEmptyState` to a fresh `RimeLiveState`
 
 #### Get Channels Event <a name="7.4.2"></a>
-Calls the `RimeApi.getMostRecentChannels` request passing the `start` index as the previously stored `pageIndex` within the current `RimeLiveState`. Adds and sorts new Channels to the `RimeLiveState`.
+Calls the `RimeAPI.getMostRecentChannels` request passing the `start` index as the previously stored `pageIndex` within the current `RimeLiveState`. Adds and sorts new Channels to the `RimeLiveState`.
 ```dart
 //Example
 RimeBloc().add(GetChannelsEvent());
@@ -483,7 +483,7 @@ RimeBloc().add(GetChannelsEvent());
 :+1: `GetChannels` is called for the first time automatically in the `InitializeRime` event.
 
 #### Create Channel Event <a name="7.4.3"></a>
-Calls the `RimeApi.createChannel` request passing in the `users` directly to the request. Adds and sorts the new channel to the `RimeLiveState`. an `onSuccess` callback returns the newly created channel.
+Calls the `RimeAPI.createChannel` request passing in the `users` directly to the request. Adds and sorts the new channel to the `RimeLiveState`. an `onSuccess` callback returns the newly created channel.
 ```dart
 
 //Example
@@ -493,29 +493,29 @@ RimeBloc().add(CreateChannelEvent(users: ['user1', 'user2'], onSuccess: (channel
 :exclamation: Can only be called when `RimeBloc().state` is `RimeLiveState`
 
 #### Send Message Event <a name="7.4.4"></a>
-Calls the `RimeApi.sendMessage` request by encoding the `payload` and `type` into a RimeMessage JSON encoding along with the authenticated user. The returned `RimeMessage` is used to update a cached `RimeChannel` within the current `RimeLiveState` with the message properties.
+Calls the `RimeAPI.sendMessage` request by encoding the `payload` and `type` into a RimeMessage JSON encoding along with the authenticated user. The returned `RimeMessage` is used to update a cached `RimeChannel` within the current `RimeLiveState` with the message properties.
 ```dart
 //Example
-RimeBloc().add(MessageEvent('ChannelID', TextMessage.RIME_MESSAGE_TYPE, TextMessage.toPayload('Hello world')));
+RimeBloc().add(MessageEvent('ChannelId', TextMessage.RIME_MESSAGE_TYPE, TextMessage.toPayload('Hello world')));
 ```
 
 :exclamation: Can only be called when `RimeBloc().state` is `RimeLiveState`
 
 #### Delete Event <a name="7.4.5"></a>
-Calls the `RimeApi.deleteChannel` to update the authenticated user's channel memebership settings to reflect the message being deleted at the last message `Timetoken`. This updates a cached `RimeChannel` within the current `RimeLiveState` with the updated memeebrship properties.
+Calls the `RimeAPI.deleteChannel` to update the authenticated user's channel memebership settings to reflect the message being deleted at the last message `Timetoken`. This updates a cached `RimeChannel` within the current `RimeLiveState` with the updated memeebrship properties.
 ```dart
 //Example
-RimeBloc().add(DeleteEvent('ChannelID'));
+RimeBloc().add(DeleteEvent('ChannelId'));
 ```
 
 :exclamation: Can only be called when `RimeBloc().state` is `RimeLiveState`
 
 #### Leave Event <a name="7.4.6"></a>
-Calls the `RimeApi.leaveChannel` to remeove a channel memebership for the authenticated user. The channel is removed from the current `RimeLiveState`
-Leave a channel corresponds to a userID and will delete the channel from the state. Will only delete for the corresponding userID which intialized Rime.
+Calls the `RimeAPI.leaveChannel` to remeove a channel memebership for the authenticated user. The channel is removed from the current `RimeLiveState`
+Leave a channel corresponds to a userId and will delete the channel from the state. Will only delete for the corresponding userId which intialized Rime.
 ```dart
 //Example
-RimeBloc().add(LeaveEvent('ChannelID'));
+RimeBloc().add(LeaveEvent('ChannelId'));
 ```
 
 :exclamation: Can only be called when `RimeBloc().state` is `RimeLiveState`
@@ -529,9 +529,9 @@ RimeBloc().add(StoreEvent(exsistingChannel));
 
 :exclamation: Can only be called when `RimeBloc().state` is `RimeLiveState`
 
-:exclamation: Any exsisting channels mapped to the channelID of the new channel are **overriden**, so be careful with this event
+:exclamation: Any exsisting channels mapped to the channelId of the new channel are **overriden**, so be careful with this event
 
-:exclamation: The `RimeChannel` must have a **non-null** `lastUpdated` token and `channelID` to be stored
+:exclamation: The `RimeChannel` must have a **non-null** `lastUpdated` token and `channelId` to be stored
 
 #### Clear Event <a name="7.4.8"></a>
 Clears a `RimeBloc` by moving it to `RimeEmptyState`. This removes all caching within `RimeLiveState`.
@@ -548,7 +548,7 @@ The `builder` and `listner` function within the consturctor are used to provide 
 ```dart
 //Example
 ChannelStateProvider(
-    channelID: 'ChannelID',
+    channelId: 'ChannelId',
     controller: _controller, //ChannelProviderController
     loadSize: 30 //Amount of messages per load
     builder: (context, channel, messages){
