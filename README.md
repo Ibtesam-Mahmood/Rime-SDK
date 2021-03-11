@@ -85,7 +85,7 @@ print(Rime.INITIALIZED);
 If this statement is `true` then the rime sdk is correctly set up and can be used.
 
 ## Stucture
-![Rime Structure](readme_assets\rime_structure.png)
+![Rime Structure](readme_assets/rime_structure.png)
 Rime SDK is composed of 3 core elements `RimeApi`, `RimeRepository`, and `RimeBloc`. These 2 work togetehr to provide publish and subscribe functionality fomr pubnub. Along with the management of Rime channel metadata.
 ### RimeBloc
 
