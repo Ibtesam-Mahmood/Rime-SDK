@@ -42,8 +42,13 @@ class RimeMessage extends BaseMessage{
     );
   }
 
+  /// Encodes a rime message into a rime message encoding
+  Map<String, dynamic> encode(){
+    return RimeMessage.toRimeMesageEncoding(uuid, type, content);
+  }
+
   /// Creates JSON serlized RimeMessage
-  static Map<String, dynamic> encode(String uuid, String type, dynamic content){
+  static Map<String, dynamic> toRimeMesageEncoding(String uuid, String type, dynamic content){
     return {
       'uuid': uuid,
       'type': type,

@@ -100,7 +100,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     RimeChannel rimeChannel = retireveChannel(channel);
 
     //Create Rime message
-    Map<String, dynamic> encodedRimeMessage = RimeMessage.encode(RimeRepository().userID, type, message);
+    Map<String, dynamic> encodedRimeMessage = RimeMessage.toRimeMesageEncoding(RimeRepository().userID, type, message);
 
     //Send Message request
     Tuple2<ChannelMetadataDetails, RimeMessage> res = await RimeApi.sendMessage(channel, encodedRimeMessage);
@@ -142,11 +142,11 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
   Stream<RimeState> _mapStoreToState(RimeChannel channel) async* {
     try{
       //new channel
-      yield RimeLiveState.initial().addChannel(channel, (await RimeRepository().client.time()).value);
+      yield (state as RimeLiveState).addChannel(channel, (await RimeRepository().client.time()).value);
     }
     catch(e){
       //update channel with info
-      yield RimeLiveState.initial().modifyChannel(channel, (await RimeRepository().client.time()).value);
+      yield (state as RimeLiveState).modifyChannel(channel, (await RimeRepository().client.time()).value);
     }
   }
 
@@ -169,6 +169,8 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     // Updates the lastUpdated time for the channel and subititle of the channel
     if(en.messageType == MessageType.normal){
 
+      RimeMessage message = RimeMessage.fromBaseMessage(en);
+
       //Check if state has channel
       RimeChannel channel = retireveChannel(en.channel);
       if(retireveChannel(en.channel) == null){
@@ -176,10 +178,10 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
       }
 
       // Modify the primary content
-      channel.subtitle = en.content;
+      channel.subtitle = message.encode();
 
       // modify the time token
-      channel.lastUpdated = en.publishedAt.value;
+      channel.lastUpdated = message.publishedAt.value;
 
       add(StoreEvent(channel));
     }
