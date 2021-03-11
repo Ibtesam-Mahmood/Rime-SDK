@@ -10,8 +10,7 @@ class RimeFunctions {
   ///
   /// loginID : the loginID for the user in question
   static Future<List<String>> getChannelGroups(String loginID) async {
-    List possibleChannelGroupIDs = List.generate(
-        10, (index) => RimeFunctions.channelGroupID(loginID, index));
+    List possibleChannelGroupIDs = List.generate(10, (index) => RimeFunctions.channelGroupID(loginID, index));
     List<String> nonEmptyChannelGroups = [];
 
     for (String groupID in possibleChannelGroupIDs) {
