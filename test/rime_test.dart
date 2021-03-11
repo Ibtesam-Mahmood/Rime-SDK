@@ -145,26 +145,27 @@ void main() async {
         GetChannelMetadataResult channelMeta = await RimeRepository().client.objects.getChannelMetadata(channelID);
 
         String time = channelMeta.metadata.updated;
-        print("t1: " + time);
+        print('t1: ' + time);
 
         PublishResult publish = await RimeRepository().client.publish(channelID, message);
 
         channelMeta = await RimeRepository().client.objects.getChannelMetadata(channelID);
 
         time = channelMeta.metadata.updated;
-        print("t2: " + time);
+        print('t2: ' + time);
 
         //Get the TimeToken for the message that was just sent
         int token = publish.timetoken;
 
         //Add Test messageAction to the just sent message
+        // ignore: unused_local_variable
         AddMessageActionResult res =
             await RimeRepository().client.addMessageAction('test', 'true', channelID, Timetoken(token));
 
         channelMeta = await RimeRepository().client.objects.getChannelMetadata(channelID);
 
         time = channelMeta.metadata.updated;
-        print("t3: " + time);
+        print('t3: ' + time);
 
         expect(true, true);
       });
@@ -277,6 +278,7 @@ void main() async {
     });
 
     test('Get Memberships', () async {
+      // ignore: unused_local_variable
       MembershipsResult memRes = await RimeRepository().client.objects.getMemberships(
           includeChannelCustomFields: true,
           includeChannelFields: true,
@@ -291,6 +293,7 @@ void main() async {
     });
 
     test('Get Memberships with Pagination', () async {
+      // ignore: unused_local_variable
       MembershipsResult memRes = await RimeRepository().client.objects.getMemberships(
           includeChannelCustomFields: true,
           includeChannelFields: true,
@@ -371,6 +374,7 @@ void main() async {
           originalMessage: message);
 
       // Send the message
+      // ignore: unused_local_variable
       PublishResult publish = await RimeRepository().client.publish(channelID, rimeMessage);
 
       expect(true, true);
@@ -403,6 +407,7 @@ void main() async {
       ChannelMetadataInput channelMetadataInput =
           ChannelMetadataInput(name: 'testUser3 Channel 1', description: 'testUser3 Channel 1 Description!');
 
+      // ignore: unused_local_variable
       SetChannelMetadataResult smRes =
           await RimeRepository().client.objects.setChannelMetadata(channelID, channelMetadataInput);
 
@@ -451,6 +456,7 @@ void main() async {
       ChannelMetadataInput channelMetadataInput =
           ChannelMetadataInput(name: 'testUser3 Channel 2', description: 'testUser3 Channel 2 Description!');
 
+      // ignore: unused_local_variable
       SetChannelMetadataResult smRes =
           await RimeRepository().client.objects.setChannelMetadata(channelID, channelMetadataInput);
 
@@ -499,6 +505,7 @@ void main() async {
       ChannelMetadataInput channelMetadataInput =
           ChannelMetadataInput(name: 'testUser3 Channel 3', description: 'testUser3 Channel 3 Description!');
 
+      // ignore: unused_local_variable
       SetChannelMetadataResult smRes =
           await RimeRepository().client.objects.setChannelMetadata(channelID, channelMetadataInput);
 
@@ -547,6 +554,7 @@ void main() async {
       ChannelMetadataInput channelMetadataInput =
           ChannelMetadataInput(name: 'testUser3 Channel 3', description: 'testUser3 Channel 3 Description!');
 
+      // ignore: unused_local_variable
       SetChannelMetadataResult smRes =
           await RimeRepository().client.objects.setChannelMetadata(channelID, channelMetadataInput);
 
@@ -572,7 +580,7 @@ void main() async {
       String channelName = 'rime_testUser3_16149450794304603';
       String listenerID = 'listener-id';
 
-      print("Retreiving");
+      print('Retreiving');
 
       GetChannelMetadataResult res =
           await RimeRepository().client.objects.getChannelMetadata(channelName, includeCustomFields: true);
@@ -585,20 +593,20 @@ void main() async {
         print(en.messageType.toString());
       });
 
-      print("Binded");
+      print('Binded');
 
       expect(readActions.containsKey('testUser1'), true);
 
       readActions['testUser1'] = 100;
 
-      print("Sending");
+      print('Sending');
 
       await RimeRepository()
           .client
           .objects
-          .setChannelMetadata(channelName, ChannelMetadataInput(custom: {"read": jsonEncode(readActions)}));
+          .setChannelMetadata(channelName, ChannelMetadataInput(custom: {'read': jsonEncode(readActions)}));
 
-      print("Delaying");
+      print('Delaying');
 
       await Future.delayed(Duration(seconds: 10));
 

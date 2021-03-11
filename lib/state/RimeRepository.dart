@@ -23,7 +23,7 @@ class RimeRepository {
   String _userID;
 
   /// All pubnub subscriptions
-  Map<String, Subscription> _subscriptions = {};
+  final Map<String, Subscription> _subscriptions = {};
 
   /// Root subscription for recieving events
   Subscription _rootSubscription;

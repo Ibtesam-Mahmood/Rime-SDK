@@ -51,6 +51,7 @@ class RimeApi {
       members.add(ChannelMemberMetadataInput(userID, custom: membership.toJson()));
 
       //Add the channel to the user specific group
+      // ignore: unused_local_variable
       ChannelGroupChangeChannelsResult addGroup =
           await client.channelGroups.addChannels(groupID, Set.from([channelID]));
 
@@ -65,6 +66,7 @@ class RimeApi {
     await client.objects.setChannelMembers(channelID, members);
 
     //Create channel metadata
+    // ignore: unused_local_variable
     SetChannelMetadataResult setMemRes = await client.objects.setChannelMetadata(
         channelID, ChannelMetadataInput(custom: {'read': jsonEncode(readMap), 'lastUpdated': time.value}),
         includeCustomFields: true);

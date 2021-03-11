@@ -199,7 +199,7 @@ class ChannelProviderController extends ChangeNotifier {
   void _bind(_ChannelStateProviderState bind) => _state = bind;
 
   //Called to notify all listners
-  void _update() => notifyListeners();
+  //void _update() => notifyListeners();
 
   /// Loads more from state
   Future<bool> loadMore() async => _state != null ? await _state.loadMore() : null;

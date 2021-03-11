@@ -82,7 +82,6 @@ class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
   }
 
   @override
-  // TODO: implement props
   List<Object> get props => [channel, title, subtitle, image, isGroup, _hashReadMap, membership, uuids];
 }
 
@@ -104,7 +103,6 @@ class RimeChannelMemebership with EquatableMixin {
         deleted: copy.deleted ?? deleted);
   }
 
-  @override
   Map<String, dynamic> toJson() {
     return {'notifications': notifications, 'readAction': readAction, 'accepted': accepted, 'deleted': deleted};
   }
@@ -118,6 +116,5 @@ class RimeChannelMemebership with EquatableMixin {
   }
 
   @override
-  // TODO: implement props
   List<Object> get props => [notifications, readAction, accepted, deleted];
 }

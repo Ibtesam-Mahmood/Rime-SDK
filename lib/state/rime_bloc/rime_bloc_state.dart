@@ -1,8 +1,9 @@
+import 'package:equatable/equatable.dart';
 import 'package:rime/model/channel.dart';
 import 'package:rime/rime.dart';
 
 /// base state for a rime application
-abstract class RimeState {}
+abstract class RimeState extends Equatable{}
 
 /// Innitial state for a rime appllication.
 /// Pre authentication
