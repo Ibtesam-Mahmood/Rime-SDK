@@ -1,34 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' as bloc;
-import 'package:pubnub/pubnub.dart';
-import 'package:rime/api/rime_api.dart';
-import 'package:rime/rime.dart';
-import 'package:rime/state/RimeRepository.dart';
 import './pages/MainBody.dart';
 import 'state/login/loginBloc.dart';
-import 'state/login/loginBloc.dart';
 import 'util/colorProvider.dart';
-import './util/config_reader.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
 
-void main(List<String> args) async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  print('Initializing');
-  await DotEnv.load(fileName: '.env');
-  await Rime.initialize(DotEnv.env);
-  print('Initialized');
-
-  runApp(Pollar());
-}
-
-class Pollar extends StatefulWidget {
+class RimeApp extends StatefulWidget {
   // This widget is the root of your application.
   @override
-  _PollarState createState() => _PollarState();
+  _RimeAppState createState() => _RimeAppState();
 }
 
-class _PollarState extends State<Pollar> {
+class _RimeAppState extends State<RimeApp> {
   @override
   void dispose() {
     super.dispose();
@@ -42,7 +24,7 @@ class _PollarState extends State<Pollar> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Pollar',
+      title: 'RimeAppExample',
       theme: ThemeData(
         splashColor: Colors.transparent,
         dividerColor: Colors.transparent,

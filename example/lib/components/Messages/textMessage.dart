@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 
-class TextMessage extends StatelessWidget {
+class TextMessageView extends StatelessWidget {
   
-  String message;
+  final String message;
 
-  TextMessage({this.message});
+  TextMessageView({this.message});
 
   @override
   Widget build(BuildContext context) {

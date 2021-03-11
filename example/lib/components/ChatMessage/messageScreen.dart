@@ -106,7 +106,7 @@ class _MessageScreenState extends State<MessageScreen> {
                             padding: EdgeInsets.only(left: 12, bottom: 5),
                             child: Text("Killua"),
                           ),
-                          TextMessage(message: model.TextMessage.fromRimeMessage(widget.messages[i]).text)
+                          TextMessageView(message: model.TextMessage.fromRimeMessage(widget.messages[i]).text)
                         ],
                       )
                     ],
