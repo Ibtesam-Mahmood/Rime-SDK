@@ -1,3 +1,4 @@
+import 'package:example/util/pollar_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:rime/model/channel.dart';
 import 'chatTile.dart';
@@ -30,7 +31,7 @@ class ChatList extends StatelessWidget {
                       color: Colors.grey.withOpacity(0.07),
                       shape: BoxShape.circle
                     ), 
-                    icon: Icon(Icons.access_time),
+                    icon: Icon(PollarIcons.mute),
                     onTap: (){
                       //TODO: Implement onTap
                     },
@@ -40,7 +41,7 @@ class ChatList extends StatelessWidget {
                       color: Colors.red,
                       shape: BoxShape.circle
                     ),
-                    icon: Icon(Icons.access_alarm),
+                    icon: Icon(PollarIcons.delete, color: Colors.white,),
                     onTap: (){
                       //TODO: Implement onTap
                     },
