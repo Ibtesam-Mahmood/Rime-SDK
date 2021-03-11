@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:pubnub/core.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/model/channel.dart';
@@ -92,9 +91,10 @@ class RimeApi {
 
   static Future<RimeChannel> getChannel(String channel) async {
 
+      String filterCondition = 'channel.id == \"$channel\"';
       MembershipsResult currentMembership = await RimeRepository()
         .client
-        .objects.getMemberships(uuid: RimeRepository().userID, limit: 1, includeChannelCustomFields: true, includeChannelFields: true, includeCustomFields: true, filter: 'channel.id == \"$channel\"');
+        .objects.getMemberships(uuid: RimeRepository().userID, limit: 1, includeChannelCustomFields: true, includeChannelFields: true, includeCustomFields: true, filter: filterCondition);
 
     if(currentMembership.metadataList.isEmpty) return Future.error('Channel not found');
   
@@ -151,27 +151,15 @@ class RimeApi {
         memRes.metadataList.first.custom['Deleted'];
   }
 
-  static Future<bool> leaveChannel(String loginID, String channel) async {
-    RimeRepository()
-        .client
-        .objects
-        .manageChannelMembers(channel, [], Set<String>.from([loginID]));
-    List<String> channelGroups = await RimeFunctions.getChannelGroups(loginID);
-    for (var group in channelGroups) {
-      try {
-        await RimeRepository()
-            .client
-            .channelGroups
-            .removeChannels(group, Set.from([channel]));
-        return true;
-      } catch (e) {
-        continue;
-      }
-    }
-    return false;
+  static Future<void> leaveChannel(String loginID, String channel) async {
+    // Remove this channel from the user's channel groups
+    String groupID = await RimeApi.getGroupIDFromChannelID(loginID, channel);
+    await RimeRepository().client.channelGroups.removeChannels(groupID, Set.from([channel]));
+    
+    // Delete the user's membership for this channel
+    await RimeRepository().client.objects.removeChannelMembers(channel, Set<String>.from([loginID]));
   }
 
-  // API Functions
   ///Sends [message] to the channel with id = [channelID]
   ///
   ///Along with sending a message, this also updates the channel 'lastUpdated' metadata
@@ -296,5 +284,17 @@ class RimeApi {
     ChannelMembersResult result = await RimeRepository().client.objects.getChannelMembers(channel, includeUUIDFields: true, includeCustomFields: true);
 
     return result.metadataList;
+  }
+
+  static Future<String> getGroupIDFromChannelID(String userID, String channel) async {
+    List<String> channelGroups = await RimeFunctions.getChannelGroups(userID);
+    String groupId;
+    for (groupId in channelGroups){
+      ChannelGroupListChannelsResult channelGroupList = await RimeRepository().client.channelGroups.listChannels(groupId);
+      if (channelGroupList.channels.contains(channel)){
+        return groupId;
+      }
+    }
+    return null;
   }
 }

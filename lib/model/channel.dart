@@ -4,7 +4,7 @@ import 'package:rime/state/rime_bloc/rime_bloc_state.dart';
 
 class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
   String channel;
-  String groupId;
+  String groupId; // Unused, both unread and unwritten
   String title;
   dynamic subtitle;
   int lastUpdated;
