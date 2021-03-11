@@ -1,10 +1,8 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
-import 'package:rime/state/rime_bloc/rime_bloc_state.dart';
 
 class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
   String channel;
-  String groupId;
+  String groupId; // Unused, both unread and unwritten
   String title;
   dynamic subtitle;
   int lastUpdated;
@@ -15,8 +13,7 @@ class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
   List<String> uuids;
 
   RimeChannel(
-    {
-      this.groupId,
+      {this.groupId,
       this.channel,
       this.title,
       this.subtitle,
@@ -25,42 +22,37 @@ class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
       this.isGroup,
       this.membership,
       this.readMap,
-      this.uuids
-    });
+      this.uuids});
 
   RimeChannel copyWith(RimeChannel copy) {
     if (copy == null) return this;
 
     return RimeChannel(
-      channel: copy.channel ?? channel,
-      title: copy.title ?? title,
-      subtitle: copy.subtitle ?? subtitle,
-      lastUpdated: copy.lastUpdated ?? lastUpdated,
-      image: copy.image ?? image,
-      isGroup: copy.isGroup ?? isGroup,
-      readMap: copy.readMap ?? readMap ?? {},
-      uuids: copy.uuids ?? uuids ?? []
-    );
+        channel: copy.channel ?? channel,
+        title: copy.title ?? title,
+        subtitle: copy.subtitle ?? subtitle,
+        lastUpdated: copy.lastUpdated ?? lastUpdated,
+        image: copy.image ?? image,
+        isGroup: copy.isGroup ?? isGroup,
+        readMap: copy.readMap ?? readMap ?? {},
+        uuids: copy.uuids ?? uuids ?? []);
   }
 
   ///Disposes the rime channel connection
   RimeChannel dispose() {
     if (channel != null) {
-
       //Channel defined, dipose channel
       RimeChannel copyChat = RimeChannel(
-
-        channel: channel,
-        title: title,
-        subtitle: subtitle,
-        lastUpdated: lastUpdated,
-        image: image,
-        isGroup: isGroup,
-        readMap: readMap,
-        groupId: groupId,
-        membership: membership,
-        uuids: uuids
-      );
+          channel: channel,
+          title: title,
+          subtitle: subtitle,
+          lastUpdated: lastUpdated,
+          image: image,
+          isGroup: isGroup,
+          readMap: readMap,
+          groupId: groupId,
+          membership: membership,
+          uuids: uuids);
 
       return copyChat;
     }
@@ -70,18 +62,17 @@ class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
 
   @override
   int compareTo(other) {
-    if(other is RimeChannel){
+    if (other is RimeChannel) {
       return (other?.lastUpdated ?? 0).compareTo(this?.lastUpdated ?? 0);
-    } 
+    }
     return -1;
   }
 
   //Hashes the read map
-  String get _hashReadMap{
-
+  String get _hashReadMap {
     //If read map is not defined
-    String hash = ''; 
-    if(readMap == null) return hash;
+    String hash = '';
+    if (readMap == null) return hash;
 
     //Maps the keys and values into a combined string
     for (MapEntry<String, int> item in readMap.entries) {
@@ -91,7 +82,6 @@ class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
   }
 
   @override
-  // TODO: implement props
   List<Object> get props => [channel, title, subtitle, image, isGroup, _hashReadMap, membership, uuids];
 }
 
@@ -101,44 +91,30 @@ class RimeChannelMemebership with EquatableMixin {
   bool accepted;
   int deleted;
 
-  RimeChannelMemebership({
-    this.notifications,
-    this.readAction,
-    this.accepted,
-    this.deleted
-  });
+  RimeChannelMemebership({this.notifications, this.readAction, this.accepted, this.deleted});
 
   RimeChannelMemebership copyWith(RimeChannelMemebership copy) {
     if (copy == null) return this;
 
     return RimeChannelMemebership(
-      notifications: copy.notifications ?? notifications,
-      readAction: copy.readAction ?? readAction,
-      accepted: copy.accepted ?? accepted,
-      deleted: copy.deleted ?? deleted
-    );
+        notifications: copy.notifications ?? notifications,
+        readAction: copy.readAction ?? readAction,
+        accepted: copy.accepted ?? accepted,
+        deleted: copy.deleted ?? deleted);
   }
 
-  @override
-  Map<String, dynamic> toJson(){
-    return {
-      'notifications': notifications,
-      'readAction': readAction,
-      'accepted': accepted,
-      'deleted': deleted
-    };
+  Map<String, dynamic> toJson() {
+    return {'notifications': notifications, 'readAction': readAction, 'accepted': accepted, 'deleted': deleted};
   }
 
-  factory RimeChannelMemebership.fromJson(Map<String, dynamic> json){
+  factory RimeChannelMemebership.fromJson(Map<String, dynamic> json) {
     return RimeChannelMemebership(
-      notifications: json['notifications'],
-      readAction: json['readAction'],
-      accepted: json['accepted'],
-      deleted: json['deleted']
-    );
+        notifications: json['notifications'],
+        readAction: json['readAction'],
+        accepted: json['accepted'],
+        deleted: json['deleted']);
   }
 
   @override
-  // TODO: implement props
   List<Object> get props => [notifications, readAction, accepted, deleted];
 }

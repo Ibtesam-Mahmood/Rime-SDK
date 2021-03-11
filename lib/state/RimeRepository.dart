@@ -1,10 +1,5 @@
-
-import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
-import 'package:hive/hive.dart';
 import 'package:pubnub/pubnub.dart';
-import 'package:rime/api/rime_api.dart';
-import 'package:rime/model/channel.dart';
 import 'package:rime/state/RimeFunctions.dart';
 import '../rime.dart';
 
@@ -28,11 +23,11 @@ class RimeRepository {
   String _userID;
 
   /// All pubnub subscriptions
-  Map<String, Subscription> _subscriptions = {};
+  final Map<String, Subscription> _subscriptions = {};
 
   /// Root subscription for recieving events
   Subscription _rootSubscription;
-  
+
   /// Subscription functions
   /// Run when something is subscribed to the
   final Map<String, RimeCallBack> _callBackSubscriptions = {};
@@ -55,13 +50,13 @@ class RimeRepository {
   /// Getter for the pubnub client.
   /// Ensures that client is initialized
   PubNub get client {
-    if(_client == null) throw Exception('Client not iniitlaized');
+    if (_client == null) throw Exception('Client not iniitlaized');
     return _client;
   }
 
   //Returns a userID if initialized
-  String get userID{
-    if(_userID == null) throw Exception('Client not iniitlaized');
+  String get userID {
+    if (_userID == null) throw Exception('Client not iniitlaized');
     return _userID;
   }
 
@@ -74,10 +69,8 @@ class RimeRepository {
     assert(Rime.INITIALIZED);
 
     //Build keyset from dot env
-    final pubnubKeySet = Keyset(
-        subscribeKey: Rime.env['RIME_SUB_KEY'],
-        publishKey: Rime.env['RIME_PUB_KEY'],
-        uuid: UUID(userID));
+    final pubnubKeySet =
+        Keyset(subscribeKey: Rime.env['RIME_SUB_KEY'], publishKey: Rime.env['RIME_PUB_KEY'], uuid: UUID(userID));
 
     //Assign the userID
     _userID = userID;
@@ -85,33 +78,25 @@ class RimeRepository {
     // Initialize the pubnub client
     _client = PubNub(defaultKeyset: pubnubKeySet);
 
-    //Subscribe to the root subscription
-    // TODO: This currently receives back a PubNubCancelException for when it trys to send the subscribe request
-    // _rootSubscription = _client.subscribe(channels: Set.from([userID]));
-    // _rootSubscription.messages.listen(_onRootCallBack);
-
     reset();
-
   }
 
-  ///Reset funtion. 
+  ///Reset funtion.
   ///Subscribes to all valid channel groups
   void reset() async {
-
     //Retreive valid channel groups
     List<String> channelGroups = await RimeFunctions.getChannelGroups(userID);
 
     for (String groupID in channelGroups) {
-      if(!_subscriptions.containsKey(groupID)){
+      if (!_subscriptions.containsKey(groupID)) {
         //Subscribe
         Subscription sub = await client.subscribe(channelGroups: Set.from([groupID]));
         sub.messages.listen(onMessageCallBack);
         _subscriptions[groupID] = sub;
       }
     }
-
   }
-  
+
   /// Disposes the rime instance and all server connections
   void disposeRime() {
     //Unsubscribes from subscriptions
@@ -140,22 +125,13 @@ class RimeRepository {
 
   // ~~~~~~~~~~~~~~~~~~~~ Interal Helpers ~~~~~~~~~~~~~~~~~~~~
 
-  /// Callback for root subscription
-  /// 
-  /// Responds to rime events
-  void _onRootCallBack(Envelope en){
-    reset();
-  }
-
   /// Calls all the lisnsters
   ///
   /// Primary message receive logic
   void onMessageCallBack(Envelope en) {
-
     //Runs the callback function for the subscribed listeners
     for (RimeCallBack sub in _callBackSubscriptions.values) {
       sub(en);
     }
   }
-
 }

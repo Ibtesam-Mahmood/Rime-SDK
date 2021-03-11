@@ -1,6 +1,6 @@
 import 'package:rime/rime.dart';
 
-import 'lib/main.dart';
+import 'main.dart';
 import 'package:flutter/material.dart';
 // ignore: library_prefixes
 import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;

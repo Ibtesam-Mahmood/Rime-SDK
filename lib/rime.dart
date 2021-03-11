@@ -10,7 +10,6 @@ export 'package:rime/model/rimeMessage.dart';
 
 export 'package:rime/state/channel_state/channel_state.dart';
 
-
 import 'package:rime/state/core/rime_root_functions.dart';
 import 'package:rime/state/rime_bloc/rime_bloc.dart';
 
@@ -54,5 +53,4 @@ class Rime {
     assert(INITIALIZED);
     return _devFunctions;
   }
-
 }
