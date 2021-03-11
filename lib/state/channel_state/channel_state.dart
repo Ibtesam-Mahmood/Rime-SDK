@@ -21,7 +21,7 @@ typedef ChannelStateListener = void Function(BuildContext context, RimeChannel c
 /// If the channel is not loaded into [RimeBloc] loads into state
 class ChannelStateProvider extends StatefulWidget {
 
-  static const int MESSAGE_CHUNK_SIZE = 100;
+  static const int MESSAGE_CHUNK_SIZE = 5;
 
   ///Channel to be refrenced
   final String channelID;
@@ -128,7 +128,7 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
     switch (en.messageType) {
       case MessageType.normal:
         setState(() {
-          messages.insert(0, RimeMessage.fromBaseMessage(en));
+          messages.add(RimeMessage.fromBaseMessage(en));
         });
         break;
       default:
@@ -151,15 +151,15 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
     
     //The length of the list
     //Used to add new messages to the list
-    int index = history.messages.length;
+    int index = messages.length;
 
     await history.more();
 
     setState(() {
       List<BaseMessage> baseMessages = history.messages.sublist(index);
-      for(BaseMessage message in baseMessages){
+      for(BaseMessage message in baseMessages.reversed){
         try{
-          messages.add(RimeMessage.fromBaseMessage(message));
+          messages.insert(0, RimeMessage.fromBaseMessage(message));
         }catch(e){
           print('corrupt mesage');
         }
