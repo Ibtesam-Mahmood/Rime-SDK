@@ -80,8 +80,8 @@ class RimeApi {
     return await getChannel(channelID);
   }
 
-  static Future<RimeChannel> getChannel(String channel) async {
-    String filterCondition = 'channel.id == \"$channel\"';
+  static Future<RimeChannel> getChannel(String channelID) async {
+    String filterCondition = 'channel.id == \"$channelID\"';
     MembershipsResult currentMembership = await RimeRepository().client.objects.getMemberships(
         uuid: RimeRepository().userID,
         limit: 1,
@@ -92,7 +92,7 @@ class RimeApi {
 
     if (currentMembership.metadataList.isEmpty) return Future.error('Channel not found');
 
-    RimeChannel rimeChannel = await hydrate(currentMembership.metadataList.first);
+    RimeChannel rimeChannel = await _hydrate(currentMembership.metadataList.first);
 
     return rimeChannel;
   }
@@ -135,13 +135,13 @@ class RimeApi {
     return currentMembership.metadataList.first.custom['Deleted'] != memRes.metadataList.first.custom['Deleted'];
   }
 
-  static Future<void> leaveChannel(String loginID, String channel) async {
+  static Future<void> leaveChannel(String userID, String channelID) async {
     // Remove this channel from the user's channel groups
-    String groupID = await RimeApi.getGroupIDFromChannelID(loginID, channel);
-    await RimeRepository().client.channelGroups.removeChannels(groupID, Set.from([channel]));
+    String groupID = await RimeApi.getGroupIDFromChannelID(userID, channelID);
+    await RimeRepository().client.channelGroups.removeChannels(groupID, Set.from([channelID]));
 
     // Delete the user's membership for this channel
-    await RimeRepository().client.objects.removeChannelMembers(channel, Set<String>.from([loginID]));
+    await RimeRepository().client.objects.removeChannelMembers(channelID, Set<String>.from([userID]));
   }
 
   ///Sends [message] to the channel with id = [channelID]
@@ -201,7 +201,7 @@ class RimeApi {
 
     List<RimeChannel> rimeChannels = [];
     for (MembershipMetadata memMD in memRes.metadataList) {
-      rimeChannels.add(await hydrate(memMD));
+      rimeChannels.add(await _hydrate(memMD));
     }
     String nextPage = memRes.next;
     return Tuple2(rimeChannels, nextPage);
@@ -212,7 +212,7 @@ class RimeApi {
   /// Takes a MemberShipMetatdata so it can be used for both [getMostRecentChannels()] and [getChannel()]
   ///
   /// Returns a populated Future<RimeChannel> object
-  static Future<RimeChannel> hydrate(MembershipMetadata data) async {
+  static Future<RimeChannel> _hydrate(MembershipMetadata data) async {
     //Retreives the latest message
     BaseMessage baseMessage;
     PaginatedChannelHistory history = RimeRepository().client.channel(data.channel.id).history(chunkSize: 1);
@@ -242,23 +242,23 @@ class RimeApi {
   }
 
   ///Retreives the memeberships within a channel
-  static Future<List<ChannelMemberMetadata>> getChannelMemebers(String channel) async {
+  static Future<List<ChannelMemberMetadata>> getChannelMemebers(String channelID) async {
     //Retreive memeberships
     ChannelMembersResult result = await RimeRepository()
         .client
         .objects
-        .getChannelMembers(channel, includeUUIDFields: true, includeCustomFields: true);
+        .getChannelMembers(channelID, includeUUIDFields: true, includeCustomFields: true);
 
     return result.metadataList;
   }
 
-  static Future<String> getGroupIDFromChannelID(String userID, String channel) async {
+  static Future<String> getGroupIDFromChannelID(String userID, String channelID) async {
     List<String> channelGroups = await RimeFunctions.getChannelGroups(userID);
     String groupId;
     for (groupId in channelGroups) {
       ChannelGroupListChannelsResult channelGroupList =
           await RimeRepository().client.channelGroups.listChannels(groupId);
-      if (channelGroupList.channels.contains(channel)) {
+      if (channelGroupList.channels.contains(channelID)) {
         return groupId;
       }
     }

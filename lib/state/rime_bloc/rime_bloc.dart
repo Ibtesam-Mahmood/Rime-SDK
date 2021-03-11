@@ -96,7 +96,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     onSuccess(channel);
   }
 
-  Stream<RimeState> _mapMessageToState(Map<String, dynamic> message, String channel, String type) async* {
+  Stream<RimeState> _mapMessageToState(dynamic message, String channel, String type) async* {
     RimeChannel rimeChannel = retireveChannel(channel);
 
     //Create Rime message

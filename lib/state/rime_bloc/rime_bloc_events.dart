@@ -24,7 +24,7 @@ class CreateChannelEvent extends RimeEvent {
 
 ///Sends a message through the pubnub RimeChannel and adds the Message object to state
 class MessageEvent extends RimeEvent {
-  final Map<String, dynamic> payload;
+  final dynamic payload;
   final String type;
   final String channel;
   MessageEvent(this.channel, this.type, this.payload);
