@@ -10,6 +10,9 @@ import 'package:rime/state/rime_bloc/rime_bloc_events.dart';
 import 'package:rime/state/rime_bloc/rime_bloc_state.dart';
 import 'package:tuple/tuple.dart';
 
+export 'rime_bloc_events.dart';
+export 'rime_bloc_state.dart';
+
 class RimeBloc extends Bloc<RimeEvent, RimeState> {
 
   /// Maps the innitial state for the RimeBloc

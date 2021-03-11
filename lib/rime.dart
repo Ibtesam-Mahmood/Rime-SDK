@@ -3,8 +3,14 @@ library rime;
 export 'package:pubnub/pubnub.dart';
 export 'package:rime/api/rime_api.dart';
 
-import 'package:get_it/get_it.dart';
-import 'package:rime/state/RimeRepository.dart';
+export 'package:rime/model/channel.dart';
+export 'package:rime/model/rimeMessage.dart';
+
+export 'package:rime/model/rimeMessage.dart';
+
+export 'package:rime/state/channel_state/channel_state.dart';
+
+
 import 'package:rime/state/core/rime_root_functions.dart';
 import 'package:rime/state/rime_bloc/rime_bloc.dart';
 
