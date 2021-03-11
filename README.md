@@ -77,16 +77,19 @@ void main(List<String> args) async {
 }
 ```
 
-#### Verfying
+#### 3) Verfying
 The following snippet can be run to verify whether `Rime` is initialized.
+```dart
+print(Rime.INITIALIZED);
+```
+If this statement is `true` then the rime sdk is correctly set up and can be used.
 
 ## Stucture
-
-### Overview
+![Rime Structure](readme_assets\rime_structure.png)
 Rime SDK is composed of 3 core elements `RimeApi`, `RimeRepository`, and `RimeBloc`. These 2 work togetehr to provide publish and subscribe functionality fomr pubnub. Along with the management of Rime channel metadata.
 ### RimeBloc
 
-`RimeBloc` is a Singleton Global State manager for Rime, it manages application wide buinsess logic for channels; allowing components to directly subscribe to a stream of up-to-date channel data. The RimeBloc acts as the user's primary interface to communicate with Rime and the underlying Pubnub interface safely.
+`RimeBloc` is a Singleton Global State Manager for Rime, it manages application wide buinsess logic for channels; allowing components to directly subscribe to a stream of up-to-date channel data. The RimeBloc acts as the user's primary interface to communicate with Rime and the underlying Pubnub interface safely.
 
 The `RimeBloc` object is an auto-initialized singleton object that is generated using the the [get_it](https://pub.dev/packages/get_it) package. Use the following code to access the object from anywhere in your application.
 ```dart
@@ -94,13 +97,17 @@ RimeBloc();
 ```
 On first access the object is automaically created with a non-initialized state. In this state the `RimeBloc.state` will not contain any channels. It must first be initialized by the developer using a unique userID provided on user authentication.
 
+When initialized the user can push events to the `RimeBloc` to manipulate, create, and leave channels relative the provided UserID. For more information on `RimeEvents` see [Usage](#abcd).
+
 #### flutter_bloc
 The `RimeBloc` is implemented using the [flutter_bloc](https://pub.dev/packages/flutter_bloc) package. Please refrence their [online documentation](https://pub.dev/documentation/flutter_bloc/latest/) for information on how to correctly interface with RimeBloc using Bloc.
 
+### RimeRepository
+
+`RimeRepository` is a Singleton Storage Module that maintains the core Pubnub service. 
+
 ### RimeApi
 
-
-### RimeRepository
 
 ## Usage
 
