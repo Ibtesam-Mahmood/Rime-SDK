@@ -158,7 +158,7 @@ The `RimeBloc` is implemented using the [flutter_bloc](https://pub.dev/packages/
 ### RimeApi  <a name="6.4"></a>
 The `RimeApi` is a set of functions that directly interface with the internal Pubnub client stored within `RimeRepository`.
 
-The functions defined within the API are 1-to-1 with `RimeEvents`. This means sending out requests directly from the API successfully modify the the Pubnub instance with Rime attributes. However, this method will **prevent** any local changes `RimeState`.
+Sending request directly through the Api will successfully modify the PubNub instance with Rime attributes. However, using these methods will **not** make any local changes to the `RimeState`.  The functions defined in this class are 1-to-1 with `RimeEvents` which **do** modify the state.
 
 For more information on `RimeApi` see **Usage**.
 
