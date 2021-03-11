@@ -78,7 +78,7 @@ class _ChatMenuState extends State<ChatMenu> {
                     builder: (context) {
                       return NewChatSheet(
                         onCreate: (chat, isNew) {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage()));
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(rimeChannelID: chat.channel,)));
                         },
                       );
                     });
@@ -192,7 +192,6 @@ class _RimeMessagesMenuState extends State<RimeMessagesMenu> {
               )),
               ChatList(
                 children: channels,
-
               )
             ],
           ),

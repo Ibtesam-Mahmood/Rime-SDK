@@ -6,12 +6,13 @@ class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
   String channel;
   String groupId;
   String title;
-  String subtitle;
+  dynamic subtitle;
   int lastUpdated;
   String image;
   bool isGroup;
   Map<String, int> readMap;
   RimeChannelMemebership membership;
+  List<String> uuids;
 
   RimeChannel(
     {
@@ -23,7 +24,8 @@ class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
       this.image,
       this.isGroup,
       this.membership,
-      this.readMap = const {}
+      this.readMap,
+      this.uuids
     });
 
   RimeChannel copyWith(RimeChannel copy) {
@@ -36,7 +38,8 @@ class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
       lastUpdated: copy.lastUpdated ?? lastUpdated,
       image: copy.image ?? image,
       isGroup: copy.isGroup ?? isGroup,
-      readMap: copy.readMap ?? readMap ?? {}
+      readMap: copy.readMap ?? readMap ?? {},
+      uuids: copy.uuids ?? uuids ?? []
     );
   }
 
@@ -53,7 +56,10 @@ class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
         lastUpdated: lastUpdated,
         image: image,
         isGroup: isGroup,
-        readMap: readMap
+        readMap: readMap,
+        groupId: groupId,
+        membership: membership,
+        uuids: uuids
       );
 
       return copyChat;
@@ -65,7 +71,7 @@ class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
   @override
   int compareTo(other) {
     if(other is RimeChannel){
-      return (this?.lastUpdated ?? 0).compareTo(other?.lastUpdated ?? 0);
+      return (other?.lastUpdated ?? 0).compareTo(this?.lastUpdated ?? 0);
     } 
     return -1;
   }
@@ -86,7 +92,7 @@ class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
 
   @override
   // TODO: implement props
-  List<Object> get props => [channel, title, subtitle, image, isGroup, _hashReadMap, membership];
+  List<Object> get props => [channel, title, subtitle, image, isGroup, _hashReadMap, membership, uuids];
 }
 
 class RimeChannelMemebership with EquatableMixin {

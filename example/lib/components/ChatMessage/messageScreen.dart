@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:rime/model/rimeMessage.dart' as model;
 import 'package:rime/rime.dart';
 import 'package:rime/state/channel_state/channel_state.dart';
 import '../ChatMenu/fadeInUserImage.dart';
@@ -20,9 +21,6 @@ class MessageScreen extends StatefulWidget {
 
 class _MessageScreenState extends State<MessageScreen> {
 
-  ///Messages list
-  List<String> messages = [];
-
   ///Controller for the easy refresh
   EasyRefreshController _refreshController;
 
@@ -33,9 +31,7 @@ class _MessageScreenState extends State<MessageScreen> {
   void initState() {
     super.initState();
 
-    widget.messages.forEach((element) { messages.add(element.content['message']); });// ['hello', 'Whats good'];
-    
-    print(messages.length);
+    _refreshController = EasyRefreshController();
   }
 
   @override
@@ -45,6 +41,7 @@ class _MessageScreenState extends State<MessageScreen> {
           controller: _refreshController,
           scrollController: _scrollController,
           reverse: true,
+
           footer: CustomFooter(
           extent: 40.0,
           triggerDistance: 50.0,
@@ -83,7 +80,7 @@ class _MessageScreenState extends State<MessageScreen> {
                 shrinkWrap: true,
                 scrollDirection: Axis.vertical,
                 physics: BouncingScrollPhysics(),
-                itemCount: messages.length,
+                itemCount: widget.messages.length,
                 itemBuilder: (context, i){
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -107,9 +104,9 @@ class _MessageScreenState extends State<MessageScreen> {
                         children: [
                           Padding(
                             padding: EdgeInsets.only(left: 12, bottom: 5),
-                            child: Text('Killua'),
+                            child: Text("Killua"),
                           ),
-                          TextMessage(message: messages[i])
+                          TextMessage(message: model.TextMessage.fromRimeMessage(widget.messages[i]).text)
                         ],
                       )
                     ],
@@ -119,15 +116,16 @@ class _MessageScreenState extends State<MessageScreen> {
             )
           ],
           //TODO: Implement onLoad
-        //   onLoad: () async {
-        //   if (mounted) {
-        //     Completer _onSuccess = Completer();
-        //     ChatBloc().add(LoadMoreMessages(widget.chatID, (){
-        //       _onSuccess.complete(null);
-        //     }));
-        //     await _onSuccess.future;
-        //   }
-        // }
+          onLoad: () async {
+            if (mounted) {
+              await widget.channelProviderController.loadMore();
+            }
+          },
+          onRefresh: () async {
+            if (mounted) {
+              await widget.channelProviderController.refresh();
+            }
+          },
       ),
       //TODO: Implement time message was sent animation
       //Swipe left animation

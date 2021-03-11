@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/api/rime_api.dart';
 import 'package:rime/model/channel.dart';
+import 'package:rime/model/rimeMessage.dart';
 
 import 'package:rime/rime.dart';
 import 'package:rime/state/RimeFunctions.dart';
@@ -12,6 +13,7 @@ import 'package:rime/state/RimeRepository.dart';
 
 // ignore: library_prefixes
 import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
+import 'package:rime/state/rime_bloc/rime_bloc.dart';
 
 void main() async {
   // I believe this was example flutter test code
@@ -31,14 +33,16 @@ void main() async {
       print('\n' 'Initializing');
       await DotEnv.load(fileName: '.env');
       await Rime.initialize(DotEnv.env);
-      await RimeRepository().initializeRime('testUser1');
+      await RimeRepository().initializeRime('testUser12');
       print('Initialized');
     });
 
     test('Print all groups for testUser1', () async {
       String userID = 'testUser1';
       await printAllGroupsForUser(userID);
-    }, skip: "Don't want this to print everytime");
+    }
+    // , skip: "Don't want this to print everytime"
+    );
 
     test('Print all groups and channels for testUser1', () async {
       String userID = 'testUser1';
@@ -242,6 +246,47 @@ void main() async {
         });
       });
     });
+
+    group('Testing creating, hydrating, and sending message', (){
+
+      String channel = 'rime_testUser12_16152858276361764';
+
+      test('create a channel', () async {
+        RimeChannel createdChannel = await RimeApi.createChannel([RimeRepository().userID, 'testUser2']);
+
+        channel = createdChannel.channel;
+
+        print(channel);
+
+        createdChannel = await RimeApi.getChannel(channel);
+
+        expect(createdChannel.readMap?.isEmpty ?? false, false);
+      }, skip: 'Already created');
+
+      test('Test message subtitle', () async {
+
+        String message = 'hello' + DateTime.now().toString();
+
+        await RimeRepository().client.publish(channel, message);
+
+        RimeChannel rimeChannel = await RimeApi.getChannel(channel);
+        
+        expect(rimeChannel.subtitle, message);
+      });
+
+      test('Check history', () async {
+
+        PaginatedChannelHistory history = RimeRepository().client.channel(channel).history();
+
+        await history.more();
+
+        print('Hello');
+        
+        expect(true, true);
+      
+      });
+
+    });
   });
 
   group('RimeApi Tests - testUser3', () {
@@ -359,7 +404,7 @@ void main() async {
     });
 
     test('Create a channel with just testUser3', () async {
-      String channelName = (await RimeApi.createChannel([userID])).channel;
+      String channelName = (await RimeApi.createChannel([userID, 'testUser12'])).channel;
       print(channelName);
     }, skip: "Don't want to create channels everytime");
 
@@ -380,6 +425,34 @@ void main() async {
           await publishMessageWithChannelUpdate(channelID, message);
 
       print(publish.timetoken);
+    });
+
+    test('Send a RimeMessage through PubNub', () async {
+      MembershipsResult memRes = await RimeRepository()
+          .client
+          .objects
+          .getMemberships(
+              includeChannelCustomFields: true,
+              includeChannelFields: true,
+              includeCustomFields: true,
+              sort: Set.from(['channel.name']));
+
+      String channelID = memRes.metadataList[0].channel.id;
+      String userID = 'testUser1';
+      String message = 'Hello';
+      RimeMessage rimeMessage = RimeMessage(
+        uuid: userID,
+        type: message,
+        content: TextMessage.toPayload('Hello'),
+        publishedAt: (await RimeRepository().client.time()),
+        originalMessage: message
+      );
+
+      // Send the message
+      PublishResult publish =
+          await RimeRepository().client.publish(channelID, rimeMessage);
+
+        expect(true, true);
     });
 
     test("Get testUser3's Channel 1's metadata", () async {
@@ -739,7 +812,7 @@ Future printEveryMessageInAChannel(String channel) async {
 }
 
 Future printAllGroupsAndChannelsForUser(String userID) async {
-  List<String> g = RimeFunctions.getChannelGroups(userID);
+  List<String> g = await RimeFunctions.getChannelGroups(userID);
 
   String groupName;
   for (groupName in g) {
@@ -754,7 +827,7 @@ Future printAllChannelsInAGroup(String groupName) async {
   print('Channels: ' + channelGroupList.channels.toList().toString());
 }
 
-Future printAllGroupsForUser(String userID) {
-  List<String> g = RimeFunctions.getChannelGroups(userID);
+Future printAllGroupsForUser(String userID) async {
+  List<String> g = await RimeFunctions.getChannelGroups(userID);
   print('Groups: ' + g.toString());
 }

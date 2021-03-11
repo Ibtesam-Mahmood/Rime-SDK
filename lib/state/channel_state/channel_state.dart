@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/api/rime_api.dart';
 import 'package:rime/model/channel.dart';
+import 'package:rime/model/rimeMessage.dart';
 import 'package:rime/state/RimeRepository.dart';
 import 'package:rime/state/rime_bloc/rime_bloc.dart';
 import 'package:rime/state/rime_bloc/rime_bloc_events.dart';
 import 'package:rime/state/rime_bloc/rime_bloc_state.dart';
-import 'package:pubnub/src/dx/_endpoints/history.dart';
 
 ///The type of builder for the channel provider
 typedef ChannelStateBuilder = Widget Function(BuildContext context, RimeChannel channel, List<BaseMessage> history);
@@ -21,7 +21,7 @@ typedef ChannelStateListener = void Function(BuildContext context, RimeChannel c
 /// If the channel is not loaded into [RimeBloc] loads into state
 class ChannelStateProvider extends StatefulWidget {
 
-  static const int MESSAGE_CHUNK_SIZE = 100;
+  static const int MESSAGE_CHUNK_SIZE = 5;
 
   ///Channel to be refrenced
   final String channelID;
@@ -61,7 +61,7 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
   PaginatedChannelHistory history;
 
   ///Storage for messages from this channel
-  List<BaseMessage> messages = [];
+  List<RimeMessage> messages = [];
 
   // ~~~~~~~~~~~~~~ Life Cycle ~~~~~~~~~~~~~~~~~~
 
@@ -105,7 +105,7 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
     //Checks if the channel exsists
     //Retreives the channel from api
     if(channel == null){
-      RimeChannel retreivedChannel =  await RimeApi.getChannel(widget.channelID);
+      RimeChannel retreivedChannel = await RimeApi.getChannel(widget.channelID);
 
       RimeBloc().add(StoreEvent(retreivedChannel));
     }
@@ -114,6 +114,9 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
     RimeRepository().addListener(widget.channelID, onMessageCallback);
 
     history = RimeRepository().client.channel(widget.channelID).history(chunkSize: widget.loadSize);
+
+    //Loads the innitial batch of messages
+    await resetLoad();
   }
 
   ///State listsner for message events
@@ -125,7 +128,7 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
     switch (en.messageType) {
       case MessageType.normal:
         setState(() {
-          messages.insert(0, en);
+          messages.add(RimeMessage.fromBaseMessage(en));
         });
         break;
       default:
@@ -134,17 +137,33 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
 
   }
 
+  /// Loads the innitial batch of messages
+  Future<bool> resetLoad() async {
+
+    await history.reset();
+
+    return loadMore();
+
+  }
+
   /// Loads more messages into the history
   Future<bool> loadMore() async {
     
     //The length of the list
     //Used to add new messages to the list
-    int index = history.messages.length;
+    int index = messages.length;
 
     await history.more();
 
     setState(() {
-      messages.addAll(history.messages.sublist(index));
+      List<BaseMessage> baseMessages = history.messages.sublist(index);
+      for(BaseMessage message in baseMessages.reversed){
+        try{
+          messages.insert(0, RimeMessage.fromBaseMessage(message));
+        }catch(e){
+          print('corrupt mesage');
+        }
+      }
     });
 
     return history.hasMore;
@@ -195,8 +214,11 @@ class ChannelProviderController extends ChangeNotifier {
   //Called to notify all listners
   void _update() => notifyListeners();
 
-  // Loads more from state
-  void loadMore() => _state != null ? _state.loadMore() : null;
+  /// Loads more from state
+  Future<bool> loadMore() async => _state != null ? await _state.loadMore() : null;
+
+  /// Refreshes the history cursor to the beginning
+  Future<bool> refresh() async => _state != null ? await _state.resetLoad() : null;
 
   //Disposes of the controller
   @override

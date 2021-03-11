@@ -1,6 +1,12 @@
+import 'package:example/api/endpoints/userInfoApi.dart';
+import 'package:example/models/userInfo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:rime/model/channel.dart';
+import 'package:rime/model/rimeMessage.dart';
+import 'package:rime/rime.dart';
+import 'package:rime/state/RimeFunctions.dart';
+import 'package:rime/state/RimeRepository.dart';
 import '../../pages/Chat/ChatPage.dart';
 import 'wrappedListTile.dart';
 import 'overLappingProfilePictures.dart';
@@ -12,7 +18,8 @@ class ChatTile extends StatefulWidget {
   final List<Widget> actions;
 
   //TODO: Insert chat object
-  const ChatTile({Key key, this.actions, this.rimeChannel}) : super(key: key);
+  const ChatTile({Key key, this.actions, @required this.rimeChannel}) 
+    : assert(rimeChannel != null), super(key: key);
 
   @override
   _ChatTileState createState() => _ChatTileState();
@@ -20,10 +27,83 @@ class ChatTile extends StatefulWidget {
 
 class _ChatTileState extends State<ChatTile> {
 
+  /// The title of the channel
+  String title = '';
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    if(widget.rimeChannel != null){
+      decodeTitle();
+    }
+    
+  }
+
+  @override
+  void didUpdateWidget(ChatTile oldWidget){
+    super.didUpdateWidget(oldWidget);
+
+    // Decodes the title when it has changed
+    if(oldWidget.rimeChannel?.title != widget.rimeChannel?.title){
+      decodeTitle();
+    }
+    
+  }
+
+  ///Decode the chat subtitle
+  String get decodeSubtitle{
+    if(widget.rimeChannel?.subtitle == null){
+      return '';
+    }
+
+    String type = widget.rimeChannel.subtitle['type'];
+    dynamic payload = widget.rimeChannel.subtitle['payload'];
+
+    switch (type) {
+      case TextMessage.RIME_MESSAGE_TYPE:
+        return payload['text'];        
+      default:
+        return '';
+    }
+  }
+
+  /// Decodes the title based on rules
+  void decodeTitle() async {
+    
+    String decodedTitle = widget.rimeChannel.title;
+
+    // Create title with Pollar API
+    if(decodedTitle == null){
+
+      //List of users in the channel
+      List<String> users = widget.rimeChannel.uuids;
+
+      //Remove the current user from the list
+      users.remove(RimeRepository().userID);
+
+      //Retreive users from pollar server
+      List<UserInfo> retreivedUsers = await UserInfoApi.getBatchUserInfoById(users);
+
+      List<String> userNames = retreivedUsers.map((u) => "${u.firstName ?? ''} ${u.lastName ?? ''}").toList();
+
+      if(userNames.length == 1){
+        //Single user chat
+        decodedTitle = userNames[0];
+      }
+      else{
+        //Group chat
+        decodedTitle = 'Chat with ${userNames.length} users';
+      }
+
+    }
+
+    //Sets the title
+    setState(() {
+      title = decodedTitle ?? '';
+    });
+
   }
 
   @override
@@ -36,15 +116,15 @@ class _ChatTileState extends State<ChatTile> {
       secondaryActions: widget.actions,
       child: WrappedListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        title: widget.rimeChannel.title ?? '',
-        subtitle: Text(widget.rimeChannel.subtitle ?? ''),
-        leading: OverlappingProfilePicture(
-          topImage: 'https://i.pinimg.com/736x/2d/11/a3/2d11a390094c8851ec366c4742d37f1c.jpg',
-          bottomImage: 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/c73969f3-13d3-40b3-81e6-e847df80e3ca/d85u45x-d3a65754-e859-48f3-a736-07741d2b376a.png/v1/fill/w_1024,h_1211,strp/hunter_x_hunter___gon___updated_head_by_daul_d85u45x-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOiIsImlzcyI6InVybjphcHA6Iiwib2JqIjpbW3siaGVpZ2h0IjoiPD0xMjExIiwicGF0aCI6IlwvZlwvYzczOTY5ZjMtMTNkMy00MGIzLTgxZTYtZTg0N2RmODBlM2NhXC9kODV1NDV4LWQzYTY1NzU0LWU4NTktNDhmMy1hNzM2LTA3NzQxZDJiMzc2YS5wbmciLCJ3aWR0aCI6Ijw9MTAyNCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.BaaoW_E9bLMs951VPza6kcwJoxbtk1osHLK34xJe-F4',
-          imageSize: 40,
-          height: 50,
-          width: 50,
-        ),
+        title: title,
+        subtitle: Text(decodeSubtitle + ' - ' + RimeFunctions.formatTime(Timetoken(widget.rimeChannel.lastUpdated).toDateTime())),
+        // leading: OverlappingProfilePicture(
+        //   topImage: 'https://i.pinimg.com/736x/2d/11/a3/2d11a390094c8851ec366c4742d37f1c.jpg',
+        //   bottomImage: 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/c73969f3-13d3-40b3-81e6-e847df80e3ca/d85u45x-d3a65754-e859-48f3-a736-07741d2b376a.png/v1/fill/w_1024,h_1211,strp/hunter_x_hunter___gon___updated_head_by_daul_d85u45x-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOiIsImlzcyI6InVybjphcHA6Iiwib2JqIjpbW3siaGVpZ2h0IjoiPD0xMjExIiwicGF0aCI6IlwvZlwvYzczOTY5ZjMtMTNkMy00MGIzLTgxZTYtZTg0N2RmODBlM2NhXC9kODV1NDV4LWQzYTY1NzU0LWU4NTktNDhmMy1hNzM2LTA3NzQxZDJiMzc2YS5wbmciLCJ3aWR0aCI6Ijw9MTAyNCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.BaaoW_E9bLMs951VPza6kcwJoxbtk1osHLK34xJe-F4',
+        //   imageSize: 40,
+        //   height: 50,
+        //   width: 50,
+        // ),
         //TODO: Implement unread and muted chats
         trailing: SizedBox(
           height: 12,

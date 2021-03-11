@@ -86,10 +86,11 @@ class RimeRepository {
     _client = PubNub(defaultKeyset: pubnubKeySet);
 
     //Subscribe to the root subscription
-    _rootSubscription = _client.subscribe(channels: Set.from([userID]));
-    _rootSubscription.messages.listen(_onRootCallBack);
+    // TODO: This currently receives back a PubNubCancelException for when it trys to send the subscribe request
+    // _rootSubscription = _client.subscribe(channels: Set.from([userID]));
+    // _rootSubscription.messages.listen(_onRootCallBack);
 
-    // reset();
+    reset();
 
   }
 
@@ -98,7 +99,7 @@ class RimeRepository {
   void reset() async {
 
     //Retreive valid channel groups
-    List<String> channelGroups = await RimeFunctions.getValidChannelGroups(userID);
+    List<String> channelGroups = await RimeFunctions.getChannelGroups(userID);
 
     for (String groupID in channelGroups) {
       if(!_subscriptions.containsKey(groupID)){

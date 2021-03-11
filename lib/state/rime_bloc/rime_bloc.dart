@@ -4,6 +4,7 @@ import 'package:pubnub/core.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:rime/api/rime_api.dart';
 import 'package:rime/model/channel.dart';
+import 'package:rime/model/rimeMessage.dart';
 import 'package:rime/state/RimeRepository.dart';
 import 'package:rime/state/rime_bloc/rime_bloc_events.dart';
 import 'package:rime/state/rime_bloc/rime_bloc_state.dart';
@@ -36,27 +37,32 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
   Stream<RimeState> mapEventToState(RimeEvent event) async* {
     if(event is InitializeRime){
       yield* _mapInitializeToState(event.userID);
-    } else if (event is GetChannelsEvent) {
-      yield* _mapChannelsToState();
-    } else if (event is CreateChannelEvent) {
-      yield* _mapCreateChannelToState(event.channel, event.users, event.onSuccess);
-    } else if (event is MessageEvent) {
-      yield* _mapMessageToState(event.message, event.channel);
-    } else if (event is DeleteEvent) {
-      yield* _mapDeleteToState(event.channel);
-    } else if (event is LeaveEvent) {
-      yield* _mapLeaveToState(event.channel);
-    } else if (event is StoreEvent) {
-      yield* _mapStoreToState(event.channel);
     } else if (event is ClearRimeEvent) {
       yield* _mapClearToState();
+    }
+
+    //Rime must be live to run the following requests
+    if(state is RimeLiveState){
+      if (event is GetChannelsEvent) {
+        yield* _mapChannelsToState();
+      } else if (event is CreateChannelEvent) {
+        yield* _mapCreateChannelToState(event.channel, event.users, event.onSuccess);
+      } else if (event is MessageEvent) {
+        yield* _mapMessageToState(event.payload, event.channel, event.type);
+      } else if (event is DeleteEvent) {
+        yield* _mapDeleteToState(event.channel);
+      } else if (event is LeaveEvent) {
+        yield* _mapLeaveToState(event.channel);
+      } else if (event is StoreEvent) {
+        yield* _mapStoreToState(event.channel);
+      }
     }
   }
 
   /// Initializes the pubnub service and requests channels
   Stream<RimeState> _mapInitializeToState(String userID) async* {
     // Initialize rime state
-    RimeRepository().initializeRime(userID);
+    await RimeRepository().initializeRime(userID);
 
     RimeRepository().addListener('rime-bloc-listener', onMessageCallBack);
 
@@ -89,23 +95,25 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     await RimeApi.createChannel(users);
   }
 
-  Stream<RimeState> _mapMessageToState(BaseMessage message, String channel) async* {
-    //get channels from state
-    Map<String, RimeChannel> storedChannels = (state as RimeLiveState).storedChannels;
-    List<String> organizedChannels = (state as RimeLiveState).orgainizedChannels;
-    //get specific channel
-    RimeChannel currentChannel = storedChannels[channel];
-    //Remove channel from list to add to top
-    organizedChannels.remove(currentChannel);
-    //update with content and new timestamp
-    currentChannel = currentChannel.copyWith(
+  Stream<RimeState> _mapMessageToState(Map<String, dynamic> message, String channel, String type) async* {
+
+    RimeChannel rimeChannel = retireveChannel(channel);
+
+    //Create Rime message
+    Map<String, dynamic> encodedRimeMessage = RimeMessage.toRimeMesageEncoding(RimeRepository().userID, type, message);
+
+    //Send Message request
+    Tuple2<ChannelMetadataDetails, RimeMessage> res = await RimeApi.sendMessage(channel, encodedRimeMessage);
+
+
+    rimeChannel = rimeChannel.copyWith(
       RimeChannel(
-        subtitle: message.content,
-        lastUpdated: message.publishedAt.value
+        subtitle: res.item2.content,
+        lastUpdated: res.item2.publishedAt.value
       )
     );
 
-    _mapStoreToState(currentChannel);
+    _mapStoreToState(rimeChannel);
   }
 
   Stream<RimeState> _mapDeleteToState(String channel) async* {
@@ -134,11 +142,11 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
   Stream<RimeState> _mapStoreToState(RimeChannel channel) async* {
     try{
       //new channel
-      yield RimeLiveState.initial().addChannel(channel, (await RimeRepository().client.time()).value);
+      yield (state as RimeLiveState).addChannel(channel, (await RimeRepository().client.time()).value);
     }
     catch(e){
       //update channel with info
-      yield RimeLiveState.initial().modifyChannel(channel, (await RimeRepository().client.time()).value);
+      yield (state as RimeLiveState).modifyChannel(channel, (await RimeRepository().client.time()).value);
     }
   }
 
@@ -161,6 +169,8 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     // Updates the lastUpdated time for the channel and subititle of the channel
     if(en.messageType == MessageType.normal){
 
+      RimeMessage message = RimeMessage.fromBaseMessage(en);
+
       //Check if state has channel
       RimeChannel channel = retireveChannel(en.channel);
       if(retireveChannel(en.channel) == null){
@@ -168,10 +178,10 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
       }
 
       // Modify the primary content
-      channel.subtitle = en.content;
+      channel.subtitle = message.encode();
 
       // modify the time token
-      channel.lastUpdated = en.publishedAt.value;
+      channel.lastUpdated = message.publishedAt.value;
 
       add(StoreEvent(channel));
     }
