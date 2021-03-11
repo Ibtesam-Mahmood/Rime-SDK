@@ -1,6 +1,5 @@
 import 'package:get_it/get_it.dart';
 import 'package:pubnub/pubnub.dart';
-import 'package:rime/state/RimeFunctions.dart';
 import '../rime.dart';
 
 typedef RimeCallBack = void Function(Envelope);
@@ -85,7 +84,7 @@ class RimeRepository {
   ///Subscribes to all valid channel groups
   void reset() async {
     //Retreive valid channel groups
-    List<String> channelGroups = await RimeFunctions.getChannelGroups(userId);
+    List<String> channelGroups = await RimeAPI.getChannelGroups(userId);
 
     for (String groupId in channelGroups) {
       if (!_subscriptions.containsKey(groupId)) {

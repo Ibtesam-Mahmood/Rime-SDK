@@ -8,7 +8,6 @@ import 'package:rime/model/channel.dart';
 import 'package:rime/model/rimeMessage.dart';
 
 import 'package:rime/rime.dart';
-import 'package:rime/state/RimeFunctions.dart';
 import 'package:rime/state/RimeRepository.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart' as dot_env;
@@ -671,7 +670,7 @@ Future printEveryMessageInAChannel(String channel) async {
 }
 
 Future printAllGroupsAndChannelsForUser(String userId) async {
-  List<String> g = await RimeFunctions.getChannelGroups(userId);
+  List<String> g = await RimeAPI.getChannelGroups(userId);
 
   String groupName;
   for (groupName in g) {
@@ -686,6 +685,6 @@ Future printAllChannelsInAGroup(String groupName) async {
 }
 
 Future printAllGroupsForUser(String userId) async {
-  List<String> g = await RimeFunctions.getChannelGroups(userId);
+  List<String> g = await RimeAPI.getChannelGroups(userId);
   print('Groups: ' + g.toString());
 }
