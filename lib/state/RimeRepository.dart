@@ -94,7 +94,7 @@ class RimeRepository {
     // Subscribe to any group that currently isn't in _subscriptions
     for (String groupId in channelGroups) {
       if (!_subscriptions.containsKey(groupId)) {
-        Subscription sub = await client.subscribe(channelGroups: Set.from([groupId]));
+        Subscription sub = client.subscribe(channelGroups: Set.from([groupId]));
         sub.messages.listen(onMessageCallBack);
         _subscriptions[groupId] = sub;
       }

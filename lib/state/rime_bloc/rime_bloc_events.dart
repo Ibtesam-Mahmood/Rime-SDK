@@ -11,6 +11,7 @@ class InitializeRime extends RimeEvent {
   InitializeRime(this.userId);
 }
 
+///Get a channel event requests 50 channels from PubNub and decodes the channels into [RimeChannel]
 class GetChannelsEvent extends RimeEvent {
   GetChannelsEvent();
 }

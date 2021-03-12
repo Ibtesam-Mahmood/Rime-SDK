@@ -132,7 +132,7 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
 
   /// Loads the innitial batch of messages
   Future<bool> resetLoad() async {
-    await history.reset();
+    history.reset();
 
     return loadMore();
   }
