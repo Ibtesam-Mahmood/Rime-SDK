@@ -13,11 +13,17 @@ import 'package:tuple/tuple.dart';
 export 'rime_bloc_events.dart';
 export 'rime_bloc_state.dart';
 
+///[RimeBloc] is a Singleton Global State Manager for Rime
+///
+///Manages application wide buinsess logic for channels allowing components to directly subscribe to a stream of up-to-date channel data. 
+///
+///The RimeBloc acts as the user's primary interface to communicate with Rime and the underlying Pubnub interface safely.  
 class RimeBloc extends Bloc<RimeEvent, RimeState> {
-  /// Maps the innitial state for the RimeBloc
+
+  ///Maps the innitial state for the RimeBloc
   RimeBloc._(RimeState initialState) : super(initialState);
 
-  /// Primary contructor for the RimeBloc singleton
+  ///Primary contructor for the RimeBloc singleton
   factory RimeBloc() {
     RimeBloc bloc;
 
@@ -31,7 +37,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     return bloc;
   }
 
-  /// Getter for initial state
+  ///Getter for initial state
   static RimeState get initialState => RimeEmptyState();
 
   @override
@@ -60,7 +66,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     }
   }
 
-  /// Initializes the pubnub service and requests channels
+  ///Initializes the pubnub service and requests channels through [GetChannelsEvent()]
   Stream<RimeState> _mapInitializeToState(String userId) async* {
     // Initialize rime state
     await RimeRepository().initializeRime(userId);
@@ -73,7 +79,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     add(GetChannelsEvent());
   }
 
-  ///Retreives more channels based on a starting time token
+  ///Retreives more channels based on a starting time token limited to 50 channels per request
   Stream<RimeState> _mapChannelsToState() async* {
     //Previous page token for retreiving channels
     String pageToken = (state as RimeLiveState).pageToken;
@@ -87,6 +93,9 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     yield newState;
   }
 
+  ///Creates a channel based on a list of user ids with the initial user defined by [RimeRepository]
+  ///
+  ///Provides an [onSuccess] callback which returns a [RimeChannel]
   Stream<RimeState> _mapCreateChannelToState(List<String> users, Function(RimeChannel) onSuccess) async* {
     //Create channel
     RimeChannel channel = await RimeAPI.createChannel(users);
@@ -96,6 +105,11 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     onSuccess(channel);
   }
 
+  ///Encodes a message to json using [RimeMessage] 
+  ///
+  ///Calls the [RimeAPI] to send message through PubNub
+  ///
+  ///Changes the order of the channels
   Stream<RimeState> _mapMessageToState(dynamic message, String channel, String type) async* {
     RimeChannel rimeChannel = retireveChannel(channel);
 
@@ -111,6 +125,9 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     _mapStoreToState(rimeChannel);
   }
 
+  ///Deletes a channel from [RimeLiveState]
+  ///
+  ///Calls the [RimeAPI] to change the membership data corresponding to the UUID
   Stream<RimeState> _mapDeleteToState(String channel) async* {
     //get channels from state
     Map<String, RimeChannel> storedChannels = (state as RimeLiveState).storedChannels;
@@ -122,6 +139,10 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     yield RimeLiveState.initial().removeChannel(currentChannel, (await RimeRepository().client.time()).value);
   }
 
+  ///Deletes a channel from [RimeLiveState]
+  ///
+  ///Changes the authentication for the user through [RimeAPI]
+  ///Removes subscription status from UUID
   Stream<RimeState> _mapLeaveToState(String channel) async* {
     //get channels from state
     Map<String, RimeChannel> storedChannels = (state as RimeLiveState).storedChannels;
@@ -133,7 +154,9 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     yield RimeLiveState.initial().removeChannel(currentChannel, (await RimeRepository().client.time()).value);
   }
 
-  /// Map a channel to state
+  ///Adds a channel to the [RimeLiveState]
+  ///
+  ///if [Exception] is thrown then modifies the channel within [RimeLiveState]
   Stream<RimeState> _mapStoreToState(RimeChannel channel) async* {
     try {
       //new channel
@@ -144,6 +167,9 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     }
   }
 
+  ///Clears the [RimeLiveState] of all channels
+  ///
+  ///yields the [initialState]
   Stream<RimeState> _mapClearToState() async* {
     Map<String, RimeChannel> storedChannels = (state as RimeLiveState).storedChannels;
 
@@ -158,6 +184,11 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
 
   // ~~~~~~~~~~~~~~~~~~~~~ Helper Functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+  ///Callback for receiving a message event binded through [RimeRepository]
+  ///
+  ///Reveives an [Envelope] and is parsed to a [RimeMessage]
+  ///
+  ///Channel is then modified in [RimeLiveState]
   void onMessageCallBack(Envelope en) async {
     // Updates the lastUpdated time for the channel and subititle of the channel
     if (en.messageType == MessageType.normal) {
@@ -178,7 +209,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
       add(StoreEvent(channel));
     }
 
-    /// Updates the metadata within a membershit to [read = true]
+    // Updates the metadata within a membership to read = true
     else if (en.messageType == MessageType.messageAction) {
       //Edit metadata
 
@@ -199,6 +230,7 @@ class RimeBloc extends Bloc<RimeEvent, RimeState> {
     }
   }
 
+  ///Retrieves an individual channel from [RimeLiveState]
   RimeChannel retireveChannel(String channel) {
     assert(state is RimeLiveState);
     Map<String, RimeChannel> storedChannels = (state as RimeLiveState).storedChannels;
