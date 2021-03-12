@@ -1,7 +1,6 @@
 name: rime
 description: An SDK for pubnub chat applications
 version: 0.1.0
-author: "Perceive Software Solutions"
 homepage: "http://perceivedev.com/#/"
 
 environment:
