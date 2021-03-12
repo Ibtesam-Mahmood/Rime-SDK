@@ -25,7 +25,8 @@ class Rime {
   static RimeDeveloperFunctions _devFunctions;
 
   /// Registers cruitial elemnts of Rime
-  static void initialize(dynamic env, [RimeDeveloperFunctions devFunctions]) async {
+  static void initialize(dynamic env,
+      [RimeDeveloperFunctions devFunctions]) async {
     //Sets the env file
     Rime._env = env;
 

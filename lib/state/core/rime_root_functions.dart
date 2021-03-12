@@ -1,5 +1,6 @@
 //~~~~~~~~~~~~~~~ Type defs ~~~~~~~~~~~~~~~~~~~
-typedef ChatAcceptedDeterminant = bool Function(String loginUser, List<String> otherUser);
+typedef ChatAcceptedDeterminant = bool Function(
+    String loginUser, List<String> otherUser);
 
 /// Functions that are used within the rime sdk
 /// Defined to be overriden by the developer

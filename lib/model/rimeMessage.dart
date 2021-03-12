@@ -11,8 +11,16 @@ class RimeMessage extends BaseMessage {
   final String type;
 
   ///Base constructor for Rime message
-  RimeMessage({this.uuid, this.type, dynamic content, Timetoken publishedAt, dynamic originalMessage})
-      : super(publishedAt: publishedAt, content: content, originalMessage: originalMessage);
+  RimeMessage(
+      {this.uuid,
+      this.type,
+      dynamic content,
+      Timetoken publishedAt,
+      dynamic originalMessage})
+      : super(
+            publishedAt: publishedAt,
+            content: content,
+            originalMessage: originalMessage);
 
   /// Creates a rime message by parsing the provided base message content
   factory RimeMessage.fromBaseMessage(BaseMessage message) {
@@ -40,7 +48,8 @@ class RimeMessage extends BaseMessage {
   }
 
   /// Creates JSON serlized RimeMessage
-  static Map<String, dynamic> toRimeMesageEncoding(String uuid, String type, dynamic content) {
+  static Map<String, dynamic> toRimeMesageEncoding(
+      String uuid, String type, dynamic content) {
     return {'uuid': uuid, 'type': type, 'payload': content};
   }
 }

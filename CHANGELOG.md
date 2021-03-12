@@ -1,3 +1,7 @@
+## [0.1.1] - Rime v0.1.1
+
+* Updated inline documentation
+
 ## [0.1.0] - Rime v0.1.0
 
 * The first release of Rime SDK

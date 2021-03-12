@@ -66,14 +66,16 @@ class RimeRepository {
   /// This must be called to initialize the pubnub service.
   ///
   /// !!! Must be run after authentication
-  /// 
+  ///
   /// [String] [userId]: The Id for the PubNub user you are connecting
   Future<void> initializeRime(String userId) async {
     assert(Rime.INITIALIZED);
 
     //Build keyset from dot env
-    final pubnubKeySet =
-        Keyset(subscribeKey: Rime.env['RIME_SUB_KEY'], publishKey: Rime.env['RIME_PUB_KEY'], uuid: UUID(userId));
+    final pubnubKeySet = Keyset(
+        subscribeKey: Rime.env['RIME_SUB_KEY'],
+        publishKey: Rime.env['RIME_PUB_KEY'],
+        uuid: UUID(userId));
 
     //Assign the userId
     _userId = userId;
@@ -85,7 +87,7 @@ class RimeRepository {
   }
 
   /// Subscribes to every non-empty channel group for the logged-in user
-  /// 
+  ///
   /// This will only subscribe channel groups that do not currently appear in the subscriptions list
   void reset() async {
     //Retreive valid channel groups

@@ -1,28 +1,36 @@
 import 'package:equatable/equatable.dart';
 
 /// An object to encapsulate information related to PubNub channels and Rime attributes
-/// 
-/// This class includes information like user membership metadata, last updated time, and the channel title 
+///
+/// This class includes information like user membership metadata, last updated time, and the channel title
 class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
   /// The PubNub channel Id
   String channel;
+
   /// The Id for the channel group that the current user has this channel in
   String groupId; // Unused, both unread and unwritten
   /// The title of the channel
   String title;
+
   /// The most recent message sent in the channel
   /// In the form of [RimeMessage.encode()]
   dynamic subtitle;
+
   /// The PubNub TimeToken for the last update to the channel
   int lastUpdated;
+
   /// The image for the channel stored as a hosted url
   String image;
+
   /// Is this a group chat or individual channel
   bool isGroup;
+
   /// A map containing channel members and the time token of when they last read a message
   Map<String, int> readMap;
+
   /// The current user's membership metadata for this channel
   RimeChannelMembership membership;
+
   /// A list of userIds for the current members of this channel
   List<String> uuids;
 
@@ -97,11 +105,20 @@ class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
   }
 
   @override
-  List<Object> get props => [channel, title, subtitle, image, isGroup, _hashReadMap, membership, uuids];
+  List<Object> get props => [
+        channel,
+        title,
+        subtitle,
+        image,
+        isGroup,
+        _hashReadMap,
+        membership,
+        uuids
+      ];
 }
 
 /// An object to encapsulate information related to PubNub memberships and Rime attributes
-/// 
+///
 /// Includes custom metadata such as if notifications are turned on or off and is read receipts are on
 class RimeChannelMembership with EquatableMixin {
   bool notifications;
@@ -109,7 +126,8 @@ class RimeChannelMembership with EquatableMixin {
   bool accepted;
   int deleted;
 
-  RimeChannelMembership({this.notifications, this.readAction, this.accepted, this.deleted});
+  RimeChannelMembership(
+      {this.notifications, this.readAction, this.accepted, this.deleted});
 
   /// A copy constructor for [RimeChannelMembership]
   RimeChannelMembership copyWith(RimeChannelMembership copy) {
@@ -124,7 +142,12 @@ class RimeChannelMembership with EquatableMixin {
 
   /// Converts this object to JSON format
   Map<String, dynamic> toJson() {
-    return {'notifications': notifications, 'readAction': readAction, 'accepted': accepted, 'deleted': deleted};
+    return {
+      'notifications': notifications,
+      'readAction': readAction,
+      'accepted': accepted,
+      'deleted': deleted
+    };
   }
 
   /// Creates a RimeChannelMembership object from JSON format

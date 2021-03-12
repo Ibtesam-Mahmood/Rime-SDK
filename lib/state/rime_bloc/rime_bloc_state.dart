@@ -3,7 +3,7 @@ import 'package:rime/model/channel.dart';
 import 'package:rime/rime.dart';
 
 /// base state for a rime application
-abstract class RimeState extends Equatable{}
+abstract class RimeState extends Equatable {}
 
 /// Innitial state for a rime appllication.
 /// Pre authentication
@@ -27,13 +27,17 @@ class RimeLiveState extends RimeState {
   final Map<String, RimeChannel> storedChannels;
 
   /// Default private consturctor
-  RimeLiveState._({this.timeToken, this.storedChannels, this.orgainizedChannels, this.pageToken});
+  RimeLiveState._(
+      {this.timeToken,
+      this.storedChannels,
+      this.orgainizedChannels,
+      this.pageToken});
 
   // ~~~~~~~~~~~~~~~~~~~ Constructers ~~~~~~~~~~~~~~~~~~~
 
   /// Innitial generator for rime state
-  factory RimeLiveState.initial() =>
-      RimeLiveState._(timeToken: 0, storedChannels: {}, orgainizedChannels: [], pageToken: '');
+  factory RimeLiveState.initial() => RimeLiveState._(
+      timeToken: 0, storedChannels: {}, orgainizedChannels: [], pageToken: '');
 
   /// Genenrator for a new state.
   ///
@@ -45,23 +49,28 @@ class RimeLiveState extends RimeState {
     }
     storedChannels[channel.channel] = channel;
     orgainizedChannels.add(channel.channel);
-    orgainizedChannels.sort((a, b) => storedChannels[a].compareTo(storedChannels[b]));
+    orgainizedChannels
+        .sort((a, b) => storedChannels[a].compareTo(storedChannels[b]));
     return RimeLiveState._(
-        storedChannels: storedChannels, orgainizedChannels: orgainizedChannels, timeToken: timeToken);
+        storedChannels: storedChannels,
+        orgainizedChannels: orgainizedChannels,
+        timeToken: timeToken);
   }
 
   /// Generator for new state
   ///
   /// Adds all channels to the state
   /// Sorts the channels
-  RimeLiveState addChannelsBatch(List<RimeChannel> channels, int timeToken, String pageToken) {
+  RimeLiveState addChannelsBatch(
+      List<RimeChannel> channels, int timeToken, String pageToken) {
     for (RimeChannel channel in channels) {
       if (!storedChannels.containsKey(channel.channel)) {
         storedChannels[channel.channel] = channel;
         orgainizedChannels.add(channel.channel);
       }
     }
-    orgainizedChannels.sort((a, b) => storedChannels[a].compareTo(storedChannels[b]));
+    orgainizedChannels
+        .sort((a, b) => storedChannels[a].compareTo(storedChannels[b]));
     return RimeLiveState._(
         storedChannels: storedChannels,
         orgainizedChannels: orgainizedChannels,
@@ -76,7 +85,9 @@ class RimeLiveState extends RimeState {
     storedChannels.remove(channel.channel);
     orgainizedChannels.remove(channel.channel);
     return RimeLiveState._(
-        storedChannels: storedChannels, orgainizedChannels: orgainizedChannels, timeToken: timeToken);
+        storedChannels: storedChannels,
+        orgainizedChannels: orgainizedChannels,
+        timeToken: timeToken);
   }
 
   /// Genenrator for a new state.
@@ -87,10 +98,14 @@ class RimeLiveState extends RimeState {
     if (!storedChannels.containsKey(channel.channel)) {
       throw Exception('Channel Doesnt Exsist');
     }
-    storedChannels[channel.channel] = storedChannels[channel.channel].copyWith(channel);
-    orgainizedChannels.sort((a, b) => storedChannels[a].compareTo(storedChannels[b]));
+    storedChannels[channel.channel] =
+        storedChannels[channel.channel].copyWith(channel);
+    orgainizedChannels
+        .sort((a, b) => storedChannels[a].compareTo(storedChannels[b]));
     return RimeLiveState._(
-        storedChannels: storedChannels, orgainizedChannels: orgainizedChannels, timeToken: timeToken);
+        storedChannels: storedChannels,
+        orgainizedChannels: orgainizedChannels,
+        timeToken: timeToken);
   }
 
   @override

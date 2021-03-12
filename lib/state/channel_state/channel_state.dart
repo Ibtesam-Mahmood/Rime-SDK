@@ -10,10 +10,12 @@ import 'package:rime/state/rime_bloc/rime_bloc_events.dart';
 import 'package:rime/state/rime_bloc/rime_bloc_state.dart';
 
 ///The type of builder for the channel provider
-typedef ChannelStateBuilder = Widget Function(BuildContext context, RimeChannel channel, List<BaseMessage> history);
+typedef ChannelStateBuilder = Widget Function(
+    BuildContext context, RimeChannel channel, List<BaseMessage> history);
 
 ///The type of the listener for the channel provider
-typedef ChannelStateListener = void Function(BuildContext context, RimeChannel channel, List<BaseMessage> history);
+typedef ChannelStateListener = void Function(
+    BuildContext context, RimeChannel channel, List<BaseMessage> history);
 
 /// Provides a state for subscribing to messages and properties for a single channel
 ///
@@ -108,7 +110,10 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
     //Subscribe to the RimeRepository
     RimeRepository().addListener(widget.channelId, onMessageCallback);
 
-    history = RimeRepository().client.channel(widget.channelId).history(chunkSize: widget.loadSize);
+    history = RimeRepository()
+        .client
+        .channel(widget.channelId)
+        .history(chunkSize: widget.loadSize);
 
     //Loads the innitial batch of messages
     await resetLoad();
@@ -178,14 +183,17 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
         if (!(state is RimeLiveState)) return Container();
 
         //Retreive channel from state
-        RimeChannel channel = (state as RimeLiveState).storedChannels[widget.channelId];
+        RimeChannel channel =
+            (state as RimeLiveState).storedChannels[widget.channelId];
 
         if (widget.listener != null) {
           widget.listener(context, channel, messages);
         }
 
         ///Returns the messages and the channel properties
-        return widget.builder != null ? widget.builder(context, channel, messages) : Container();
+        return widget.builder != null
+            ? widget.builder(context, channel, messages)
+            : Container();
       },
     );
   }
@@ -202,10 +210,12 @@ class ChannelProviderController extends ChangeNotifier {
   //void _update() => notifyListeners();
 
   /// Loads more from state
-  Future<bool> loadMore() async => _state != null ? await _state.loadMore() : null;
+  Future<bool> loadMore() async =>
+      _state != null ? await _state.loadMore() : null;
 
   /// Refreshes the history cursor to the beginning
-  Future<bool> refresh() async => _state != null ? await _state.resetLoad() : null;
+  Future<bool> refresh() async =>
+      _state != null ? await _state.resetLoad() : null;
 
   //Disposes of the controller
   @override

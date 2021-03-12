@@ -59,13 +59,14 @@ class RimeAPI {
           deleted: 0);
 
       //Create membership data
-      members.add(ChannelMemberMetadataInput(userId, custom: membership.toJson()));
+      members
+          .add(ChannelMemberMetadataInput(userId, custom: membership.toJson()));
 
       //Add the channel to the user's specific channel group
       String groupId = await RimeFunctions.getAvailableChannelGroup(userId);
       // ignore: unused_local_variable
-      ChannelGroupChangeChannelsResult addGroup =
-          await client.channelGroups.addChannels(groupId, Set.from([channelId]));
+      ChannelGroupChangeChannelsResult addGroup = await client.channelGroups
+          .addChannels(groupId, Set.from([channelId]));
 
       // retreive data for login user
       if (userId == RimeRepository().userId) {
@@ -79,9 +80,14 @@ class RimeAPI {
 
     //Create channel metadata
     // ignore: unused_local_variable
-    SetChannelMetadataResult setMemRes = await client.objects.setChannelMetadata(
-        channelId, ChannelMetadataInput(custom: {'read': jsonEncode(readMap), 'lastUpdated': time.value}),
-        includeCustomFields: true);
+    SetChannelMetadataResult setMemRes = await client.objects
+        .setChannelMetadata(
+            channelId,
+            ChannelMetadataInput(custom: {
+              'read': jsonEncode(readMap),
+              'lastUpdated': time.value
+            }),
+            includeCustomFields: true);
 
     //No channel made for the loggedIn user
     if (userGroupId == null || userMembership == null) {
@@ -103,34 +109,44 @@ class RimeAPI {
   static Future<bool> deleteChannel(String channelId) async {
     //Get the membership metadata for the specified channel
     String filter = 'channel.id == \"$channelId\"';
-    MembershipsResult currentMembership = await RimeRepository().client.objects.getMemberships(
-        limit: 1,
-        includeCustomFields: true,
-        includeChannelFields: true,
-        includeChannelCustomFields: true,
-        includeCount: true,
-        filter: filter);
+    MembershipsResult currentMembership = await RimeRepository()
+        .client
+        .objects
+        .getMemberships(
+            limit: 1,
+            includeCustomFields: true,
+            includeChannelFields: true,
+            includeChannelCustomFields: true,
+            includeCount: true,
+            filter: filter);
 
     if (currentMembership.totalCount == 0) {
       throw Exception('The user is not part of $channelId');
     }
 
     //Edit the deleted custom metadata
-    Map<String, dynamic> currentCustom = {...(currentMembership.metadataList?.first?.custom ?? Map())};
+    Map<String, dynamic> currentCustom = {
+      ...(currentMembership.metadataList?.first?.custom ?? Map())
+    };
     currentCustom['Deleted'] = (await RimeRepository().client.time()).value;
-    MembershipMetadataInput membershipInput = MembershipMetadataInput(channelId, custom: currentCustom);
+    MembershipMetadataInput membershipInput =
+        MembershipMetadataInput(channelId, custom: currentCustom);
 
     //Re-Set the membership metadata for the specified channel
     List<MembershipMetadataInput> setMetadata = [membershipInput];
-    MembershipsResult memRes = await RimeRepository().client.objects.setMemberships(setMetadata,
-        limit: 1,
-        includeCustomFields: true,
-        includeChannelFields: true,
-        includeChannelCustomFields: true,
-        includeCount: true,
-        filter: filter);
+    MembershipsResult memRes = await RimeRepository()
+        .client
+        .objects
+        .setMemberships(setMetadata,
+            limit: 1,
+            includeCustomFields: true,
+            includeChannelFields: true,
+            includeChannelCustomFields: true,
+            includeCount: true,
+            filter: filter);
 
-    return currentMembership.metadataList.first.custom['Deleted'] != memRes.metadataList.first.custom['Deleted'];
+    return currentMembership.metadataList.first.custom['Deleted'] !=
+        memRes.metadataList.first.custom['Deleted'];
   }
 
   /// Gets a RimeChannel object for the specified channel
@@ -140,17 +156,22 @@ class RimeAPI {
   /// * returns [Future]<[RimeChannel]>: A populated RimeChannel object corresponding to the given channel
   static Future<RimeChannel> getChannel(String channelId) async {
     String filterCondition = 'channel.id == \"$channelId\"';
-    MembershipsResult currentMembership = await RimeRepository().client.objects.getMemberships(
-        uuid: RimeRepository().userId,
-        limit: 1,
-        includeChannelCustomFields: true,
-        includeChannelFields: true,
-        includeCustomFields: true,
-        filter: filterCondition);
+    MembershipsResult currentMembership = await RimeRepository()
+        .client
+        .objects
+        .getMemberships(
+            uuid: RimeRepository().userId,
+            limit: 1,
+            includeChannelCustomFields: true,
+            includeChannelFields: true,
+            includeCustomFields: true,
+            filter: filterCondition);
 
-    if (currentMembership.metadataList.isEmpty) return Future.error('Channel not found');
+    if (currentMembership.metadataList.isEmpty)
+      return Future.error('Channel not found');
 
-    RimeChannel rimeChannel = await RimeFunctions.hydrate(currentMembership.metadataList.first);
+    RimeChannel rimeChannel =
+        await RimeFunctions.hydrate(currentMembership.metadataList.first);
 
     return rimeChannel;
   }
@@ -163,14 +184,18 @@ class RimeAPI {
   /// * returns: [Tuple2]<[List]<[String]>, [String]>
   ///   * [List]<[String]>: list of channel ids
   ///   * [String]: name of the next page
-  static Future<Tuple2<List<RimeChannel>, String>> getMostRecentChannels({int limit = 50, String start}) async {
-    MembershipsResult memRes = await RimeRepository().client.objects.getMemberships(
-        includeChannelCustomFields: true,
-        includeChannelFields: true,
-        includeCustomFields: true,
-        sort: Set.from(['channel.updated:desc']),
-        limit: limit,
-        start: start);
+  static Future<Tuple2<List<RimeChannel>, String>> getMostRecentChannels(
+      {int limit = 50, String start}) async {
+    MembershipsResult memRes = await RimeRepository()
+        .client
+        .objects
+        .getMemberships(
+            includeChannelCustomFields: true,
+            includeChannelFields: true,
+            includeCustomFields: true,
+            sort: Set.from(['channel.updated:desc']),
+            limit: limit,
+            start: start);
 
     List<RimeChannel> rimeChannels = [];
     for (MembershipMetadata memMD in memRes.metadataList) {
@@ -189,11 +214,18 @@ class RimeAPI {
   /// * [String] [channelId]: The channelId for the channel that the user is leaving
   static Future<void> leaveChannel(String userId, String channelId) async {
     // Remove this channel from the user's channel groups
-    String groupId = await RimeFunctions.getGroupIdFromChannelId(userId, channelId);
-    await RimeRepository().client.channelGroups.removeChannels(groupId, Set.from([channelId]));
+    String groupId =
+        await RimeFunctions.getGroupIdFromChannelId(userId, channelId);
+    await RimeRepository()
+        .client
+        .channelGroups
+        .removeChannels(groupId, Set.from([channelId]));
 
     // Delete the user's membership for this channel
-    await RimeRepository().client.objects.removeChannelMembers(channelId, Set<String>.from([userId]));
+    await RimeRepository()
+        .client
+        .objects
+        .removeChannelMembers(channelId, Set<String>.from([userId]));
   }
 
   /// Sends a message to the specified channel
@@ -214,11 +246,15 @@ class RimeAPI {
   static Future<Tuple2<ChannelMetadataDetails, RimeMessage>> sendMessage(
       String channelId, Map<String, dynamic> message) async {
     //Get the current channel metadata
-    GetChannelMetadataResult cmRes =
-        await RimeRepository().client.objects.getChannelMetadata(channelId, includeCustomFields: true);
+    GetChannelMetadataResult cmRes = await RimeRepository()
+        .client
+        .objects
+        .getChannelMetadata(channelId, includeCustomFields: true);
 
     // Send the message
-    PublishResult publish = await RimeRepository().client.publish(channelId, message, storeMessage: true);
+    PublishResult publish = await RimeRepository()
+        .client
+        .publish(channelId, message, storeMessage: true);
 
     //Update the lastUpdated metadata
     Map customMetaData = cmRes.metadata?.custom ?? Map();
@@ -226,17 +262,23 @@ class RimeAPI {
 
     //Re-Set the channel metadata
     ChannelMetadataInput channelMetadataInput = ChannelMetadataInput(
-        name: cmRes.metadata.name, description: cmRes.metadata.description, custom: customMetaData);
+        name: cmRes.metadata.name,
+        description: cmRes.metadata.description,
+        custom: customMetaData);
 
     SetChannelMetadataResult smRes = await RimeRepository()
         .client
         .objects
-        .setChannelMetadata(channelId, channelMetadataInput, includeCustomFields: true);
+        .setChannelMetadata(channelId, channelMetadataInput,
+            includeCustomFields: true);
 
     //Create time message from sent message
-    RimeMessage messageResult = RimeMessage.fromBaseMessage(
-        BaseMessage(content: message, originalMessage: message, publishedAt: Timetoken(publish.timetoken)));
+    RimeMessage messageResult = RimeMessage.fromBaseMessage(BaseMessage(
+        content: message,
+        originalMessage: message,
+        publishedAt: Timetoken(publish.timetoken)));
 
-    return Tuple2<ChannelMetadataDetails, RimeMessage>(smRes.metadata, messageResult);
+    return Tuple2<ChannelMetadataDetails, RimeMessage>(
+        smRes.metadata, messageResult);
   }
 }
