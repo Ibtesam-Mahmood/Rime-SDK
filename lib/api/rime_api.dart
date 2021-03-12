@@ -16,7 +16,7 @@ import 'package:tuple/tuple.dart';
 ///
 /// The functions defined in this class are 1-to-1 with [RimeEvent]s which **do** modify the state.
 class RimeAPI {
-    /// Creates a channel containing [users]
+  /// Creates a channel containing [users]
   ///
   /// This function creates a channel and will automatically create memberships for all [users]
   /// then add the newly created channel to each users' subscribed channel groups
