@@ -542,7 +542,7 @@ RimeBloc().add(ClearRimeEvent());
 
 Rime exposes the `ChannelStateProvider` which is a state provider for listening to the channel history and retreiveing associated relatvent `RimeChannel`. The provider accomplishes this through a subscription to `RimeRepository` (for new messages) and `RimeBloc` (for channel updates).
 
-The `builder` and `listner` function within the consturctor are used to provide the associated channel history and `RimeChannel` to any components using it.
+The `builder` and `listener` function within the consturctor are used to provide the associated channel history and `RimeChannel` to any components using it.
 ```dart
 //Example
 ChannelStateProvider(

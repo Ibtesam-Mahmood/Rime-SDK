@@ -12,7 +12,7 @@ import 'package:rime/state/rime_bloc/rime_bloc_state.dart';
 ///The type of builder for the channel provider
 typedef ChannelStateBuilder = Widget Function(BuildContext context, RimeChannel channel, List<BaseMessage> history);
 
-///The type of the listner for the channel provider
+///The type of the listener for the channel provider
 typedef ChannelStateListener = void Function(BuildContext context, RimeChannel channel, List<BaseMessage> history);
 
 /// Provides a state for subscribing to messages and properties for a single channel
@@ -29,7 +29,7 @@ class ChannelStateProvider extends StatefulWidget {
   final ChannelStateBuilder builder;
 
   /// Listener for the channel state provider
-  final ChannelStateListener listner;
+  final ChannelStateListener listener;
 
   /// The amount of messages loaded in every load more request
   final int loadSize;
@@ -41,7 +41,7 @@ class ChannelStateProvider extends StatefulWidget {
       {Key key,
       @required this.channelId,
       this.builder,
-      this.listner,
+      this.listener,
       this.loadSize = MESSAGE_CHUNK_SIZE,
       this.controller})
       : assert(channelId != null),
@@ -180,8 +180,8 @@ class _ChannelStateProviderState extends State<ChannelStateProvider> {
         //Retreive channel from state
         RimeChannel channel = (state as RimeLiveState).storedChannels[widget.channelId];
 
-        if (widget.listner != null) {
-          widget.listner(context, channel, messages);
+        if (widget.listener != null) {
+          widget.listener(context, channel, messages);
         }
 
         ///Returns the messages and the channel properties
@@ -198,7 +198,7 @@ class ChannelProviderController extends ChangeNotifier {
   ///Binds the state
   void _bind(_ChannelStateProviderState bind) => _state = bind;
 
-  //Called to notify all listners
+  //Called to notify all listeners
   //void _update() => notifyListeners();
 
   /// Loads more from state

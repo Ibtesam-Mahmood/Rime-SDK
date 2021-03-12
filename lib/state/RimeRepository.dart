@@ -54,17 +54,20 @@ class RimeRepository {
     return _client;
   }
 
-  //Returns a userId if initialized
+  /// Getter for the userId.
+  /// Works only if the client is initialized
   String get userId {
     if (_userId == null) throw Exception('Client not iniitlaized');
     return _userId;
   }
 
-  /// Used to initialize the repository.
+  /// Initializes the repository
   ///
-  /// Must be called to initialize the pubnub service.
+  /// This must be called to initialize the pubnub service.
   ///
   /// !!! Must be run after authentication
+  /// 
+  /// [String] [userId]: The Id for the PubNub user you are connecting
   Future<void> initializeRime(String userId) async {
     assert(Rime.INITIALIZED);
 
@@ -81,15 +84,16 @@ class RimeRepository {
     reset();
   }
 
-  ///Reset funtion.
-  ///Subscribes to all valid channel groups
+  /// Subscribes to every non-empty channel group for the logged-in user
+  /// 
+  /// This will only subscribe channel groups that do not currently appear in the subscriptions list
   void reset() async {
     //Retreive valid channel groups
     List<String> channelGroups = await RimeFunctions.getChannelGroups(userId);
 
+    // Subscribe to any group that currently isn't in _subscriptions
     for (String groupId in channelGroups) {
       if (!_subscriptions.containsKey(groupId)) {
-        //Subscribe
         Subscription sub = await client.subscribe(channelGroups: Set.from([groupId]));
         sub.messages.listen(onMessageCallBack);
         _subscriptions[groupId] = sub;
@@ -112,20 +116,20 @@ class RimeRepository {
 
   // ~~~~~~~~~~~~~~~~~~ On Messeage Binding Functions ~~~~~~~~~~~~~~~~~~~~~~~
 
-  ///Adding a listner to the rimeCallBack
+  ///Adding a listener to the rimeCallBack
   void addListener(String id, RimeCallBack callBack) {
     assert(!_callBackSubscriptions.containsKey(id));
     _callBackSubscriptions[id] = callBack;
   }
 
-  ///Removes a listner from the rimeCallBack
+  ///Removes a listener from the rimeCallBack
   void removeListener(String id) {
     _callBackSubscriptions.remove(id);
   }
 
   // ~~~~~~~~~~~~~~~~~~~~ Interal Helpers ~~~~~~~~~~~~~~~~~~~~
 
-  /// Calls all the lisnsters
+  /// Calls all the listeners
   ///
   /// Primary message receive logic
   void onMessageCallBack(Envelope en) {
