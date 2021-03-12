@@ -251,11 +251,11 @@ RimeRepository().removeListener('unique-key')
 
 ### Models  <a name="7.1"></a>
 
-Rime uses 3 models to encapsulate and format data from Pubnub: `RimeChannel`, `RimeMessage`, and `RimeChannelMemebership`.
+Rime uses 3 models to encapsulate and format data from Pubnub: `RimeChannel`, `RimeMessage`, and `RimeChannelMembership`.
 
 #### RimeChannel <a name="7.1.1"></a>
 
-A `RimeChannel` object is used to encapsulate information related to a Pubnub channel like the most recent message, user memebership metadata, members in a channel. 
+A `RimeChannel` object is used to encapsulate information related to a Pubnub channel like the most recent message, user membership metadata, members in a channel. 
 
 :+1: The `RimeChannel` object is [Equatable](https://pub.dev/packages/equatable).
 
@@ -263,15 +263,15 @@ A `RimeChannel` object is used to encapsulate information related to a Pubnub ch
 | Name | Type | Description
 | --- | --- | --- |
 | channel | `String` | The Pubnub channel Id associated to this channel. |
-| groupId | `String` | The channel group this users channel memebership is within. |
+| groupId | `String` | The channel group this users channel membership is within. |
 | title | `String` | The display title for the message. defaulted to `null` |
 | subtitle | `dynamic` | The most recent message sent in the channel in the form of `RimeMessage.enconde()` |
 | lastUpdated | `int` | The `TikeToken` value for the last message sent in the channel. Used in the `Comparable` interface to compare rime channels. |
 | image | `String` | The image of the channel, used to store a network url of a hosted image. defaulted to `null`  |
 | isGroup | `String` | Determines if the channel is group or individual channel. Determined at creation. |
-| readMap | `Map<String, int>` | A map containing channel memebers, refrenced by `userId`, mapped to the last message `Timetoken` read by the user. |
-| membership | `RimeChannelMembership` | A `RimeChannelMembership` object containing the authenticated user's memebership settings. |
-| uuids | `List<String>` | A list of `userId`'s associated to current memebers in the channel |
+| readMap | `Map<String, int>` | A map containing channel members, refrenced by `userId`, mapped to the last message `Timetoken` read by the user. |
+| membership | `RimeChannelMembership` | A `RimeChannelMembership` object containing the authenticated user's membership settings. |
+| uuids | `List<String>` | A list of `userId`'s associated to current members in the channel |
 
 #### RimeMessage <a name="7.1.2"></a>
 
@@ -394,14 +394,12 @@ The `RimeAPI` contains a set of requests to manipluate and format the Pubnub sto
 The following is a specification of all `RimeAPI` requests.
 | Request name | Input(s) | Output | Description | Assertions |
 | --- | --- | --- | --- | --- |
-| createChannel | `List<String> users` | `RimeChannel` | Creates a new RimeChannel between the inputted `userIds`. Creates a memebership for each of the users and adds the channel to each user's next available Channel Groups.<br/><br/>Outputs a fully populated `RimeChannel` | The authenticated user's `userId` must be within the list of userIds. |
-| getChannel | `String channelId` | `RimeChannel` | Retreives a fully populated channel by the inputted `channelId` | The authenticated user must be a memeber of the channel. |
-| deleteChannel | `String channelId` | `bool` | Updates the user's channel memebership settings to indicate that the user has deleted messages within a channel for themselves. This is represented as the `Timetoken` value of the last sent message.<br/><br/>The value indicates to the UI that messages past the defined `Timetoken` should be ignored.<br/><br/>Outputs the sucess of the request. | The authenticated user must be a memeber of the channel. |
-| leaveChannel | `String userId`<br/>`String channelId` | `void` | Destroys a user's memebership to a channel and removes the channel from its channel group.<br/><br/>This request is not necissarily targetted at the authenticated user. it can be used to kick a user out of a channel aswell. | The input user but be a memeber within the channel |
-| sendMessage | `String channelId`<br/>`Map<String, dynamic> message` | `Tuple2<ChannelMetaDetails, RimeMessage>` | Sends the JSON payload in the `message` input to the channel defined by `channelId`.<br/><br/>Returns sent message along with any channel update results from Pubnub | The user within the message payload must be a member of the channel.<br/><br/>The message JSON must be an encoded `RimeMessage`|
+| createChannel | `List<String> users` | `RimeChannel` | Creates a new RimeChannel between the inputted `userIds`. Creates a membership for each of the users and adds the channel to each user's next available Channel Groups.<br/><br/>Outputs a fully populated `RimeChannel` | The authenticated user's `userId` must be within the list of userIds. |
+| deleteChannel | `String channelId` | `bool` | Updates the user's channel membership settings to indicate that the user has deleted messages within a channel for themselves. This is represented as the `Timetoken` value of the last sent message.<br/><br/>The value indicates to the UI that messages past the defined `Timetoken` should be ignored.<br/><br/>Outputs the sucess of the request. | The authenticated user must be a member of the channel. |
+| getChannel | `String channelId` | `RimeChannel` | Retreives a fully populated channel by the inputted `channelId` | The authenticated user must be a member of the channel. |
 | getMostRecentChannels | (optional) `int limit`<br/>(optional) `String start` | `Tuple2<List<RimeChannel>, String>` | Paginated get channels reqeust for authenticated user. Retreived the list of channels ordered by `lastUpdated`.<br/><br/>Channels are retreived relative to a `start` cursor. If no `start==null` then the start of the channels list is returned.<br/><br/>The amount of channels requested is defined by the `limit` input, defaulted to `50`.<br/><br/>Along with the list of channels, the next cursor is outputted. | Always retrieves requests for authenticated user |
-| getChannelMemebers | `String channelId` | `List<ChannelMemberMetadata>` | Retreives the Pubnub memebership metadata for memebers within a channel | Channel must exsist |
-| getGroupIdFromChannelId | `String userId`<br/>`String channelId` | `String` | Returns the Channel Group Id hosting the channel the user is a memeber of | Channel must exsist.<br/><br/>User must exsisit.<br/><br/>User must be a memeber of the channel |
+| leaveChannel | `String userId`<br/>`String channelId` | `void` | Destroys a user's membership to a channel and removes the channel from its channel group.<br/><br/>This request is not necissarily targetted at the authenticated user. it can be used to kick a user out of a channel aswell. | The input user but be a member within the channel |
+| sendMessage | `String channelId`<br/>`Map<String, dynamic> message` | `Tuple2<ChannelMetaDetails, RimeMessage>` | Sends the JSON payload in the `message` input to the channel defined by `channelId`.<br/><br/>Returns sent message along with any channel update results from Pubnub | The user within the message payload must be a member of the channel.<br/><br/>The message JSON must be an encoded `RimeMessage`|
 
 
 :exclamation: Ensure that the assertions for each requests are met so that they may operate properly.
@@ -502,7 +500,7 @@ RimeBloc().add(MessageEvent('ChannelId', TextMessage.RIME_MESSAGE_TYPE, TextMess
 :exclamation: Can only be called when `RimeBloc().state` is `RimeLiveState`
 
 #### Delete Event <a name="7.4.5"></a>
-Calls the `RimeAPI.deleteChannel` to update the authenticated user's channel memebership settings to reflect the message being deleted at the last message `Timetoken`. This updates a cached `RimeChannel` within the current `RimeLiveState` with the updated memeebrship properties.
+Calls the `RimeAPI.deleteChannel` to update the authenticated user's channel membership settings to reflect the message being deleted at the last message `Timetoken`. This updates a cached `RimeChannel` within the current `RimeLiveState` with the updated memeebrship properties.
 ```dart
 //Example
 RimeBloc().add(DeleteEvent('ChannelId'));
@@ -511,7 +509,7 @@ RimeBloc().add(DeleteEvent('ChannelId'));
 :exclamation: Can only be called when `RimeBloc().state` is `RimeLiveState`
 
 #### Leave Event <a name="7.4.6"></a>
-Calls the `RimeAPI.leaveChannel` to remeove a channel memebership for the authenticated user. The channel is removed from the current `RimeLiveState`
+Calls the `RimeAPI.leaveChannel` to remeove a channel membership for the authenticated user. The channel is removed from the current `RimeLiveState`
 Leave a channel corresponds to a userId and will delete the channel from the state. Will only delete for the corresponding userId which intialized Rime.
 ```dart
 //Example

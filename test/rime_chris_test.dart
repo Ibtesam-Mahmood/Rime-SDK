@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
 import 'package:rime/model/channel.dart';
 
 import 'package:rime/rime.dart';
+import 'package:rime/state/RimeFunctions.dart';
 import 'package:rime/state/RimeRepository.dart';
 
 void main() async {
@@ -30,7 +31,7 @@ void main() async {
       RimeChannel channel = await RimeAPI.createChannel([userId]);
 
       String channelName = channel.channel;
-      String groupId = await RimeAPI.getGroupIdFromChannelId(userId, channelName);
+      String groupId = await RimeFunctions.getGroupIdFromChannelId(userId, channelName);
 
       //Confirm that the channel is part of the channel group
       ChannelGroupListChannelsResult channelGroupList =

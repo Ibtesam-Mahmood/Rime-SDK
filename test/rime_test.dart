@@ -8,6 +8,7 @@ import 'package:rime/model/channel.dart';
 import 'package:rime/model/rimeMessage.dart';
 
 import 'package:rime/rime.dart';
+import 'package:rime/state/RimeFunctions.dart';
 import 'package:rime/state/RimeRepository.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart' as dot_env;
@@ -172,13 +173,13 @@ void main() async {
       group('Check Channel order on paginated request for testUser1', () {
         String userId = 'testUser1';
 
-        test('User has channel memeberships', () async {
+        test('User has channel memberships', () async {
           MembershipsResult res = await RimeRepository().client.objects.getMemberships(uuid: userId, limit: 10);
 
           expect(res.totalCount, greaterThan(0));
         });
 
-        test('Memeberships mapped to channels', () async {
+        test('Memberships mapped to channels', () async {
           MembershipsResult res = await RimeRepository().client.objects.getMemberships(uuid: userId, limit: 10);
 
           List<String> channels = res.metadataList.map<String>((meta) => meta?.channel?.id ?? '').toList();
@@ -575,7 +576,7 @@ void main() async {
       expect(readActions.containsKey('testUser1'), true);
     });
 
-    test('Ensure channelMemebership event is received', () async {
+    test('Ensure channelMembership event is received', () async {
       String channelName = 'rime_testUser3_16149450794304603';
       String listenerId = 'listener-id';
 
@@ -670,7 +671,7 @@ Future printEveryMessageInAChannel(String channel) async {
 }
 
 Future printAllGroupsAndChannelsForUser(String userId) async {
-  List<String> g = await RimeAPI.getChannelGroups(userId);
+  List<String> g = await RimeFunctions.getChannelGroups(userId);
 
   String groupName;
   for (groupName in g) {
@@ -685,6 +686,6 @@ Future printAllChannelsInAGroup(String groupName) async {
 }
 
 Future printAllGroupsForUser(String userId) async {
-  List<String> g = await RimeAPI.getChannelGroups(userId);
+  List<String> g = await RimeFunctions.getChannelGroups(userId);
   print('Groups: ' + g.toString());
 }

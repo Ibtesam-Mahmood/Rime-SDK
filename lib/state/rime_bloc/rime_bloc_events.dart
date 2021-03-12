@@ -36,7 +36,7 @@ class DeleteEvent extends RimeEvent {
   DeleteEvent(this.channel);
 }
 
-///Removes memebership from a channel
+///Removes membership from a channel
 class LeaveEvent extends RimeEvent {
   final String channel;
   LeaveEvent(this.channel);

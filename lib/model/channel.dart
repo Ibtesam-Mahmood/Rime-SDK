@@ -9,7 +9,7 @@ class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
   String image;
   bool isGroup;
   Map<String, int> readMap;
-  RimeChannelMemebership membership;
+  RimeChannelMembership membership;
   List<String> uuids;
 
   RimeChannel(
@@ -85,18 +85,18 @@ class RimeChannel extends Comparable<RimeChannel> with EquatableMixin {
   List<Object> get props => [channel, title, subtitle, image, isGroup, _hashReadMap, membership, uuids];
 }
 
-class RimeChannelMemebership with EquatableMixin {
+class RimeChannelMembership with EquatableMixin {
   bool notifications;
   bool readAction;
   bool accepted;
   int deleted;
 
-  RimeChannelMemebership({this.notifications, this.readAction, this.accepted, this.deleted});
+  RimeChannelMembership({this.notifications, this.readAction, this.accepted, this.deleted});
 
-  RimeChannelMemebership copyWith(RimeChannelMemebership copy) {
+  RimeChannelMembership copyWith(RimeChannelMembership copy) {
     if (copy == null) return this;
 
-    return RimeChannelMemebership(
+    return RimeChannelMembership(
         notifications: copy.notifications ?? notifications,
         readAction: copy.readAction ?? readAction,
         accepted: copy.accepted ?? accepted,
@@ -107,8 +107,8 @@ class RimeChannelMemebership with EquatableMixin {
     return {'notifications': notifications, 'readAction': readAction, 'accepted': accepted, 'deleted': deleted};
   }
 
-  factory RimeChannelMemebership.fromJson(Map<String, dynamic> json) {
-    return RimeChannelMemebership(
+  factory RimeChannelMembership.fromJson(Map<String, dynamic> json) {
+    return RimeChannelMembership(
         notifications: json['notifications'],
         readAction: json['readAction'],
         accepted: json['accepted'],
