@@ -1,3 +1,7 @@
+## [0.1.2] - Rime v0.1.2
+
+* Formatted Dart files
+
 ## [0.1.1] - Rime v0.1.1
 
 * Updated inline documentation
