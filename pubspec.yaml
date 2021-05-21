@@ -1,0 +1,32 @@
+name: rime
+description: Rime is a Flutter SDK that allows you to connect to PubNub. Rime manages the sending and retrival of messages sent through PubNub and the collection of channels.
+version: 0.1.2
+homepage: "https://perceivedev.com/#/"
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  get_it: ^5.0.6
+  flutter_bloc: ^6.1.2
+  pubnub: ^3.1.0
+  tuple: ^1.0.3
+  equatable: ^1.2.6
+  intl: ^0.17.0
+  
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_dotenv: ^3.1.0
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - .env
+
